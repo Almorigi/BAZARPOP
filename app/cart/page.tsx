@@ -106,8 +106,15 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between text-sm text-neutral-400">
               <span>Spedizione</span>
-              <span className="text-emerald-400 text-xs">Calcolata al checkout</span>
+              <span className="text-emerald-400 text-xs">
+                {total >= 3500 ? "🎉 Gratuita!" : "Calcolata al checkout"}
+              </span>
             </div>
+            {total < 3500 && (
+              <div className="text-xs text-neutral-600 bg-surface-3 rounded-xl p-3 text-center">
+                Aggiungi <span className="text-accent font-semibold">€{((3500 - total) / 100).toFixed(2)}</span> per la spedizione gratuita!
+              </div>
+            )}
           </div>
 
           <div className="border-t border-border pt-4 flex justify-between font-bold text-white mb-6">
