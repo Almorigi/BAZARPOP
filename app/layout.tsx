@@ -8,8 +8,30 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi e altro",
-  description: "Acquista fumetti, libri, videogiochi e oggetti unici. Tutto selezionato con cura, spedito velocemente.",
+  title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi usati",
+  description: "Acquista fumetti, manga, libri, videogiochi e oggetti da collezione usati. Selezionati con cura, spediti velocemente in tutta Italia. Prezzi onesti.",
+  keywords: ["fumetti usati", "manga usati", "videogiochi usati", "libri usati", "collezione", "fumetti vintage", "retrogaming", "compra fumetti online"],
+  openGraph: {
+    title: "La Soffitta del Collezionista",
+    description: "Fumetti, libri, videogiochi e oggetti da collezione. Selezionati con cura, spediti in tutta Italia.",
+    url: "https://www.lasoffittadelcollezionista.it",
+    siteName: "La Soffitta del Collezionista",
+    locale: "it_IT",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "La Soffitta del Collezionista",
+    description: "Fumetti, libri, videogiochi e oggetti da collezione usati.",
+  },
+  alternates: {
+    canonical: "https://www.lasoffittadelcollezionista.it",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
