@@ -107,12 +107,20 @@ export default function ChiSiamoPage() {
         <p className="text-neutral-500 mb-8 max-w-md mx-auto text-sm leading-relaxed">
           Sfoglia la collezione — chissà che non ci sia qualcosa che aspettava solo te.
         </p>
-        <Link
-          href="/products"
-          className="inline-flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-2xl transition-colors text-sm shadow-[0_0_30px_rgba(249,115,22,0.2)]"
-        >
-          Esplora la collezione <ArrowRight size={16} />
-        </Link>
+        <div className="flex flex-wrap gap-4 justify-center">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-2xl transition-colors text-sm shadow-[0_0_30px_rgba(249,115,22,0.2)]"
+          >
+            Esplora la collezione <ArrowRight size={16} />
+          </Link>
+          <a
+            href="mailto:amoro6321@gmail.com"
+            className="inline-flex items-center gap-2 glass border border-border hover:border-accent/30 text-white font-semibold px-8 py-4 rounded-2xl transition-colors text-sm"
+          >
+            Scrivimi
+          </a>
+        </div>
       </div>
     </div>
   );

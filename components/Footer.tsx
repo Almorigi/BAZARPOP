@@ -43,10 +43,15 @@ export default function Footer() {
           <div>
             <p className="text-xs tracking-[0.2em] uppercase text-neutral-600 mb-5">Negozio</p>
             <ul className="flex flex-col gap-3">
+              <li>
+                <a href="mailto:amoro6321@gmail.com" className="text-sm text-neutral-500 hover:text-white transition-colors hover-underline">
+                  amoro6321@gmail.com
+                </a>
+              </li>
               {[
-                { href: "/products", label: "Tutti i prodotti" },
-                { href: "/cart",     label: "Carrello" },
-              { href: "/chi-siamo", label: "Chi siamo" },
+                { href: "/products",  label: "Tutti i prodotti" },
+                { href: "/cart",      label: "Carrello" },
+                { href: "/chi-siamo", label: "Chi siamo" },
             ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-neutral-500 hover:text-white transition-colors hover-underline">
