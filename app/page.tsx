@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
-import Marquee from "@/components/Marquee";
 import { Product } from "@/types";
 
 async function getFeaturedProducts(): Promise<Product[]> {
@@ -14,42 +13,6 @@ async function getFeaturedProducts(): Promise<Product[]> {
     .limit(8);
   return data ?? [];
 }
-
-const row1 = [
-  { label: "Dragon Ball",      emoji: "🐉", color: "text-orange-400" },
-  { label: "Il Signore degli Anelli", emoji: "📖", color: "text-amber-300" },
-  { label: "Super Nintendo",   emoji: "🎮", color: "text-violet-400" },
-  { label: "Marvel Comics",    emoji: "🦸", color: "text-red-400" },
-  { label: "Dune",             emoji: "📚", color: "text-yellow-400" },
-  { label: "PlayStation",      emoji: "🕹️", color: "text-sky-400" },
-  { label: "Topolino",         emoji: "🐭", color: "text-blue-400" },
-  { label: "Harry Potter",     emoji: "⚡", color: "text-purple-400" },
-  { label: "Game Boy",         emoji: "👾", color: "text-emerald-400" },
-];
-
-const row2 = [
-  { label: "Drone DJI",        emoji: "🚁", color: "text-cyan-400" },
-  { label: "Tex Willer",       emoji: "🤠", color: "text-amber-400" },
-  { label: "Fondazione",       emoji: "🌌", color: "text-indigo-400" },
-  { label: "DC Comics",        emoji: "🦇", color: "text-blue-300" },
-  { label: "Nintendo 64",      emoji: "🎯", color: "text-yellow-300" },
-  { label: "Dylan Dog",        emoji: "🌙", color: "text-neutral-300" },
-  { label: "Sega Mega Drive",  emoji: "🕹️", color: "text-sky-300" },
-  { label: "Diabolik",         emoji: "🃏", color: "text-red-300" },
-  { label: "Oggetti Rari",     emoji: "✦",  color: "text-accent" },
-];
-
-const row3 = [
-  { label: "One Piece",        emoji: "⚓", color: "text-blue-400" },
-  { label: "Naruto",           emoji: "🍥", color: "text-orange-300" },
-  { label: "Atari",            emoji: "🕹️", color: "text-amber-300" },
-  { label: "Sherlock Holmes",  emoji: "🔍", color: "text-neutral-300" },
-  { label: "X-Men",            emoji: "⚡", color: "text-yellow-400" },
-  { label: "Commodore 64",     emoji: "💾", color: "text-emerald-300" },
-  { label: "Zagor",            emoji: "🪓", color: "text-green-400" },
-  { label: "Star Wars",        emoji: "⭐", color: "text-yellow-300" },
-  { label: "Action Figure",    emoji: "🤖", color: "text-violet-300" },
-];
 
 const categories = [
   {
@@ -162,26 +125,6 @@ export default async function HomePage() {
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in" style={{ animationDelay: "1s", opacity: 0 }}>
           <div className="w-px h-12 bg-gradient-to-b from-accent/50 to-transparent" />
           <span className="text-[10px] tracking-[0.3em] uppercase text-neutral-600">Scorri</span>
-        </div>
-      </section>
-
-      {/* ── MARQUEE STRIPS ── */}
-      <section className="py-10 space-y-4 overflow-hidden">
-        {/* Fade edges */}
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
-          <Marquee speed="normal" items={row1} />
-        </div>
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
-          <Marquee speed="slow" reverse items={row2} />
-        </div>
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
-          <Marquee speed="fast" items={row3} />
         </div>
       </section>
 
