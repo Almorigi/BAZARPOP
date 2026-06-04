@@ -1,71 +1,109 @@
 "use client";
 import Link from "next/link";
-import { ShoppingCart, Menu, X, Zap } from "lucide-react";
+import { ShoppingCart, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCart } from "@/lib/cart";
+import { clsx } from "clsx";
+
+const links = [
+  { href: "/products?category=fumetti",    label: "Fumetti" },
+  { href: "/products?category=libri",      label: "Libri" },
+  { href: "/products?category=videogiochi",label: "Videogiochi" },
+  { href: "/products?category=oggetti",    label: "Oggetti" },
+];
 
 export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const updateCount = () => {
-    const cart = getCart();
-    setCartCount(cart.reduce((s, i) => s + i.quantity, 0));
-  };
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    updateCount();
-    window.addEventListener("cart-updated", updateCount);
-    return () => window.removeEventListener("cart-updated", updateCount);
+    const updateCart = () => {
+      const c = getCart();
+      setCartCount(c.reduce((s, i) => s + i.quantity, 0));
+    };
+    updateCart();
+    window.addEventListener("cart-updated", updateCart);
+
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("cart-updated", updateCart);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
-  const links = [
-    { href: "/products?category=fumetti", label: "Fumetti" },
-    { href: "/products?category=libri", label: "Libri" },
-    { href: "/products?category=videogiochi", label: "Videogiochi" },
-    { href: "/products?category=oggetti", label: "Oggetti" },
-  ];
-
   return (
-    <header className="sticky top-0 z-50 bg-surface-800/95 backdrop-blur border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        <Link href="/" className="flex items-center gap-2 font-extrabold text-xl tracking-tight">
-          <Zap className="text-brand-500" size={22} />
-          <span className="text-white">Soffitta<span className="text-brand-500">del Collezionista</span></span>
+    <header className={clsx(
+      "fixed top-0 inset-x-0 z-50 transition-all duration-500",
+      scrolled
+        ? "bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_40px_rgba(0,0,0,0.6)]"
+        : "bg-transparent"
+    )}>
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-20">
+
+        {/* Logo */}
+        <Link href="/" className="flex flex-col leading-none group">
+          <span className="font-serif text-xl font-bold text-white tracking-wide group-hover:text-accent transition-colors duration-300">
+            La Soffitta
+          </span>
+          <span className="text-[10px] tracking-[0.25em] uppercase text-accent font-sans font-medium">
+            del Collezionista
+          </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-8">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="text-sm text-gray-300 hover:text-white transition-colors">
+            <Link
+              key={l.href}
+              href={l.href}
+              className="hover-underline text-sm font-medium text-neutral-400 hover:text-white transition-colors duration-200 tracking-wide"
+            >
               {l.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <Link href="/cart" className="relative p-2 rounded-lg hover:bg-surface-600 transition-colors">
-            <ShoppingCart size={22} className="text-gray-300" />
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          <Link href="/cart" className="relative p-2.5 rounded-xl hover:bg-white/5 transition-colors group">
+            <ShoppingCart size={20} className="text-neutral-400 group-hover:text-white transition-colors" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-brand-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-accent text-white text-[10px] font-bold w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center leading-none px-1">
                 {cartCount > 9 ? "9+" : cartCount}
               </span>
             )}
           </Link>
-          <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2.5 rounded-xl hover:bg-white/5 transition-colors"
+            aria-label="Menu"
+          >
+            {menuOpen ? <X size={20} className="text-white" /> : <Menu size={20} className="text-neutral-400" />}
           </button>
         </div>
       </div>
 
-      {menuOpen && (
-        <div className="md:hidden bg-surface-700 border-t border-white/10 px-4 py-3 flex flex-col gap-3">
+      {/* Mobile menu */}
+      <div className={clsx(
+        "md:hidden overflow-hidden transition-all duration-300",
+        menuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
+      )}>
+        <div className="bg-[#0e0e0e]/95 backdrop-blur-xl border-t border-white/5 px-6 py-4 flex flex-col gap-4">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="text-sm text-gray-300 hover:text-white" onClick={() => setMenuOpen(false)}>
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
+              className="text-sm text-neutral-400 hover:text-white transition-colors py-1 tracking-wide"
+            >
               {l.label}
             </Link>
           ))}
         </div>
-      )}
+      </div>
     </header>
   );
 }
