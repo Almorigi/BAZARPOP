@@ -8,7 +8,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2 font-extrabold text-xl mb-2">
             <Zap className="text-brand-500" size={20} />
-            <span className="text-white">Bazar<span className="text-brand-500">Pop</span></span>
+            <span className="text-white">Soffitta<span className="text-brand-500">del Collezionista</span></span>
           </div>
           <p className="text-sm text-gray-500 max-w-xs">
             Fumetti, libri, videogiochi e molto altro. Tutto usato con cura, spedito velocemente.
@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-white/5 py-4 text-center text-xs text-gray-600">
-        © {new Date().getFullYear()} BazarPop. Tutti i diritti riservati.
+        © {new Date().getFullYear()} La Soffitta del Collezionista. Tutti i diritti riservati.
       </div>
     </footer>
   );

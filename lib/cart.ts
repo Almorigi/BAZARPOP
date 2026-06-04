@@ -1,7 +1,7 @@
 "use client";
 import { CartItem, Product } from "@/types";
 
-const CART_KEY = "bazarpop_cart";
+const CART_KEY = "soffitta_cart";
 
 export function getCart(): CartItem[] {
   if (typeof window === "undefined") return [];

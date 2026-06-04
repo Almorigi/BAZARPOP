@@ -31,7 +31,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2 font-extrabold text-xl tracking-tight">
           <Zap className="text-brand-500" size={22} />
-          <span className="text-white">Bazar<span className="text-brand-500">Pop</span></span>
+          <span className="text-white">Soffitta<span className="text-brand-500">del Collezionista</span></span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">

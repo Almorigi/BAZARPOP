@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BazarPop — Fumetti, Libri, Videogiochi e altro",
-  description: "Acquista fumetti, libri, videogiochi e oggetti unici. Tutto usato con cura.",
+  title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi e altro",
+  description: "Acquista fumetti, libri, videogiochi e oggetti unici. Tutto selezionato con cura, spedito velocemente.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
