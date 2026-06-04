@@ -6,10 +6,11 @@ import Image from "next/image";
 import { Category } from "@/types";
 
 const CATEGORIES: { value: Category; label: string }[] = [
-  { value: "fumetti", label: "Fumetto" },
-  { value: "libri", label: "Libro" },
+  { value: "fumetti",     label: "Fumetto" },
+  { value: "libri",       label: "Libro" },
   { value: "videogiochi", label: "Videogioco" },
-  { value: "oggetti", label: "Oggetto Vario" },
+  { value: "dvd",         label: "Film DVD" },
+  { value: "oggetti",     label: "Oggetto Vario" },
 ];
 
 const CONDITIONS = ["nuovo", "ottimo", "buono", "discreto"] as const;

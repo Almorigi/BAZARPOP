@@ -6,11 +6,12 @@ import { getCart } from "@/lib/cart";
 import { clsx } from "clsx";
 
 const links = [
-  { href: "/products?category=fumetti",    label: "Fumetti" },
-  { href: "/products?category=libri",      label: "Libri" },
-  { href: "/products?category=videogiochi",label: "Videogiochi" },
-  { href: "/products?category=oggetti",    label: "Oggetti" },
-  { href: "/chi-siamo",                    label: "Chi siamo" },
+  { href: "/products?category=fumetti",     label: "Fumetti" },
+  { href: "/products?category=libri",       label: "Libri" },
+  { href: "/products?category=videogiochi", label: "Videogiochi" },
+  { href: "/products?category=dvd",         label: "Film DVD" },
+  { href: "/products?category=oggetti",     label: "Oggetti" },
+  { href: "/chi-siamo",                     label: "Chi siamo" },
 ];
 
 export default function Navbar() {

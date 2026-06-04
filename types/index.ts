@@ -1,4 +1,4 @@
-export type Category = "fumetti" | "libri" | "videogiochi" | "oggetti";
+export type Category = "fumetti" | "libri" | "videogiochi" | "oggetti" | "dvd";
 
 export interface Product {
   id: string;

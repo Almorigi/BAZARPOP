@@ -12,6 +12,7 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: "fumetti",     label: "Fumetto" },
   { value: "libri",       label: "Libro" },
   { value: "videogiochi", label: "Videogioco" },
+  { value: "dvd",         label: "Film DVD" },
   { value: "oggetti",     label: "Oggetto Vario" },
 ];
 

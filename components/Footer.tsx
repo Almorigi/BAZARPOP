@@ -5,6 +5,7 @@ const categories = [
   { href: "/products?category=fumetti",     label: "Fumetti" },
   { href: "/products?category=libri",       label: "Libri" },
   { href: "/products?category=videogiochi", label: "Videogiochi" },
+  { href: "/products?category=dvd",         label: "Film DVD" },
   { href: "/products?category=oggetti",     label: "Oggetti Vari" },
 ];
 

@@ -10,6 +10,7 @@ const CATEGORIES = [
   { value: "fumetti",     label: "Fumetti" },
   { value: "libri",       label: "Libri" },
   { value: "videogiochi", label: "Videogiochi" },
+  { value: "dvd",         label: "Film DVD" },
   { value: "oggetti",     label: "Oggetti" },
 ];
 

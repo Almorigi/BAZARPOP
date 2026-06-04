@@ -15,7 +15,7 @@ const conditionConfig: Record<string, { label: string; cls: string }> = {
 };
 
 const categoryLabel: Record<string, string> = {
-  fumetti: "Fumetto", libri: "Libro", videogiochi: "Videogioco", oggetti: "Oggetto",
+  fumetti: "Fumetto", libri: "Libro", videogiochi: "Videogioco", dvd: "Film DVD", oggetti: "Oggetto",
 };
 
 export default function ProductDetail({ product }: { product: Product }) {

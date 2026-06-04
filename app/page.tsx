@@ -43,6 +43,15 @@ const categories = [
     glow: "hover:shadow-[0_0_40px_rgba(139,92,246,0.1)]",
   },
   {
+    label: "Film DVD",
+    sub: "Action · Classici · Serie TV",
+    href: "/products?category=dvd",
+    emoji: "🎬",
+    gradient: "from-rose-500/10 to-red-600/5",
+    border: "hover:border-rose-500/30",
+    glow: "hover:shadow-[0_0_40px_rgba(244,63,94,0.1)]",
+  },
+  {
     label: "Oggetti Rari",
     sub: "Drone · Tech · Curiosità",
     href: "/products?category=oggetti",
