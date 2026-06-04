@@ -10,6 +10,7 @@ const links = [
   { href: "/products?category=libri",      label: "Libri" },
   { href: "/products?category=videogiochi",label: "Videogiochi" },
   { href: "/products?category=oggetti",    label: "Oggetti" },
+  { href: "/chi-siamo",                    label: "Chi siamo" },
 ];
 
 export default function Navbar() {
