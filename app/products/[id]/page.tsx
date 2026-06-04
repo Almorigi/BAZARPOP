@@ -1,19 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
-import { ShoppingCart, ArrowLeft, Tag, CheckCircle } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
 
-const conditionColors: Record<string, string> = {
-  nuovo: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-  ottimo: "text-sky-400 bg-sky-400/10 border-sky-400/20",
-  buono: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
-  discreto: "text-orange-400 bg-orange-400/10 border-orange-400/20",
+const conditionConfig: Record<string, { label: string; cls: string }> = {
+  nuovo:    { label: "Nuovo",    cls: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
+  ottimo:   { label: "Ottimo",   cls: "text-sky-400 bg-sky-400/10 border-sky-400/20" },
+  buono:    { label: "Buono",    cls: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
+  discreto: { label: "Discreto", cls: "text-neutral-400 bg-white/5 border-white/10" },
+};
+
+const categoryLabel: Record<string, string> = {
+  fumetti: "Fumetto", libri: "Libro", videogiochi: "Videogioco", oggetti: "Oggetto",
 };
 
 export default function ProductPage() {
@@ -23,16 +27,19 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    supabase.from("products").select("*").eq("id", id).single().then(({ data }) => {
-      setProduct(data);
-    });
+    supabase.from("products").select("*").eq("id", id).single().then(({ data }) => setProduct(data));
   }, [id]);
 
   if (!product) {
-    return <div className="flex justify-center items-center h-96 text-gray-500">Caricamento...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 size={32} className="animate-spin text-accent" />
+      </div>
+    );
   }
 
   const price = (product.price / 100).toFixed(2);
+  const cond = conditionConfig[product.condition];
 
   function handleAdd() {
     addToCart(product!);
@@ -41,39 +48,34 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <Link href="/products" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-8">
-        <ArrowLeft size={16} /> Torna ai prodotti
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <Link href="/products" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-white mb-8 transition-colors group">
+        <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> Torna ai prodotti
       </Link>
 
-      <div className="grid md:grid-cols-2 gap-10">
+      <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
+
         {/* Images */}
         <div className="flex flex-col gap-3">
-          <div className="relative aspect-[3/4] bg-surface-700 rounded-2xl overflow-hidden">
-            {product.images.length > 0 ? (
-              <Image
-                src={product.images[activeImg]}
-                alt={product.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-600 text-6xl">📦</div>
-            )}
+          <div className="relative aspect-[3/4] bg-surface-2 rounded-3xl overflow-hidden border border-border">
+            {product.images.length > 0
+              ? <Image src={product.images[activeImg]} alt={product.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+              : <div className="flex items-center justify-center h-full text-neutral-700 text-7xl">📦</div>
+            }
             {product.sold && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <span className="text-white font-bold text-2xl tracking-widest rotate-[-20deg] border-2 border-white px-6 py-2">VENDUTO</span>
+              <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                <span className="font-serif text-white text-2xl font-bold tracking-[0.15em] rotate-[-20deg] border border-white/60 px-6 py-2">VENDUTO</span>
               </div>
             )}
           </div>
+
           {product.images.length > 1 && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImg(i)}
-                  className={clsx("relative w-16 h-20 rounded-lg overflow-hidden border-2 transition-colors", activeImg === i ? "border-brand-500" : "border-transparent")}
+                  className={clsx("relative flex-shrink-0 w-16 h-20 rounded-xl overflow-hidden border-2 transition-colors", activeImg === i ? "border-accent" : "border-transparent opacity-50 hover:opacity-75")}
                 >
                   <Image src={img} alt="" fill className="object-cover" sizes="64px" />
                 </button>
@@ -84,40 +86,44 @@ export default function ProductPage() {
 
         {/* Info */}
         <div className="flex flex-col gap-5">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-gray-400 flex items-center gap-1 bg-surface-600 px-2 py-1 rounded-full">
-                <Tag size={11} /> {product.category}
-              </span>
-              <span className={clsx("text-xs font-medium px-2 py-1 rounded-full border", conditionColors[product.condition])}>
-                Condizione: {product.condition}
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">{product.title}</h1>
+          <div className="flex flex-wrap gap-2">
+            <span className="text-xs bg-surface-3 text-neutral-400 px-3 py-1 rounded-full border border-border">
+              {categoryLabel[product.category] ?? product.category}
+            </span>
+            <span className={clsx("text-xs font-medium px-3 py-1 rounded-full border", cond.cls)}>
+              {cond.label}
+            </span>
           </div>
 
-          <div className="text-4xl font-extrabold text-brand-500">€{price}</div>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">{product.title}</h1>
+
+          <div className="font-serif text-4xl font-bold text-accent">€{price}</div>
 
           {product.description && (
-            <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
+            <p className="text-neutral-400 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
           )}
 
-          <div className="text-sm text-gray-500">
-            {product.stock > 1 ? `${product.stock} disponibili` : product.stock === 1 ? "Ultimo disponibile!" : "Esaurito"}
-          </div>
+          <p className="text-sm text-neutral-600">
+            {product.stock > 1 ? `${product.stock} disponibili` : product.stock === 1 ? "⚡ Ultimo disponibile!" : "Esaurito"}
+          </p>
 
           {!product.sold && product.stock > 0 ? (
             <button
               onClick={handleAdd}
               className={clsx(
-                "flex items-center justify-center gap-2 w-full font-bold py-4 rounded-xl transition-all text-sm",
-                added ? "bg-emerald-500 text-white" : "bg-brand-500 hover:bg-brand-600 text-white"
+                "flex items-center justify-center gap-2 w-full font-bold py-4 rounded-2xl transition-all text-sm mt-2",
+                added
+                  ? "bg-emerald-500 text-white"
+                  : "bg-accent hover:bg-orange-600 text-white shadow-[0_0_30px_rgba(249,115,22,0.25)] hover:shadow-[0_0_50px_rgba(249,115,22,0.4)]"
               )}
             >
-              {added ? <><CheckCircle size={18} /> Aggiunto al carrello!</> : <><ShoppingCart size={18} /> Aggiungi al carrello</>}
+              {added
+                ? <><CheckCircle size={18} /> Aggiunto al carrello!</>
+                : <><ShoppingCart size={18} /> Aggiungi al carrello</>
+              }
             </button>
           ) : (
-            <div className="w-full py-4 rounded-xl bg-surface-600 text-gray-500 text-center font-semibold text-sm">
+            <div className="w-full py-4 rounded-2xl bg-surface-3 text-neutral-600 text-center font-semibold text-sm mt-2">
               Non disponibile
             </div>
           )}

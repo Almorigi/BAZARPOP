@@ -62,13 +62,16 @@ export default async function HomePage() {
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex flex-col justify-center pt-20">
 
-        {/* Video background */}
+        {/* Video background — desktop 16:9, mobile 9:16 quando pronto */}
         <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover hidden sm:block"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_39wDkjQhEmTB70wanWcr2To23g3/hf_20260604_175320_1e7b8642-86b4-468c-904f-97f55cf170b0.mp4"
+        />
+        {/* Mobile fallback: stesso video 16:9 finché non arriva il 9:16 */}
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover sm:hidden"
           src="https://d8j0ntlcm91z4.cloudfront.net/user_39wDkjQhEmTB70wanWcr2To23g3/hf_20260604_175320_1e7b8642-86b4-468c-904f-97f55cf170b0.mp4"
         />
 

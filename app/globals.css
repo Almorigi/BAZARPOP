@@ -45,6 +45,10 @@ body::before {
 ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+/* Hide scrollbar for filter strips */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* Glow utility */
 .glow-orange {
   box-shadow: 0 0 40px rgba(249,115,22,0.2), 0 0 80px rgba(249,115,22,0.05);
