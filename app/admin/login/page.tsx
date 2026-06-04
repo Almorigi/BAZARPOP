@@ -49,7 +49,8 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
-              className="w-full bg-surface-2 border border-border rounded-2xl px-5 py-4 text-white placeholder-neutral-600 focus:outline-none focus:border-accent/40 transition-colors pr-12"
+              className="w-full bg-[#161616] border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-neutral-600 focus:outline-none focus:border-orange-500/40 transition-colors pr-12"
+              style={{ colorScheme: "dark" }}
             />
             <button
               type="button"
