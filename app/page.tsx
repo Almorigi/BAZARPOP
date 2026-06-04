@@ -68,11 +68,11 @@ export default async function HomePage() {
           className="absolute inset-0 w-full h-full object-cover hidden sm:block"
           src="https://d8j0ntlcm91z4.cloudfront.net/user_39wDkjQhEmTB70wanWcr2To23g3/hf_20260604_175320_1e7b8642-86b4-468c-904f-97f55cf170b0.mp4"
         />
-        {/* Mobile fallback: stesso video 16:9 finché non arriva il 9:16 */}
+        {/* Mobile: video verticale 9:16 */}
         <video
           autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover sm:hidden"
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_39wDkjQhEmTB70wanWcr2To23g3/hf_20260604_175320_1e7b8642-86b4-468c-904f-97f55cf170b0.mp4"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_39wDkjQhEmTB70wanWcr2To23g3/hf_20260604_180757_3b9b7697-85f9-430e-b503-55b053587364.mp4"
         />
 
         {/* Dark overlay */}
