@@ -58,6 +58,12 @@ body::before {
   border: 1px solid rgba(255,255,255,0.07);
 }
 
+/* Marquee animation */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
 /* Gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #f97316 0%, #fbbf24 50%, #f97316 100%);
