@@ -12,7 +12,7 @@ export function middleware(req: NextRequest) {
   }
 
   // Coming soon — leggi la variabile dentro la funzione
-  if (process.env.COMING_SOON === "true") {
+  if (process.env.NEXT_PUBLIC_COMING_SOON === "true") {
     const bypass = ["/admin", "/api", "/coming-soon", "/_next", "/favicon"];
     if (!bypass.some((p) => pathname.startsWith(p))) {
       return NextResponse.redirect(new URL("/coming-soon", req.url));
