@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Package, PlusCircle, CheckCircle, Clock, Pencil } from "lucide-react";
