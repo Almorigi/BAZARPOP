@@ -25,7 +25,7 @@ export default async function AdminPage() {
   const [stats, products] = await Promise.all([getStats(), getLatestProducts()]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 pt-24 pb-10">
       <div className="flex items-center justify-between mb-10">
         <div>
           <p className="text-xs tracking-[0.25em] uppercase text-accent mb-1">Pannello</p>
