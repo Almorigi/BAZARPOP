@@ -52,7 +52,7 @@ const categories = [
     glow: "hover:shadow-[0_0_40px_rgba(244,63,94,0.1)]",
   },
   {
-    label: "Oggetti Rari",
+    label: "Oggetti Vari",
     sub: "Drone · Tech · Curiosità",
     href: "/products?category=oggetti",
     emoji: "✦",
