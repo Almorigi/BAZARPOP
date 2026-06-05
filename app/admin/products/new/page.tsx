@@ -70,7 +70,9 @@ export default function NewProductPage() {
     setLoading(false);
     if (json.product) {
       setSuccess(true);
-      setTimeout(() => router.push("/admin"), 1500);
+      setTimeout(() => {
+        window.location.href = "/admin";
+      }, 1500);
     } else {
       alert("Errore: " + json.error);
     }
