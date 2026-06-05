@@ -2,6 +2,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Package, PlusCircle, CheckCircle, Clock, Pencil } from "lucide-react";
 import Image from "next/image";
+import DeleteButton from "./DeleteButton";
 
 async function getStats() {
   const [{ count: total }, { count: sold }, { count: available }] = await Promise.all([
@@ -74,6 +75,7 @@ export default async function AdminPage() {
                   className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white bg-surface-3 hover:bg-surface-4 px-3 py-1.5 rounded-xl transition-colors">
                   <Pencil size={12} /> Modifica
                 </Link>
+                <DeleteButton id={p.id} />
               </div>
             </div>
           ))}
