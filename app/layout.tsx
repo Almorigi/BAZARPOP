@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 // ID Google Analytics — sostituisci con il tuo ID reale (es. G-XXXXXXXXXX)
-const GA_ID = "G-XXXXXXXXXX";
+const GA_ID = "G-5GJCTH7YX2";
 
 export const metadata: Metadata = {
   title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi usati",
