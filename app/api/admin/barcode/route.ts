@@ -146,7 +146,8 @@ export async function GET(req: NextRequest) {
   if (titleQuery) {
     const results = await searchGoogleBooks(titleQuery, false);
     if (results.length > 0) {
-      return NextResponse.json({ found: true, multiple: results, ...results[0] });
+      const first = results[0];
+      return NextResponse.json({ ...first, found: true, multiple: results });
     }
     return NextResponse.json({ found: false, multiple: [], title: "", description: "", category: "fumetti" });
   }

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { BrowserMultiFormatReader, NotFoundException } from "@zxing/browser";
+import { BrowserMultiFormatReader } from "@zxing/browser";
+import { NotFoundException } from "@zxing/library";
 import { ArrowLeft, Camera, CameraOff, Loader2, CheckCircle, Search, RotateCcw, Save, AlertCircle, BookOpen, ScanLine } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -167,7 +168,7 @@ export default function ScanPage() {
       </div>
 
       {/* Tab switcher */}
-      {!showForm && state !== "saving" && state !== "saved" && (
+      {!showForm && state !== "saved" && (
         <div className="flex gap-2 mb-6 bg-[#161616] p-1 rounded-2xl">
           <button onClick={() => setTab("scan")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors ${tab === "scan" ? "bg-accent text-white" : "text-neutral-500 hover:text-white"}`}>
