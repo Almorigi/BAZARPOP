@@ -294,11 +294,14 @@ export async function GET(req: NextRequest) {
 
   // ── RICERCA PER TITOLO ──
   if (titleQuery) {
-    const cvResults = await searchComicVine(titleQuery);
+    // Comic Vine e Google Books in parallelo — usa CV se trova qualcosa, altrimenti GB
+    const [cvResults, gbResults] = await Promise.all([
+      searchComicVine(titleQuery).catch(() => [] as BarcodeResult[]),
+      searchGoogleBooks(titleQuery, false).catch(() => [] as BarcodeResult[]),
+    ]);
     if (cvResults.length > 0) {
       return NextResponse.json({ ...cvResults[0], found: true, multiple: cvResults });
     }
-    const gbResults = await searchGoogleBooks(titleQuery, false);
     if (gbResults.length > 0) {
       return NextResponse.json({ ...gbResults[0], found: true, multiple: gbResults });
     }
@@ -326,17 +329,14 @@ export async function GET(req: NextRequest) {
   }
 
   if (isbn) {
-    // 1. Open Library bibkeys (veloce)
-    const olResult = await lookupOpenLibrary(isbn);
-    if (olResult) return NextResponse.json(olResult);
+    // Tutte le API in parallelo — vince la prima che risponde con un risultato
+    const result = await Promise.any([
+      lookupOpenLibrary(isbn).then(r => { if (!r) throw new Error("no"); return r; }),
+      lookupOpenLibrarySearch(isbn).then(r => { if (!r) throw new Error("no"); return r; }),
+      searchGoogleBooks(isbn, true).then(r => { if (!r.length) throw new Error("no"); return r[0]; }),
+    ]).catch(() => null);
 
-    // 2. Open Library search (copertura più ampia, inclusi libri italiani)
-    const olSearch = await lookupOpenLibrarySearch(isbn);
-    if (olSearch) return NextResponse.json(olSearch);
-
-    // 3. Google Books (può avere quota limit)
-    const gbResults = await searchGoogleBooks(isbn, true);
-    if (gbResults.length > 0) return NextResponse.json(gbResults[0]);
+    if (result) return NextResponse.json(result);
   }
 
   // Prova UPC per altri prodotti (DVD, giochi, oggetti)
