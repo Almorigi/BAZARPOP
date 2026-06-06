@@ -409,9 +409,9 @@ function ProductForm({ form, setForm, onSave, onReset, saving }: {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-sm text-neutral-400 mb-1.5 block">Prezzo (€) *</label>
-          <input required type="number" min="0.01" step="0.01" value={form.price}
+          <input required type="text" inputMode="decimal" value={form.price}
             onChange={(e) => setForm({ ...form, price: e.target.value })}
-            placeholder="9.99" className={cls} style={{ colorScheme: "dark" }} />
+            placeholder="es. 9,99" className={cls} style={{ colorScheme: "dark" }} />
         </div>
         <div>
           <label className="text-sm text-neutral-400 mb-1.5 block">Quantità</label>

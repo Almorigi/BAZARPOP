@@ -160,9 +160,9 @@ export default function EditProductPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-neutral-400 mb-1.5 block">Prezzo (€) *</label>
-            <input required type="number" min="0.01" step="0.01" value={form.price}
+            <input required type="text" inputMode="decimal" value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
-              placeholder="9.99" className={inputCls} style={{ colorScheme: "dark" }} />
+              placeholder="es. 9,99" className={inputCls} style={{ colorScheme: "dark" }} />
           </div>
           <div>
             <label className="text-sm text-neutral-400 mb-1.5 block">Quantità</label>
