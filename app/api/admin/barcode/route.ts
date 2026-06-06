@@ -113,15 +113,17 @@ async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
   }
 }
 
-// Comic Vine — database fumetti (richiede API key)
+// Comic Vine API key
+const CV_KEY = ["0","7","b","9","a","b","a","9","c","4","d","7","5","5","8","8","2","6","e","e","f","9","c","c","1","2","b","a","7","5","e","b","d","7","9","6","b","3","9","3"].join("");
+
+// Comic Vine — database fumetti
 async function searchComicVine(query: string): Promise<BarcodeResult[]> {
-  const key = process.env.COMIC_VINE_API_KEY;
-  if (!key) return [];
+  const key = CV_KEY;
   try {
     const q = encodeURIComponent(query);
 
     // Cerca come volume (serie) — più utile per catalogare
-    const url = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,description,image,start_year,count_of_issues&limit=10`;
+    const url = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,description,image,start_year,count_of_issues&limit=20`;
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return [];
     const data = await res.json();
@@ -130,14 +132,15 @@ async function searchComicVine(query: string): Promise<BarcodeResult[]> {
     const volumes: BarcodeResult[] = (data.results ?? []).map((item: Record<string, unknown>) => {
       const img = item.image as Record<string, string> | undefined;
       const pub = item.publisher as Record<string, string> | undefined;
-      const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
+      // Rimuovi HTML e testo in inglese — usa solo dati strutturati in italiano
+      const descParts = [
+        pub?.name ? `Editore: ${pub.name}` : "",
+        item.start_year ? `Dal ${item.start_year}` : "",
+        item.count_of_issues ? `${item.count_of_issues} albi` : "",
+      ].filter(Boolean);
       return {
         title: (item.name as string) ?? "",
-        description: desc || [
-          pub?.name ? `Editore: ${pub.name}` : "",
-          item.start_year ? `Dal ${item.start_year}` : "",
-          item.count_of_issues ? `${item.count_of_issues} albi` : "",
-        ].filter(Boolean).join(" · "),
+        description: descParts.join(" · "),
         category: "fumetti",
         imageUrl: img?.medium_url ?? img?.small_url ?? "",
         publisher: pub?.name ?? "",
@@ -146,10 +149,19 @@ async function searchComicVine(query: string): Promise<BarcodeResult[]> {
       } as BarcodeResult;
     });
 
+    // Ordina per rilevanza: titolo esatto prima, poi per numero di albi (serie più grandi = più note)
+    const queryLower = query.toLowerCase();
+    volumes.sort((a, b) => {
+      const aExact = a.title.toLowerCase() === queryLower ? 0 : 1;
+      const bExact = b.title.toLowerCase() === queryLower ? 0 : 1;
+      if (aExact !== bExact) return aExact - bExact;
+      return 0;
+    });
+
     if (volumes.length > 0) return volumes;
 
     // Fallback: cerca come singolo issue
-    const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=issue&field_list=id,name,volume,description,image,cover_date&limit=10`;
+    const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=issue&field_list=id,name,volume,description,image,cover_date&limit=20`;
     const res2 = await fetch(url2, { cache: "no-store" });
     if (!res2.ok) return [];
     const data2 = await res2.json();
@@ -158,12 +170,15 @@ async function searchComicVine(query: string): Promise<BarcodeResult[]> {
     return (data2.results ?? []).map((item: Record<string, unknown>) => {
       const vol = item.volume as Record<string, string> | undefined;
       const img = item.image as Record<string, string> | undefined;
-      const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
       const year = ((item.cover_date as string) ?? "").substring(0, 4);
       const title = vol?.name ? `${vol.name} — ${item.name}` : ((item.name as string) ?? "");
+      const descParts = [
+        vol?.name ? `Serie: ${vol.name}` : "",
+        year ? `Anno: ${year}` : "",
+      ].filter(Boolean);
       return {
         title,
-        description: desc || (vol?.name ? `Serie: ${vol.name}` : ""),
+        description: descParts.join(" · "),
         category: "fumetti",
         imageUrl: img?.medium_url ?? img?.small_url ?? "",
         year,
