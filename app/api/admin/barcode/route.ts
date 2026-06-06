@@ -113,6 +113,70 @@ async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
   }
 }
 
+// Comic Vine — database fumetti (richiede API key)
+async function searchComicVine(query: string, isBarcode = false): Promise<BarcodeResult[]> {
+  const key = process.env.COMIC_VINE_API_KEY;
+  if (!key) return [];
+  try {
+    // Cerca prima come issue (singolo albo), poi come volume (serie)
+    const resource = "issue";
+    const q = encodeURIComponent(query);
+    const url = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=${resource}&field_list=id,name,volume,description,image,cover_date,associated_images&limit=8`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "LaSoffittaDelCollezionista/1.0" },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data.results?.length) {
+      // Prova come volume (serie)
+      const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,description,image,start_year,count_of_issues&limit=8`;
+      const res2 = await fetch(url2, {
+        headers: { "User-Agent": "LaSoffittaDelCollezionista/1.0" },
+        next: { revalidate: 3600 },
+      });
+      if (!res2.ok) return [];
+      const data2 = await res2.json();
+      return (data2.results ?? []).map((item: Record<string, unknown>) => {
+        const img = item.image as Record<string, string> | undefined;
+        const pub = item.publisher as Record<string, string> | undefined;
+        const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
+        return {
+          title: (item.name as string) ?? "",
+          description: desc || [
+            pub?.name ? `Editore: ${pub.name}` : "",
+            item.start_year ? `Anno inizio: ${item.start_year}` : "",
+            item.count_of_issues ? `${item.count_of_issues} albi` : "",
+          ].filter(Boolean).join(" | "),
+          category: "fumetti",
+          imageUrl: img?.medium_url ?? img?.small_url ?? "",
+          publisher: pub?.name ?? "",
+          year: (item.start_year as string) ?? "",
+          found: true,
+        } as BarcodeResult;
+      });
+    }
+    return (data.results ?? []).map((item: Record<string, unknown>) => {
+      const vol = item.volume as Record<string, string> | undefined;
+      const img = item.image as Record<string, string> | undefined;
+      const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
+      const coverDate = (item.cover_date as string) ?? "";
+      const year = coverDate ? coverDate.substring(0, 4) : "";
+      const title = vol?.name ? `${vol.name} — ${item.name}` : ((item.name as string) ?? "");
+      return {
+        title,
+        description: desc || (vol?.name ? `Serie: ${vol.name}` : ""),
+        category: "fumetti",
+        imageUrl: img?.medium_url ?? img?.small_url ?? "",
+        year,
+        found: true,
+      } as BarcodeResult;
+    });
+  } catch {
+    return [];
+  }
+}
+
 // UPC Item DB — prodotti generici (DVD, videogiochi, oggetti)
 async function lookupUPC(code: string): Promise<BarcodeResult | null> {
   try {
@@ -144,10 +208,15 @@ export async function GET(req: NextRequest) {
 
   // ── RICERCA PER TITOLO (fumetti, libri, ecc.) ──
   if (titleQuery) {
-    const results = await searchGoogleBooks(titleQuery, false);
-    if (results.length > 0) {
-      const first = results[0];
-      return NextResponse.json({ ...first, found: true, multiple: results });
+    // Prova Comic Vine per primo (migliore per fumetti)
+    const cvResults = await searchComicVine(titleQuery);
+    if (cvResults.length > 0) {
+      return NextResponse.json({ ...cvResults[0], found: true, multiple: cvResults });
+    }
+    // Fallback Google Books (libri, manga, ecc.)
+    const gbResults = await searchGoogleBooks(titleQuery, false);
+    if (gbResults.length > 0) {
+      return NextResponse.json({ ...gbResults[0], found: true, multiple: gbResults });
     }
     return NextResponse.json({ found: false, multiple: [], title: "", description: "", category: "fumetti" });
   }
