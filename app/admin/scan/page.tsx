@@ -71,16 +71,10 @@ export default function ScanPage() {
     try {
       const reader = new BrowserMultiFormatReader();
       readerRef.current = reader;
-      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-      const backCamera = devices.find(d =>
-        d.label.toLowerCase().includes("back") ||
-        d.label.toLowerCase().includes("rear") ||
-        d.label.toLowerCase().includes("posterior") ||
-        d.label.toLowerCase().includes("environment")
-      ) ?? devices[devices.length - 1];
 
-      await reader.decodeFromVideoDevice(
-        backCamera?.deviceId,
+      // facingMode: environment = fotocamera posteriore su mobile (standard W3C)
+      await reader.decodeFromConstraints(
+        { video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } } },
         videoRef.current!,
         (result, err) => {
           if (result) {
@@ -235,7 +229,7 @@ export default function ScanPage() {
           {state === "scanning" && (
             <div className="space-y-4">
               <div className="relative rounded-2xl overflow-hidden bg-black aspect-[4/3]">
-                <video ref={videoRef} className="w-full h-full object-cover" />
+                <video ref={videoRef} className="w-full h-full object-cover" playsInline muted autoPlay />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="w-56 h-32 border-2 border-accent rounded-xl relative">
                     <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-accent rounded-tl-lg -translate-x-0.5 -translate-y-0.5" />
