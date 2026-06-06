@@ -328,6 +328,8 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const noCache = { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } };
+
   if (isbn) {
     // Tutte le API in parallelo — vince la prima che risponde con un risultato
     const result = await Promise.any([

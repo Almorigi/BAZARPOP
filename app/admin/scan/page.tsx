@@ -105,7 +105,7 @@ export default function ScanPage() {
     setScannedCode(code);
     setState("looking");
     try {
-      const res = await fetch(`/api/admin/barcode?code=${encodeURIComponent(code)}`);
+      const res = await fetch(`/api/admin/barcode?code=${encodeURIComponent(code)}&_t=${Date.now()}`);
       const data = await res.json();
       if (data.found) {
         setForm({ ...emptyForm, title: data.title ?? "", description: data.description ?? "",
@@ -128,7 +128,7 @@ export default function ScanPage() {
     setTitleResults([]);
     setTitleSearched(true);
     try {
-      const res = await fetch(`/api/admin/barcode?title=${encodeURIComponent(titleQuery)}`);
+      const res = await fetch(`/api/admin/barcode?title=${encodeURIComponent(titleQuery)}&_t=${Date.now()}`);
       const data = await res.json();
       setTitleResults(data.multiple ?? (data.found ? [data] : []));
     } catch { setTitleResults([]); }
