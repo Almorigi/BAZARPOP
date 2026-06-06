@@ -71,10 +71,16 @@ export default function ScanPage() {
     try {
       const reader = new BrowserMultiFormatReader();
       readerRef.current = reader;
+      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+      const backCamera = devices.find(d =>
+        d.label.toLowerCase().includes("back") ||
+        d.label.toLowerCase().includes("rear") ||
+        d.label.toLowerCase().includes("posterior") ||
+        d.label.toLowerCase().includes("environment")
+      ) ?? devices[devices.length - 1];
 
-      // facingMode: environment = fotocamera posteriore su mobile (standard W3C)
-      await reader.decodeFromConstraints(
-        { video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+      await reader.decodeFromVideoDevice(
+        backCamera?.deviceId,
         videoRef.current!,
         (result, err) => {
           if (result) {
