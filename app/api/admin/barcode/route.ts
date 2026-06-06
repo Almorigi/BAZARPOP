@@ -149,14 +149,26 @@ async function searchComicVine(query: string): Promise<BarcodeResult[]> {
       } as BarcodeResult;
     });
 
-    // Ordina per rilevanza: titolo esatto prima, poi per numero di albi (serie più grandi = più note)
+    // Ordina per rilevanza
     const queryLower = query.toLowerCase();
-    volumes.sort((a, b) => {
-      const aExact = a.title.toLowerCase() === queryLower ? 0 : 1;
-      const bExact = b.title.toLowerCase() === queryLower ? 0 : 1;
-      if (aExact !== bExact) return aExact - bExact;
-      return 0;
-    });
+    const queryWords = queryLower.split(/\s+/).filter(Boolean);
+
+    function relevanceScore(title: string): number {
+      const t = title.toLowerCase();
+      if (t === queryLower) return 0;                          // corrispondenza esatta
+      if (t.startsWith(queryLower)) return 1;                 // inizia con la query
+      if (t.includes(queryLower)) return 2;                   // contiene la query intera
+      const allWords = queryWords.every(w => t.includes(w));
+      if (allWords) return 3;                                  // contiene tutte le parole
+      const someWords = queryWords.filter(w => t.includes(w)).length;
+      return 10 - someWords;                                   // meno parole = meno rilevante
+    }
+
+    volumes.sort((a, b) => relevanceScore(a.title) - relevanceScore(b.title));
+
+    // Filtra i risultati poco rilevanti (nessuna parola della query nel titolo)
+    const filtered = volumes.filter(v => relevanceScore(v.title) < 10);
+    if (filtered.length > 0) return filtered;
 
     if (volumes.length > 0) return volumes;
 
