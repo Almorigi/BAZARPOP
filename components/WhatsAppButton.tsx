@@ -2,15 +2,12 @@
 import { useState } from "react";
 
 // Numero WhatsApp — modifica con il tuo numero italiano (senza +, senza spazi)
-const WA_NUMBER = "393XXXXXXXXX"; // ← SOSTITUISCI con il tuo numero
+const WA_NUMBER = "393917753259"; // ← SOSTITUISCI con il tuo numero
 
 export default function WhatsAppButton() {
   const [hovered, setHovered] = useState(false);
 
-  const message = encodeURIComponent(
-    "Ciao! Ho visto il tuo negozio La Soffitta del Collezionista e vorrei informazioni su un prodotto."
-  );
-  const url = `https://wa.me/${WA_NUMBER}?text=${message}`;
+  const url = `https://wa.me/${WA_NUMBER}`;
 
   return (
     <a
