@@ -51,6 +51,7 @@ export default function ScanPage() {
   const [titleResults, setTitleResults] = useState<SearchResult[]>([]);
   const [titleLoading, setTitleLoading] = useState(false);
   const [titleSearched, setTitleSearched] = useState(false);
+  const [barcodeNotFound, setBarcodeNotFound] = useState(false);
 
   const stopCamera = useCallback(() => {
     if (readerRef.current) {
@@ -102,8 +103,11 @@ export default function ScanPage() {
           category: (data.category as Category) ?? "oggetti", imageUrl: data.imageUrl ?? "" });
         setState("found");
       } else {
+        // Codice non trovato — passa automaticamente alla ricerca per titolo
         setForm(emptyForm);
-        setState("notfound");
+        setBarcodeNotFound(true);
+        setTab("title");
+        setState("idle");
       }
     } catch { setState("notfound"); }
   }
@@ -151,6 +155,7 @@ export default function ScanPage() {
     stopCamera();
     setScannedCode(""); setManualCode(""); setForm(emptyForm);
     setTitleQuery(""); setTitleResults([]); setTitleSearched(false);
+    setBarcodeNotFound(false);
     setState("idle");
   }
 
@@ -253,6 +258,15 @@ export default function ScanPage() {
       {/* ── TAB: CERCA PER TITOLO ── */}
       {tab === "title" && !showForm && state !== "saved" && (
         <div className="space-y-4">
+          {barcodeNotFound && (
+            <div className="flex items-start gap-3 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 mb-2">
+              <AlertCircle size={16} className="text-yellow-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-white">Codice a barre non trovato</p>
+                <p className="text-xs text-neutral-400 mt-0.5">I fumetti usano un codice periodico che non è nei database standard. Cerca per titolo qui sotto!</p>
+              </div>
+            </div>
+          )}
           <div className="glass border border-border rounded-2xl p-5">
             <p className="text-sm font-medium text-white mb-1">Cerca fumetto, libro o prodotto</p>
             <p className="text-xs text-neutral-500 mb-3">Funziona con Bonelli (Dylan Dog, Tex...), manga, libri, DVD e molto altro</p>
