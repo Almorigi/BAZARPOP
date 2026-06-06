@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabaseAdmin.from("products").insert({
     title,
     description: description || null,
-    price: Math.round(parseFloat(price) * 100),
+    price: Math.round(parseFloat(String(price).replace(",", ".")) * 100),
     category,
     condition,
     stock: parseInt(stock) || 1,

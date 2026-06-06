@@ -150,7 +150,7 @@ export default function ScanPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: form.title, description: form.description,
-        price: Math.round(parseFloat(form.price.replace(",", ".")) * 100),
+        price: form.price,
         category: form.category, condition: form.condition,
         stock: parseInt(form.stock) || 1,
         images: form.imageUrl ? [form.imageUrl] : [],
