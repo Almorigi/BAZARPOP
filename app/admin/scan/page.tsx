@@ -82,7 +82,13 @@ export default function ScanPage() {
         backCamera?.deviceId,
         videoRef.current!,
         (result, err) => {
-          if (result) { stopCamera(); handleCodeFound(result.getText()); }
+          if (result) {
+            const code = result.getText().replace(/\D/g, "");
+            // Ignora codici supplementari (<12 cifre) — aspetta l'EAN-13/ISBN
+            if (code.length < 12) return;
+            stopCamera();
+            handleCodeFound(code);
+          }
           if (err && !(err instanceof NotFoundException)) console.error(err);
         }
       );
