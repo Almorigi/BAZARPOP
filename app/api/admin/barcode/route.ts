@@ -149,28 +149,26 @@ async function searchComicVine(query: string): Promise<BarcodeResult[]> {
       } as BarcodeResult;
     });
 
-    // Ordina per rilevanza
+    // Tieni solo i risultati che contengono TUTTE le parole della ricerca nel titolo
     const queryLower = query.toLowerCase();
     const queryWords = queryLower.split(/\s+/).filter(Boolean);
+    const filtered = volumes.filter(v =>
+      queryWords.every(w => v.title.toLowerCase().includes(w))
+    );
 
-    function relevanceScore(title: string): number {
-      const t = title.toLowerCase();
-      if (t === queryLower) return 0;                          // corrispondenza esatta
-      if (t.startsWith(queryLower)) return 1;                 // inizia con la query
-      if (t.includes(queryLower)) return 2;                   // contiene la query intera
-      const allWords = queryWords.every(w => t.includes(w));
-      if (allWords) return 3;                                  // contiene tutte le parole
-      const someWords = queryWords.filter(w => t.includes(w)).length;
-      return 10 - someWords;                                   // meno parole = meno rilevante
-    }
+    // Ordina: titolo esatto prima, poi chi inizia con la query
+    filtered.sort((a, b) => {
+      const at = a.title.toLowerCase();
+      const bt = b.title.toLowerCase();
+      if (at === queryLower) return -1;
+      if (bt === queryLower) return 1;
+      if (at.startsWith(queryLower)) return -1;
+      if (bt.startsWith(queryLower)) return 1;
+      return 0;
+    });
 
-    volumes.sort((a, b) => relevanceScore(a.title) - relevanceScore(b.title));
-
-    // Filtra i risultati poco rilevanti (nessuna parola della query nel titolo)
-    const filtered = volumes.filter(v => relevanceScore(v.title) < 10);
     if (filtered.length > 0) return filtered;
-
-    if (volumes.length > 0) return volumes;
+    if (volumes.length > 0) return volumes; // fallback se nessun filtro corrisponde
 
     // Fallback: cerca come singolo issue
     const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=issue&field_list=id,name,volume,description,image,cover_date&limit=20`;
