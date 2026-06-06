@@ -69,23 +69,24 @@ export default function ScanPage() {
     setCameraError(false);
     setState("scanning");
     try {
-      // delayBetweenScanAttempts: riduce il numero di frame analizzati → meno attivazioni autofocus
-      const reader = new BrowserMultiFormatReader(undefined, { delayBetweenScanAttempts: 400 });
+      const reader = new BrowserMultiFormatReader();
       readerRef.current = reader;
+      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+      const backCamera = devices.find(d =>
+        d.label.toLowerCase().includes("back") ||
+        d.label.toLowerCase().includes("rear") ||
+        d.label.toLowerCase().includes("posterior") ||
+        d.label.toLowerCase().includes("environment")
+      ) ?? devices[devices.length - 1];
 
-      // Usa decodeFromConstraints per disabilitare il torch automatico
-      await reader.decodeFromConstraints(
-        {
-          video: {
-            facingMode: { ideal: "environment" }, // fotocamera posteriore
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-        },
+      await reader.decodeFromVideoDevice(
+        backCamera?.deviceId,
         videoRef.current!,
         (result, err) => {
           if (result) {
-            const code = result.getText().replace(/\D/g, "");
+            const raw = result.getText();
+            const code = raw.replace(/\D/g, "");
+            console.log("📷 Scansionato:", raw, "→ cifre:", code, "lunghezza:", code.length);
             // Ignora codici supplementari (<12 cifre) — aspetta l'EAN-13/ISBN
             if (code.length < 12) return;
             stopCamera();
