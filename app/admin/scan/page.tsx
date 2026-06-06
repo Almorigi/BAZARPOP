@@ -69,17 +69,19 @@ export default function ScanPage() {
     setCameraError(false);
     setState("scanning");
     try {
-      const reader = new BrowserMultiFormatReader();
+      // delayBetweenScanAttempts: riduce il numero di frame analizzati → meno attivazioni autofocus
+      const reader = new BrowserMultiFormatReader(undefined, { delayBetweenScanAttempts: 400 });
       readerRef.current = reader;
-      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-      const backCamera = devices.find(d =>
-        d.label.toLowerCase().includes("back") ||
-        d.label.toLowerCase().includes("rear") ||
-        d.label.toLowerCase().includes("posterior")
-      ) ?? devices[devices.length - 1];
 
-      await reader.decodeFromVideoDevice(
-        backCamera?.deviceId,
+      // Usa decodeFromConstraints per disabilitare il torch automatico
+      await reader.decodeFromConstraints(
+        {
+          video: {
+            facingMode: { ideal: "environment" }, // fotocamera posteriore
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        },
         videoRef.current!,
         (result, err) => {
           if (result) {
