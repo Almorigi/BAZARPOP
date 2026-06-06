@@ -53,7 +53,7 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
 
         {/* Condition badge */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute bottom-3 right-3">
           <span className={clsx("text-[10px] font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm tracking-wide", cond.cls)}>
             {cond.label}
           </span>
