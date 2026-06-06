@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export interface BarcodeResult {
   title: string;
   description: string;
@@ -35,7 +37,7 @@ async function searchGoogleBooks(query: string, isISBN = false): Promise<Barcode
     const keyParam = apiKey ? `&key=${apiKey}` : "";
     const res = await fetch(
       `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=8${keyParam}`,
-      { next: { revalidate: 3600 } }
+      { cache: "no-store" }
     );
     if (res.status === 429) return []; // quota esaurita
     const data = await res.json();
@@ -78,7 +80,7 @@ async function lookupOpenLibrarySearch(isbn: string): Promise<BarcodeResult | nu
   try {
     const res = await fetch(
       `https://openlibrary.org/search.json?q=${isbn}&fields=title,author_name,publisher,first_publish_year,cover_i,subject`,
-      { next: { revalidate: 86400 } }
+      { cache: "no-store" }
     );
     const data = await res.json();
     const book = data.docs?.[0];
@@ -116,7 +118,7 @@ async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
   try {
     const res = await fetch(
       `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
-      { next: { revalidate: 86400 } }
+      { cache: "no-store" }
     );
     const data = await res.json();
     const book = data[`ISBN:${isbn}`];
@@ -154,7 +156,7 @@ async function lookupUPC(code: string): Promise<BarcodeResult | null> {
   try {
     const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`, {
       headers: { "Accept": "application/json" },
-      next: { revalidate: 86400 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     const data = await res.json();
