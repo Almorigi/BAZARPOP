@@ -114,54 +114,52 @@ async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
 }
 
 // Comic Vine — database fumetti (richiede API key)
-async function searchComicVine(query: string, isBarcode = false): Promise<BarcodeResult[]> {
+async function searchComicVine(query: string): Promise<BarcodeResult[]> {
   const key = process.env.COMIC_VINE_API_KEY;
   if (!key) return [];
   try {
-    // Cerca prima come issue (singolo albo), poi come volume (serie)
-    const resource = "issue";
     const q = encodeURIComponent(query);
-    const url = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=${resource}&field_list=id,name,volume,description,image,cover_date,associated_images&limit=8`;
-    const res = await fetch(url, {
-      headers: { "User-Agent": "LaSoffittaDelCollezionista/1.0" },
-      next: { revalidate: 3600 },
-    });
+
+    // Cerca come volume (serie) — più utile per catalogare
+    const url = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,description,image,start_year,count_of_issues&limit=10`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return [];
     const data = await res.json();
-    if (!data.results?.length) {
-      // Prova come volume (serie)
-      const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,description,image,start_year,count_of_issues&limit=8`;
-      const res2 = await fetch(url2, {
-        headers: { "User-Agent": "LaSoffittaDelCollezionista/1.0" },
-        next: { revalidate: 3600 },
-      });
-      if (!res2.ok) return [];
-      const data2 = await res2.json();
-      return (data2.results ?? []).map((item: Record<string, unknown>) => {
-        const img = item.image as Record<string, string> | undefined;
-        const pub = item.publisher as Record<string, string> | undefined;
-        const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
-        return {
-          title: (item.name as string) ?? "",
-          description: desc || [
-            pub?.name ? `Editore: ${pub.name}` : "",
-            item.start_year ? `Anno inizio: ${item.start_year}` : "",
-            item.count_of_issues ? `${item.count_of_issues} albi` : "",
-          ].filter(Boolean).join(" | "),
-          category: "fumetti",
-          imageUrl: img?.medium_url ?? img?.small_url ?? "",
-          publisher: pub?.name ?? "",
-          year: (item.start_year as string) ?? "",
-          found: true,
-        } as BarcodeResult;
-      });
-    }
-    return (data.results ?? []).map((item: Record<string, unknown>) => {
+    if (data.status_code !== 1) return [];
+
+    const volumes: BarcodeResult[] = (data.results ?? []).map((item: Record<string, unknown>) => {
+      const img = item.image as Record<string, string> | undefined;
+      const pub = item.publisher as Record<string, string> | undefined;
+      const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
+      return {
+        title: (item.name as string) ?? "",
+        description: desc || [
+          pub?.name ? `Editore: ${pub.name}` : "",
+          item.start_year ? `Dal ${item.start_year}` : "",
+          item.count_of_issues ? `${item.count_of_issues} albi` : "",
+        ].filter(Boolean).join(" · "),
+        category: "fumetti",
+        imageUrl: img?.medium_url ?? img?.small_url ?? "",
+        publisher: pub?.name ?? "",
+        year: (item.start_year as string) ?? "",
+        found: true,
+      } as BarcodeResult;
+    });
+
+    if (volumes.length > 0) return volumes;
+
+    // Fallback: cerca come singolo issue
+    const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=issue&field_list=id,name,volume,description,image,cover_date&limit=10`;
+    const res2 = await fetch(url2, { cache: "no-store" });
+    if (!res2.ok) return [];
+    const data2 = await res2.json();
+    if (data2.status_code !== 1) return [];
+
+    return (data2.results ?? []).map((item: Record<string, unknown>) => {
       const vol = item.volume as Record<string, string> | undefined;
       const img = item.image as Record<string, string> | undefined;
       const desc = ((item.description as string) ?? "").replace(/<[^>]+>/g, "").substring(0, 400);
-      const coverDate = (item.cover_date as string) ?? "";
-      const year = coverDate ? coverDate.substring(0, 4) : "";
+      const year = ((item.cover_date as string) ?? "").substring(0, 4);
       const title = vol?.name ? `${vol.name} — ${item.name}` : ((item.name as string) ?? "");
       return {
         title,
