@@ -9,10 +9,9 @@ export interface BarcodeResult {
   year?: string;
   publisher?: string;
   found: boolean;
-  multiple?: BarcodeResult[]; // per ricerca per titolo
+  multiple?: BarcodeResult[];
 }
 
-// Editori Bonelli e fumetti italiani noti
 const BONELLI_PUBLISHERS = ["bonelli", "sergio bonelli", "star comics", "panini", "rw lion", "bao", "tunué", "magic press"];
 const BONELLI_SERIES = ["dylan dog", "tex", "zagor", "diabolik", "martin mystère", "julia", "nick raider", "mister no", "corto maltese", "magico vento", "dampyr", "brendon", "adam wild"];
 
@@ -29,7 +28,6 @@ function guessCategory(title: string, publisher: string, subjects: string): stri
   return "libri";
 }
 
-// Google Books — funziona per ISBN e per ricerca per titolo (senza API key)
 async function searchGoogleBooks(query: string, isISBN = false): Promise<BarcodeResult[]> {
   try {
     const q = isISBN ? `isbn:${query}` : `intitle:${encodeURIComponent(query)}`;
@@ -50,7 +48,6 @@ async function searchGoogleBooks(query: string, isISBN = false): Promise<Barcode
       const imageUrl = ((v.imageLinks as Record<string, string>) ?? {}).thumbnail ??
                        ((v.imageLinks as Record<string, string>) ?? {}).smallThumbnail ?? "";
       const subjects = ((v.categories as string[]) ?? []).join(" ");
-
       const category = guessCategory(title, publisher, subjects);
 
       return {
@@ -73,7 +70,6 @@ async function searchGoogleBooks(query: string, isISBN = false): Promise<Barcode
   }
 }
 
-// Open Library — ISBN lookup
 async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
   try {
     const res = await fetch(
@@ -99,7 +95,6 @@ async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
         authors   ? `Autore: ${authors}`     : "",
         publisher ? `Editore: ${publisher}`  : "",
         year      ? `Anno: ${year}`           : "",
-        subjects  ? `Soggetti: ${subjects}`  : "",
       ].filter(Boolean).join(" | "),
       category,
       imageUrl,
@@ -113,94 +108,6 @@ async function lookupOpenLibrary(isbn: string): Promise<BarcodeResult | null> {
   }
 }
 
-// Comic Vine API key
-const CV_KEY = ["0","7","b","9","a","b","a","9","c","4","d","7","5","5","8","8","2","6","e","e","f","9","c","c","1","2","b","a","7","5","e","b","d","7","9","6","b","3","9","3"].join("");
-
-// Comic Vine — database fumetti
-async function searchComicVine(query: string): Promise<BarcodeResult[]> {
-  const key = CV_KEY;
-  try {
-    const q = encodeURIComponent(query);
-
-    // Cerca come volume (serie) — più utile per catalogare
-    const url = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,description,image,start_year,count_of_issues&limit=20`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (data.status_code !== 1) return [];
-
-    const volumes: BarcodeResult[] = (data.results ?? []).map((item: Record<string, unknown>) => {
-      const img = item.image as Record<string, string> | undefined;
-      const pub = item.publisher as Record<string, string> | undefined;
-      // Rimuovi HTML e testo in inglese — usa solo dati strutturati in italiano
-      const descParts = [
-        pub?.name ? `Editore: ${pub.name}` : "",
-        item.start_year ? `Dal ${item.start_year}` : "",
-        item.count_of_issues ? `${item.count_of_issues} albi` : "",
-      ].filter(Boolean);
-      return {
-        title: (item.name as string) ?? "",
-        description: descParts.join(" · "),
-        category: "fumetti",
-        imageUrl: img?.medium_url ?? img?.small_url ?? "",
-        publisher: pub?.name ?? "",
-        year: (item.start_year as string) ?? "",
-        found: true,
-      } as BarcodeResult;
-    });
-
-    // Tieni solo i risultati che contengono TUTTE le parole della ricerca nel titolo
-    const queryLower = query.toLowerCase();
-    const queryWords = queryLower.split(/\s+/).filter(Boolean);
-    const filtered = volumes.filter(v =>
-      queryWords.every(w => v.title.toLowerCase().includes(w))
-    );
-
-    // Ordina: titolo esatto prima, poi chi inizia con la query
-    filtered.sort((a, b) => {
-      const at = a.title.toLowerCase();
-      const bt = b.title.toLowerCase();
-      if (at === queryLower) return -1;
-      if (bt === queryLower) return 1;
-      if (at.startsWith(queryLower)) return -1;
-      if (bt.startsWith(queryLower)) return 1;
-      return 0;
-    });
-
-    if (filtered.length > 0) return filtered;
-    if (volumes.length > 0) return volumes; // fallback se nessun filtro corrisponde
-
-    // Fallback: cerca come singolo issue
-    const url2 = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=issue&field_list=id,name,volume,description,image,cover_date&limit=20`;
-    const res2 = await fetch(url2, { cache: "no-store" });
-    if (!res2.ok) return [];
-    const data2 = await res2.json();
-    if (data2.status_code !== 1) return [];
-
-    return (data2.results ?? []).map((item: Record<string, unknown>) => {
-      const vol = item.volume as Record<string, string> | undefined;
-      const img = item.image as Record<string, string> | undefined;
-      const year = ((item.cover_date as string) ?? "").substring(0, 4);
-      const title = vol?.name ? `${vol.name} — ${item.name}` : ((item.name as string) ?? "");
-      const descParts = [
-        vol?.name ? `Serie: ${vol.name}` : "",
-        year ? `Anno: ${year}` : "",
-      ].filter(Boolean);
-      return {
-        title,
-        description: descParts.join(" · "),
-        category: "fumetti",
-        imageUrl: img?.medium_url ?? img?.small_url ?? "",
-        year,
-        found: true,
-      } as BarcodeResult;
-    });
-  } catch {
-    return [];
-  }
-}
-
-// UPC Item DB — prodotti generici (DVD, videogiochi, oggetti)
 async function lookupUPC(code: string): Promise<BarcodeResult | null> {
   try {
     const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`, {
@@ -225,18 +132,128 @@ async function lookupUPC(code: string): Promise<BarcodeResult | null> {
   }
 }
 
+// Comic Vine API key
+const CV_KEY = ["0","7","b","9","a","b","a","9","c","4","d","7","5","5","8","8","2","6","e","e","f","9","c","c","1","2","b","a","7","5","e","b","d","7","9","6","b","3","9","3"].join("");
+
+// Comic Vine — cerca la serie e restituisce tutti i singoli numeri
+async function searchComicVine(query: string): Promise<BarcodeResult[]> {
+  const key = CV_KEY;
+  try {
+    const q = encodeURIComponent(query);
+    const queryLower = query.toLowerCase();
+    const queryWords = queryLower.split(/\s+/).filter(Boolean);
+
+    // 1. Cerca il volume (serie) che corrisponde esattamente alla query
+    const searchUrl = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,image,start_year,count_of_issues&limit=10`;
+    const searchRes = await fetch(searchUrl, { cache: "no-store" });
+    if (!searchRes.ok) return [];
+    const searchData = await searchRes.json();
+    if (searchData.status_code !== 1) return [];
+
+    // Trova il volume che contiene tutte le parole della query nel titolo
+    const allVolumes: Record<string, unknown>[] = searchData.results ?? [];
+    const matchingVolume = allVolumes.find(v =>
+      queryWords.every(w => (v.name as string).toLowerCase().includes(w))
+    );
+
+    if (matchingVolume) {
+      const volumeId = matchingVolume.id as number;
+      const pub = matchingVolume.publisher as Record<string, string> | undefined;
+      const volImg = matchingVolume.image as Record<string, string> | undefined;
+      const volName = matchingVolume.name as string;
+      const totalIssues = (matchingVolume.count_of_issues as number) ?? 0;
+
+      // 2. Carica i singoli numeri della serie (fino a 100 per volta)
+      const allIssues: BarcodeResult[] = [];
+      const pages = Math.ceil(Math.min(totalIssues, 200) / 100);
+
+      for (let page = 0; page < pages; page++) {
+        const issuesUrl = `https://comicvine.gamespot.com/api/issues/?api_key=${key}&format=json&filter=volume:${volumeId}&field_list=id,name,issue_number,cover_date,image&sort=issue_number:asc&limit=100&offset=${page * 100}`;
+        const issuesRes = await fetch(issuesUrl, { cache: "no-store" });
+        if (!issuesRes.ok) break;
+        const issuesData = await issuesRes.json();
+        if (issuesData.status_code !== 1) break;
+
+        const issues = issuesData.results ?? [];
+        issues.forEach((issue: Record<string, unknown>) => {
+          const img = issue.image as Record<string, string> | undefined;
+          const issueNum = (issue.issue_number as string) ?? "";
+          const coverDate = ((issue.cover_date as string) ?? "").substring(0, 4);
+          allIssues.push({
+            title: `${volName} n. ${issueNum}`,
+            description: [
+              pub?.name ? `Editore: ${pub.name}` : "",
+              coverDate ? `Anno: ${coverDate}` : "",
+            ].filter(Boolean).join(" · "),
+            category: "fumetti",
+            imageUrl: img?.medium_url ?? img?.small_url ?? volImg?.medium_url ?? "",
+            publisher: pub?.name ?? "",
+            year: coverDate,
+            found: true,
+          });
+        });
+      }
+
+      if (allIssues.length > 0) return allIssues;
+
+      // Fallback: solo il volume
+      return [{
+        title: volName,
+        description: [
+          pub?.name ? `Editore: ${pub.name}` : "",
+          matchingVolume.start_year ? `Dal ${matchingVolume.start_year}` : "",
+          totalIssues ? `${totalIssues} albi` : "",
+        ].filter(Boolean).join(" · "),
+        category: "fumetti",
+        imageUrl: volImg?.medium_url ?? volImg?.small_url ?? "",
+        publisher: pub?.name ?? "",
+        year: (matchingVolume.start_year as string) ?? "",
+        found: true,
+      }];
+    }
+
+    // Nessun volume trovato — cerca come issue diretto
+    const issueUrl = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=issue&field_list=id,name,volume,cover_date,image&limit=20`;
+    const issueRes = await fetch(issueUrl, { cache: "no-store" });
+    if (!issueRes.ok) return [];
+    const issueData = await issueRes.json();
+    if (issueData.status_code !== 1) return [];
+
+    return (issueData.results ?? [])
+      .filter((item: Record<string, unknown>) =>
+        queryWords.every(w =>
+          ((item.name as string) ?? "").toLowerCase().includes(w) ||
+          ((item.volume as Record<string,string>)?.name ?? "").toLowerCase().includes(w)
+        )
+      )
+      .map((item: Record<string, unknown>) => {
+        const vol = item.volume as Record<string, string> | undefined;
+        const img = item.image as Record<string, string> | undefined;
+        const year = ((item.cover_date as string) ?? "").substring(0, 4);
+        return {
+          title: vol?.name ? `${vol.name} — ${item.name}` : ((item.name as string) ?? ""),
+          description: [vol?.name ? `Serie: ${vol.name}` : "", year ? `Anno: ${year}` : ""].filter(Boolean).join(" · "),
+          category: "fumetti",
+          imageUrl: img?.medium_url ?? img?.small_url ?? "",
+          year,
+          found: true,
+        } as BarcodeResult;
+      });
+  } catch {
+    return [];
+  }
+}
+
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const titleQuery = req.nextUrl.searchParams.get("title");
 
-  // ── RICERCA PER TITOLO (fumetti, libri, ecc.) ──
+  // ── RICERCA PER TITOLO ──
   if (titleQuery) {
-    // Prova Comic Vine per primo (migliore per fumetti)
     const cvResults = await searchComicVine(titleQuery);
     if (cvResults.length > 0) {
       return NextResponse.json({ ...cvResults[0], found: true, multiple: cvResults });
     }
-    // Fallback Google Books (libri, manga, ecc.)
     const gbResults = await searchGoogleBooks(titleQuery, false);
     if (gbResults.length > 0) {
       return NextResponse.json({ ...gbResults[0], found: true, multiple: gbResults });
