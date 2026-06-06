@@ -98,3 +98,15 @@ body::before {
   transform: translateY(-4px);
   box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(249,115,22,0.2);
 }
+
+/* Barcode scan line animation */
+@keyframes scan-line {
+  0%   { top: 10%; opacity: 1; }
+  50%  { top: 85%; opacity: 1; }
+  100% { top: 10%; opacity: 1; }
+}
+.animate-scan-line {
+  animation: scan-line 2s ease-in-out infinite;
+  position: absolute;
+  left: 8px; right: 8px;
+}
