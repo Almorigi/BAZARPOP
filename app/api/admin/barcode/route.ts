@@ -264,18 +264,34 @@ export async function GET(req: NextRequest) {
   if (!code) return NextResponse.json({ error: "Parametro mancante" }, { status: 400 });
 
   // ── RICERCA PER CODICE A BARRE ──
-  const isISBN = code.length === 10 || code.length === 13;
+  // Estrai ISBN valido: alcuni scanner leggono EAN-13 + supplementare (18 cifre)
+  // ISBN-13 inizia con 978 o 979, ISBN-10 è 10 cifre
+  let isbn: string | null = null;
+  const clean = code.replace(/\D/g, ""); // solo cifre
 
-  if (isISBN) {
-    const olResult = await lookupOpenLibrary(code);
+  if (clean.length === 13 && (clean.startsWith("978") || clean.startsWith("979"))) {
+    isbn = clean;
+  } else if (clean.length === 10) {
+    isbn = clean;
+  } else if (clean.length > 13) {
+    // Prova a estrarre i primi 13 se iniziano con 978/979
+    const first13 = clean.substring(0, 13);
+    if (first13.startsWith("978") || first13.startsWith("979")) {
+      isbn = first13;
+    }
+  }
+
+  if (isbn) {
+    const olResult = await lookupOpenLibrary(isbn);
     if (olResult) return NextResponse.json(olResult);
 
-    const gbResults = await searchGoogleBooks(code, true);
+    const gbResults = await searchGoogleBooks(isbn, true);
     if (gbResults.length > 0) return NextResponse.json(gbResults[0]);
   }
 
-  const upcResult = await lookupUPC(code);
+  // Prova UPC per altri prodotti (DVD, giochi, oggetti)
+  const upcResult = await lookupUPC(clean);
   if (upcResult) return NextResponse.json(upcResult);
 
-  return NextResponse.json({ found: false, title: "", description: "", category: "oggetti" });
+  return NextResponse.json({ found: false, title: "", description: "", category: "oggetti", scannedCode: code, cleanCode: clean, detectedISBN: isbn });
 }

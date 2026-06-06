@@ -108,6 +108,7 @@ export default function ScanPage() {
         setBarcodeNotFound(true);
         setTab("title");
         setState("idle");
+        console.log("Codice scansionato non trovato:", code, "lunghezza:", code.length);
       }
     } catch { setState("notfound"); }
   }
