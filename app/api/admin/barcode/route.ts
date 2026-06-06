@@ -30,13 +30,16 @@ function guessCategory(title: string, publisher: string, subjects: string): stri
 
 async function searchGoogleBooks(query: string, isISBN = false): Promise<BarcodeResult[]> {
   try {
+    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
     const q = isISBN ? `isbn:${query}` : `intitle:${encodeURIComponent(query)}`;
+    const keyParam = apiKey ? `&key=${apiKey}` : "";
     const res = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=8&langRestrict=it`,
+      `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=8${keyParam}`,
       { next: { revalidate: 3600 } }
     );
+    if (res.status === 429) return []; // quota esaurita
     const data = await res.json();
-    if (!data.items?.length) return [];
+    if (data.error || !data.items?.length) return [];
 
     return data.items.map((item: Record<string, unknown>) => {
       const v = item.volumeInfo as Record<string, unknown>;
@@ -67,6 +70,45 @@ async function searchGoogleBooks(query: string, isISBN = false): Promise<Barcode
     });
   } catch {
     return [];
+  }
+}
+
+// Open Library search endpoint — migliore copertura
+async function lookupOpenLibrarySearch(isbn: string): Promise<BarcodeResult | null> {
+  try {
+    const res = await fetch(
+      `https://openlibrary.org/search.json?q=${isbn}&fields=title,author_name,publisher,first_publish_year,cover_i,subject`,
+      { next: { revalidate: 86400 } }
+    );
+    const data = await res.json();
+    const book = data.docs?.[0];
+    if (!book?.title) return null;
+
+    const title = book.title ?? "";
+    const authors = (book.author_name ?? []).join(", ");
+    const publisher = (book.publisher ?? [])[0] ?? "";
+    const year = book.first_publish_year ? String(book.first_publish_year) : "";
+    const coverId = book.cover_i;
+    const imageUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : "";
+    const subjects = (book.subject ?? []).join(" ");
+    const category = guessCategory(title, publisher, subjects);
+
+    return {
+      title,
+      description: [
+        authors   ? `Autore: ${authors}`    : "",
+        publisher ? `Editore: ${publisher}` : "",
+        year      ? `Anno: ${year}`          : "",
+      ].filter(Boolean).join(" | "),
+      category,
+      imageUrl,
+      author: authors,
+      year,
+      publisher,
+      found: true,
+    };
+  } catch {
+    return null;
   }
 }
 
@@ -282,9 +324,15 @@ export async function GET(req: NextRequest) {
   }
 
   if (isbn) {
+    // 1. Open Library bibkeys (veloce)
     const olResult = await lookupOpenLibrary(isbn);
     if (olResult) return NextResponse.json(olResult);
 
+    // 2. Open Library search (copertura più ampia, inclusi libri italiani)
+    const olSearch = await lookupOpenLibrarySearch(isbn);
+    if (olSearch) return NextResponse.json(olSearch);
+
+    // 3. Google Books (può avere quota limit)
     const gbResults = await searchGoogleBooks(isbn, true);
     if (gbResults.length > 0) return NextResponse.json(gbResults[0]);
   }
