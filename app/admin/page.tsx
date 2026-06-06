@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search } from "lucide-react";
+import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet } from "lucide-react";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
 import { clsx } from "clsx";
@@ -56,10 +56,16 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <p className="text-xs tracking-[0.25em] uppercase text-accent mb-1">Pannello</p>
           <h1 className="font-serif text-3xl font-bold text-white">Admin</h1>
         </div>
-        <Link href="/admin/products/new"
-          className="flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
-          <PlusCircle size={16} /> Aggiungi prodotto
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/import"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
+            <FileSpreadsheet size={15} /> Import CSV
+          </Link>
+          <Link href="/admin/products/new"
+            className="flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
+            <PlusCircle size={16} /> Aggiungi prodotto
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}

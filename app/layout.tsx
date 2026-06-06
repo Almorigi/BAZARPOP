@@ -3,9 +3,15 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CookieBanner from "@/components/CookieBanner";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
+
+// ID Google Analytics — sostituisci con il tuo ID reale (es. G-XXXXXXXXXX)
+const GA_ID = "G-XXXXXXXXXX";
 
 export const metadata: Metadata = {
   title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi usati",
@@ -40,10 +46,30 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it">
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}', {
+              anonymize_ip: true,
+              cookie_flags: 'SameSite=None;Secure'
+            });
+          `}
+        </Script>
+      </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
+        <CookieBanner />
+        <WhatsAppButton />
       </body>
     </html>
   );
