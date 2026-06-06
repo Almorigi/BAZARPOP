@@ -17,7 +17,7 @@ export default function TerminiPage() {
         <section>
           <h2 className="font-serif text-xl font-bold text-white mb-3">1. Venditore</h2>
           <p>
-            La Soffitta del Collezionista è gestita da Antonio Moro.
+            La Soffitta del Collezionista è un negozio online di articoli da collezione.
             Per qualsiasi comunicazione: <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>.
           </p>
         </section>

@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-serif text-xl font-bold text-white mb-3">1. Titolare del trattamento</h2>
           <p>
-            Il titolare del trattamento dei dati personali è Antonio Moro, raggiungibile all&apos;indirizzo email{" "}
+            Il titolare del trattamento dei dati personali è La Soffitta del Collezionista, raggiungibile all&apos;indirizzo email{" "}
             <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>.
           </p>
         </section>
