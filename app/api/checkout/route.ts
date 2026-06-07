@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { createClient } from "@supabase/supabase-js";
 import { CartItem } from "@/types";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function getShippingSettings() {
+  const { data } = await supabaseAdmin.from("settings").select("*");
+  const map: Record<string, number> = {};
+  for (const row of data ?? []) map[row.key] = parseInt(row.value);
+  return {
+    standard: map.shipping_standard ?? 890,
+    express: map.shipping_express ?? 1390,
+    freeThreshold: map.shipping_free_threshold ?? 3500,
+  };
+}
 
 export async function POST(req: NextRequest) {
   const { items }: { items: CartItem[] } = await req.json();
@@ -11,6 +28,8 @@ export async function POST(req: NextRequest) {
 
   const total = items.reduce((sum: number, item: CartItem) => sum + item.product.price * item.quantity, 0);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const shipping = await getShippingSettings();
+  const standardCost = shipping.freeThreshold > 0 && total >= shipping.freeThreshold ? 0 : shipping.standard;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -21,8 +40,8 @@ export async function POST(req: NextRequest) {
       {
         shipping_rate_data: {
           type: "fixed_amount",
-          fixed_amount: { amount: total >= 3500 ? 0 : 890, currency: "eur" },
-          display_name: total >= 3500 ? "Spedizione gratuita 🎉" : "Spedizione standard",
+          fixed_amount: { amount: standardCost, currency: "eur" },
+          display_name: standardCost === 0 ? "Spedizione gratuita 🎉" : "Spedizione standard",
           delivery_estimate: {
             minimum: { unit: "business_day", value: 3 },
             maximum: { unit: "business_day", value: 7 },
@@ -32,7 +51,7 @@ export async function POST(req: NextRequest) {
       {
         shipping_rate_data: {
           type: "fixed_amount",
-          fixed_amount: { amount: 1390, currency: "eur" },
+          fixed_amount: { amount: shipping.express, currency: "eur" },
           display_name: "Spedizione express",
           delivery_estimate: {
             minimum: { unit: "business_day", value: 1 },
