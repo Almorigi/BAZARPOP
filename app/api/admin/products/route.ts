@@ -7,6 +7,16 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+export async function GET() {
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .select("id, title, price, category")
+    .eq("sold", false)
+    .order("title", { ascending: true });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ products: data ?? [] });
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { title, description, price, category, condition, stock, images } = body;
