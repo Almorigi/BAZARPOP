@@ -145,6 +145,21 @@ export default function ScanPage() {
   async function handleSave() {
     if (!form.title || !form.price) return;
     setState("saving");
+
+    // Se c'è un'immagine esterna, la carica su Supabase prima di salvare
+    let imageUrl = form.imageUrl;
+    if (imageUrl && !imageUrl.includes("supabase.co")) {
+      try {
+        const up = await fetch("/api/admin/upload-from-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: imageUrl }),
+        });
+        const upJson = await up.json();
+        if (upJson.url) imageUrl = upJson.url;
+      } catch { /* mantieni URL originale in caso di errore */ }
+    }
+
     const res = await fetch("/api/admin/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -153,7 +168,7 @@ export default function ScanPage() {
         price: form.price,
         category: form.category, condition: form.condition,
         stock: parseInt(form.stock) || 1,
-        images: form.imageUrl ? [form.imageUrl] : [],
+        images: imageUrl ? [imageUrl] : [],
       }),
     });
     const json = await res.json();
