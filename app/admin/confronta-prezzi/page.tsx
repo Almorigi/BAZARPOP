@@ -19,12 +19,12 @@ interface CompetitorRow {
 }
 
 const SITES = [
-  { name: "eBay (venduti)", color: "bg-yellow-500/10 border-yellow-500/30 text-yellow-400", url: (q: string) => `https://www.ebay.it/sch/i.html?_nkw=${encodeURIComponent(q)}&LH_Sold=1&LH_Complete=1` },
-  { name: "eBay (attivi)",  color: "bg-yellow-500/10 border-yellow-500/30 text-yellow-400", url: (q: string) => `https://www.ebay.it/sch/i.html?_nkw=${encodeURIComponent(q)}` },
-  { name: "Subito.it",      color: "bg-blue-500/10 border-blue-500/30 text-blue-400",       url: (q: string) => `https://www.subito.it/annunci-italia/vendita/usato/?q=${encodeURIComponent(q)}` },
-  { name: "Amazon.it",      color: "bg-orange-500/10 border-orange-500/30 text-orange-400", url: (q: string) => `https://www.amazon.it/s?k=${encodeURIComponent(q)}` },
-  { name: "Maremagnum",     color: "bg-purple-500/10 border-purple-500/30 text-purple-400", url: (q: string) => `https://www.maremagnum.com/libri-antichi/ricerca?keywords=${encodeURIComponent(q)}` },
-  { name: "Mercatino Comics",color: "bg-red-500/10 border-red-500/30 text-red-400",         url: (q: string) => `https://www.mercatinocomics.it/cerca?q=${encodeURIComponent(q)}` },
+  { name: "eBay (venduti)",  color: "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",  url: (q: string) => `https://www.ebay.it/sch/i.html?_nkw=${encodeURIComponent(q)}&LH_Sold=1&LH_Complete=1` },
+  { name: "eBay (attivi)",   color: "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",  url: (q: string) => `https://www.ebay.it/sch/i.html?_nkw=${encodeURIComponent(q)}` },
+  { name: "Subito.it",       color: "bg-blue-500/10 border-blue-500/30 text-blue-400",        url: (q: string) => `https://www.subito.it/annunci-italia/vendita/usato/?q=${encodeURIComponent(q)}` },
+  { name: "Amazon.it",       color: "bg-orange-500/10 border-orange-500/30 text-orange-400",  url: (q: string) => `https://www.amazon.it/s?k=${encodeURIComponent(q)}` },
+  { name: "Vinted",          color: "bg-teal-500/10 border-teal-500/30 text-teal-400",        url: (q: string) => `https://www.vinted.it/catalog?search_text=${encodeURIComponent(q)}` },
+  { name: "Wallapop",        color: "bg-red-500/10 border-red-500/30 text-red-400",           url: (q: string) => `https://it.wallapop.com/search?keywords=${encodeURIComponent(q)}` },
 ];
 
 let nextId = 1;
