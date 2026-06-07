@@ -8,7 +8,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "amoro6321@gmail.com";
 const SHOP_NAME = "La Soffitta del Collezionista";
 const FROM_EMAIL = process.env.FROM_EMAIL ?? "noreply@lasoffittadelcollezionista.it";
@@ -171,6 +170,7 @@ export async function POST(req: NextRequest) {
 
     // Email all'admin
     if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
         from: FROM_EMAIL,
         to: ADMIN_EMAIL,
