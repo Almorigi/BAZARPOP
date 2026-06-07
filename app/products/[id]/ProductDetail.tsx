@@ -1,9 +1,9 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
-import { ShoppingCart, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -21,8 +21,21 @@ const categoryLabel: Record<string, string> = {
 export default function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
   const [activeImg, setActiveImg] = useState(0);
   const [added, setAdded] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
   const price = (product.price / 100).toFixed(2);
   const cond = conditionConfig[product.condition];
+
+  // Chiudi lightbox con Escape, naviga con frecce
+  useEffect(() => {
+    if (!lightbox) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightbox(false);
+      if (e.key === "ArrowRight") setActiveImg(i => (i + 1) % product.images.length);
+      if (e.key === "ArrowLeft") setActiveImg(i => (i - 1 + product.images.length) % product.images.length);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, product.images.length]);
 
   function handleAdd() {
     addToCart(product);
@@ -31,6 +44,38 @@ export default function ProductDetail({ product, related }: { product: Product; 
   }
 
   return (
+    <>
+    {/* Lightbox */}
+    {lightbox && product.images.length > 0 && (
+      <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setLightbox(false)}>
+        <button className="absolute top-4 right-4 text-white/70 hover:text-white p-2" onClick={() => setLightbox(false)}>
+          <X size={28} />
+        </button>
+        {product.images.length > 1 && (
+          <>
+            <button className="absolute left-4 text-white/70 hover:text-white p-2 bg-white/10 rounded-full"
+              onClick={e => { e.stopPropagation(); setActiveImg(i => (i - 1 + product.images.length) % product.images.length); }}>
+              <ChevronLeft size={28} />
+            </button>
+            <button className="absolute right-4 text-white/70 hover:text-white p-2 bg-white/10 rounded-full"
+              onClick={e => { e.stopPropagation(); setActiveImg(i => (i + 1) % product.images.length); }}>
+              <ChevronRight size={28} />
+            </button>
+          </>
+        )}
+        <div className="relative w-full max-w-2xl max-h-[90vh] aspect-[3/4] mx-8" onClick={e => e.stopPropagation()}>
+          <Image src={product.images[activeImg]} alt={product.title} fill className="object-contain" sizes="90vw" />
+        </div>
+        {product.images.length > 1 && (
+          <div className="absolute bottom-4 flex gap-2">
+            {product.images.map((_, i) => (
+              <button key={i} onClick={e => { e.stopPropagation(); setActiveImg(i); }}
+                className={clsx("w-2 h-2 rounded-full transition-colors", i === activeImg ? "bg-accent" : "bg-white/30")} />
+            ))}
+          </div>
+        )}
+      </div>
+    )}
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
       <Link href="/products" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-white mb-8 transition-colors group">
         <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> Torna ai prodotti
@@ -39,14 +84,22 @@ export default function ProductDetail({ product, related }: { product: Product; 
       <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
         {/* Images */}
         <div className="flex flex-col gap-3">
-          <div className="relative aspect-[3/4] bg-surface-2 rounded-3xl overflow-hidden border border-border">
+          <div
+            className={clsx("relative aspect-[3/4] bg-surface-2 rounded-3xl overflow-hidden border border-border", product.images.length > 0 && !product.sold && "cursor-zoom-in")}
+            onClick={() => product.images.length > 0 && !product.sold && setLightbox(true)}
+          >
             {product.images.length > 0
-              ? <Image src={product.images[activeImg]} alt={product.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+              ? <Image src={product.images[activeImg]} alt={product.title} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, 50vw" />
               : <div className="flex items-center justify-center h-full text-neutral-700 text-7xl">📦</div>
             }
             {product.sold && (
               <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                 <span className="font-serif text-white text-2xl font-bold tracking-[0.15em] rotate-[-20deg] border border-white/60 px-6 py-2">VENDUTO</span>
+              </div>
+            )}
+            {product.images.length > 0 && !product.sold && (
+              <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100">
+                🔍 Ingrandisci
               </div>
             )}
           </div>
@@ -116,5 +169,6 @@ export default function ProductDetail({ product, related }: { product: Product; 
         </div>
       )}
     </div>
+    </>
   );
 }
