@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import { Product, Category } from "@/types";
-import { Search } from "lucide-react";
+import { Search, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -22,17 +22,32 @@ const CONDITIONS = [
   { value: "discreto", label: "Discreto" },
 ];
 
-interface SearchParams { category?: string; condition?: string; q?: string; page?: string; }
+interface SearchParams { category?: string; condition?: string; q?: string; page?: string; sort?: string; }
 
 const PAGE_SIZE = 24;
+
+const SORT_OPTIONS = [
+  { value: "",          label: "Più recenti" },
+  { value: "price_asc", label: "Prezzo: basso → alto" },
+  { value: "price_desc",label: "Prezzo: alto → basso" },
+  { value: "title_asc", label: "A → Z" },
+];
 
 async function getProducts(params: SearchParams) {
   const page = parseInt(params.page ?? "1") - 1;
   let query = supabase
     .from("products")
     .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
     .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+
+  // Ordinamento
+  switch (params.sort) {
+    case "price_asc":  query = query.order("price", { ascending: true });   break;
+    case "price_desc": query = query.order("price", { ascending: false });  break;
+    case "title_asc":  query = query.order("title", { ascending: true });   break;
+    default:           query = query.order("created_at", { ascending: false }); break;
+  }
+
   if (params.category)  query = query.eq("category", params.category as Category);
   if (params.condition) query = query.eq("condition", params.condition);
   if (params.q)         query = query.ilike("title", `%${params.q}%`);
@@ -81,6 +96,29 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           {params.category && <input type="hidden" name="category" value={params.category} />}
         </div>
       </form>
+
+      {/* Sort + risultati */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <ArrowUpDown size={13} className="text-neutral-500" />
+          <div className="flex gap-1.5 flex-wrap">
+            {SORT_OPTIONS.map(opt => (
+              <Link
+                key={opt.value}
+                href={buildUrl({ sort: opt.value, page: "1" })}
+                className={clsx(
+                  "text-xs px-3 py-1.5 rounded-full border transition-colors",
+                  (params.sort ?? "") === opt.value
+                    ? "border-accent/40 bg-accent/10 text-white"
+                    : "border-border text-neutral-500 hover:text-neutral-300"
+                )}
+              >
+                {opt.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Category tabs — scrollabile su mobile */}
       <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">

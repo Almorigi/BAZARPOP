@@ -16,7 +16,9 @@ function trackingEmailHtml(params: {
   tracking: string;
   total: number;
   shipping: number;
+  orderId: string;
 }) {
+  const orderId = params.orderId;
   const firstName = params.customerName.split(" ")[0];
   const formatPrice = (c: number) => `€${(c / 100).toFixed(2).replace(".", ",")}`;
   const rows = params.items
@@ -63,6 +65,12 @@ function trackingEmailHtml(params: {
       </div>
     </div>
 
+    <div style="text-align:center;margin:24px 0">
+      <a href="https://www.lasoffittadelcollezionista.it/ordine/${orderId}"
+        style="display:inline-block;background:#f97316;color:#fff;font-weight:bold;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:14px">
+        🔍 Segui il tuo ordine
+      </a>
+    </div>
     <p style="color:#666;font-size:13px">Grazie per aver acquistato su ${SHOP_NAME}! Per qualsiasi domanda rispondi a questa email.</p>
     <p style="color:#444;font-size:12px;margin-top:32px">${SHOP_NAME} · lasoffittadelcollezionista.it</p>
   </div>
@@ -117,6 +125,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           tracking,
           total: order.total,
           shipping: order.shipping,
+          orderId: id,
         }),
       });
     }

@@ -76,6 +76,7 @@ function customerEmailHtml(session: {
   subtotal: number;
   shipping: number;
   total: number;
+  orderId: string;
 }) {
   const rows = session.items.map(i =>
     `<tr><td style="padding:8px;border-bottom:1px solid #333">${i.name}</td><td style="padding:8px;border-bottom:1px solid #333;text-align:center">${i.qty}</td><td style="padding:8px;border-bottom:1px solid #333;text-align:right">${formatPrice(i.price)}</td></tr>`
@@ -110,8 +111,12 @@ function customerEmailHtml(session: {
       </div>
     </div>
 
-    <div style="background:#1a1a1a;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #333">
-      <p style="margin:0;color:#999;font-size:14px">📦 Riceverai un'altra email con il codice di tracciamento non appena il pacco viene spedito.</p>
+    <div style="background:#1a1a1a;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #333;text-align:center">
+      <a href="https://www.lasoffittadelcollezionista.it/ordine/${session.orderId}"
+        style="display:inline-block;background:#f97316;color:#fff;font-weight:bold;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:14px">
+        🔍 Segui il tuo ordine
+      </a>
+      <p style="color:#999;font-size:12px;margin:12px 0 0 0">Riceverai un'altra email con il codice di tracciamento non appena il pacco viene spedito.</p>
     </div>
 
     <p style="color:#666;font-size:13px">Per qualsiasi domanda contattaci su WhatsApp o rispondi a questa email.</p>
@@ -197,7 +202,7 @@ export async function POST(req: NextRequest) {
           from: FROM_EMAIL,
           to: customerEmail,
           subject: `Ordine confermato — ${SHOP_NAME}`,
-          html: customerEmailHtml({ customerName, items: purchasedItems, subtotal, shipping, total }),
+          html: customerEmailHtml({ customerName, items: purchasedItems, subtotal, shipping, total, orderId: session.id }),
         });
       }
     }
