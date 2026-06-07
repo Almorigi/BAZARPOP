@@ -12,6 +12,7 @@ const links = [
   { href: "/products?category=dvd",         label: "Film DVD" },
   { href: "/products?category=oggetti",     label: "Oggetti" },
   { href: "/chi-siamo",                     label: "Chi siamo" },
+  { href: "/contatti",                      label: "Contatti" },
 ];
 
 export default function Navbar() {

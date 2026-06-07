@@ -3,9 +3,40 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
-import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
+
+function ShareButtons({ product }: { product: Product }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== "undefined" ? window.location.href : "";
+  const text = `${product.title} — €${(product.price / 100).toFixed(2)}`;
+
+  function copyLink() {
+    navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  }
+
+  return (
+    <div className="flex items-center gap-2 pt-1">
+      <span className="text-xs text-neutral-600 flex items-center gap-1"><Share2 size={11} /> Condividi:</span>
+      {/* WhatsApp */}
+      <a href={`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`} target="_blank" rel="noopener noreferrer"
+        className="text-xs bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] px-2.5 py-1 rounded-lg border border-[#25D366]/20 transition-colors">
+        WhatsApp
+      </a>
+      {/* Facebook */}
+      <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"
+        className="text-xs bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] px-2.5 py-1 rounded-lg border border-[#1877F2]/20 transition-colors">
+        Facebook
+      </a>
+      {/* Copia link */}
+      <button onClick={copyLink}
+        className="text-xs bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white px-2.5 py-1 rounded-lg border border-white/10 transition-colors">
+        {copied ? "✓ Copiato!" : "Copia link"}
+      </button>
+    </div>
+  );
+}
 
 const conditionConfig: Record<string, { label: string; cls: string }> = {
   nuovo:    { label: "Nuovo",    cls: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
@@ -133,6 +164,8 @@ export default function ProductDetail({ product, related }: { product: Product; 
           <p className="text-sm text-neutral-600">
             {product.stock > 1 ? `${product.stock} disponibili` : product.stock === 1 ? "⚡ Ultimo disponibile!" : "Esaurito"}
           </p>
+          <ShareButtons product={product} />
+
           {!product.sold && product.stock > 0 ? (
             <button onClick={handleAdd}
               className={clsx("flex items-center justify-center gap-2 w-full font-bold py-4 rounded-2xl transition-all text-sm mt-2",
