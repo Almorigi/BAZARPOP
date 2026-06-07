@@ -15,7 +15,7 @@ export function middleware(req: NextRequest) {
   }
 
   // Coming soon — cambia true in false per riaprire il sito
-  if (false) {
+  if (true) {
     const adminToken = req.cookies.get("admin_token")?.value;
     const isAdmin = adminToken === ADMIN_PWD;
     const bypass = ["/admin", "/api", "/coming-soon", "/_next", "/favicon", "/privacy", "/termini", "/ordine", "/contatti"];
