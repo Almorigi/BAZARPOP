@@ -26,6 +26,15 @@ export default async function ProductPage({ params }: Props) {
   const { data: product } = await supabase.from("products").select("*").eq("id", id).single();
   if (!product) notFound();
 
+  // Prodotti correlati: stessa categoria, escludi prodotto corrente, max 4
+  const { data: related } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category", product.category)
+    .eq("sold", false)
+    .neq("id", id)
+    .limit(4);
+
   const price = (product.price / 100).toFixed(2);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -51,7 +60,7 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProductDetail product={product} />
+      <ProductDetail product={product} related={related ?? []} />
     </>
   );
 }

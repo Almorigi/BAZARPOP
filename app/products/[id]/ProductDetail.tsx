@@ -18,7 +18,7 @@ const categoryLabel: Record<string, string> = {
   fumetti: "Fumetto", libri: "Libro", videogiochi: "Videogioco", dvd: "Film DVD", oggetti: "Oggetto",
 };
 
-export default function ProductDetail({ product }: { product: Product }) {
+export default function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
   const [activeImg, setActiveImg] = useState(0);
   const [added, setAdded] = useState(false);
   const price = (product.price / 100).toFixed(2);
@@ -91,6 +91,30 @@ export default function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
       </div>
+      {/* Prodotti correlati */}
+      {related.length > 0 && (
+        <div className="mt-20">
+          <p className="text-xs tracking-[0.3em] uppercase text-accent mb-3">Stessa categoria</p>
+          <h2 className="font-serif text-2xl font-bold text-white mb-8">Potrebbero interessarti</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {related.map((r) => (
+              <Link key={r.id} href={`/products/${r.id}`}
+                className="group glass border border-border rounded-2xl overflow-hidden hover:border-accent/30 transition-all">
+                <div className="relative aspect-[3/4] bg-surface-2">
+                  {r.images[0]
+                    ? <Image src={r.images[0]} alt={r.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 50vw, 25vw" />
+                    : <div className="flex items-center justify-center h-full text-4xl">📦</div>
+                  }
+                </div>
+                <div className="p-3">
+                  <p className="text-white text-sm font-medium truncate">{r.title}</p>
+                  <p className="text-accent font-bold text-sm mt-1">€{(r.price / 100).toFixed(2)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
