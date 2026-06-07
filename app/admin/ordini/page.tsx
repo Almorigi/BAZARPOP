@@ -1,8 +1,9 @@
 export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
-import { ArrowLeft, Package, User, MapPin, Euro } from "lucide-react";
+import { ArrowLeft, Package, User, MapPin } from "lucide-react";
 import { clsx } from "clsx";
+import ShipButton from "./ShipButton";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -118,8 +119,13 @@ export default async function OrdiniPage() {
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-white/5 flex gap-2 flex-wrap">
-                  <UpdateStatusButton orderId={order.id} currentStatus={order.status} />
+                <div className="mt-3 pt-3 border-t border-white/5 flex gap-2 flex-wrap items-center">
+                  {order.tracking_number && order.status !== "paid" && (
+                    <span className="text-xs text-neutral-500 bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
+                      📦 Tracking: <span className="text-white font-mono">{order.tracking_number}</span>
+                    </span>
+                  )}
+                  <ShipButton orderId={order.id} currentStatus={order.status} />
                 </div>
               </div>
             );
@@ -130,17 +136,3 @@ export default async function OrdiniPage() {
   );
 }
 
-function UpdateStatusButton({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
-  const next = currentStatus === "paid" ? "shipped" : currentStatus === "shipped" ? "delivered" : null;
-  if (!next) return <span className="text-xs text-neutral-600">Ordine completato</span>;
-  const label = next === "shipped" ? "✈️ Segna come spedito" : "📬 Segna come consegnato";
-  return (
-    <form action={`/api/admin/orders/${orderId}/status`} method="POST">
-      <input type="hidden" name="status" value={next} />
-      <button type="submit"
-        className="text-xs bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 px-3 py-1.5 rounded-xl border border-white/10 transition-colors">
-        {label}
-      </button>
-    </form>
-  );
-}
