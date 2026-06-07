@@ -1,28 +1,27 @@
 import { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
 
+const BASE_URL = "https://www.lasoffittadelcollezionista.it";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = "https://www.lasoffittadelcollezionista.it";
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: BASE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
+    { url: `${BASE_URL}/products`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE_URL}/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE_URL}/termini`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+  ];
 
   const { data: products } = await supabase
     .from("products")
     .select("id, created_at")
     .eq("sold", false);
 
-  const productUrls = (products ?? []).map((p) => ({
-    url: `${siteUrl}/products/${p.id}`,
+  const productPages: MetadataRoute.Sitemap = (products ?? []).map((p) => ({
+    url: `${BASE_URL}/products/${p.id}`,
     lastModified: new Date(p.created_at),
     changeFrequency: "weekly" as const,
-    priority: 0.8,
+    priority: 0.7,
   }));
 
-  return [
-    { url: siteUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-    { url: `${siteUrl}/products`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteUrl}/products?category=fumetti`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${siteUrl}/products?category=libri`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${siteUrl}/products?category=videogiochi`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${siteUrl}/products?category=oggetti`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    ...productUrls,
-  ];
+  return [...staticPages, ...productPages];
 }
