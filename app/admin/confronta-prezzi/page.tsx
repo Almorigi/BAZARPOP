@@ -24,7 +24,8 @@ const SITES = [
   { name: "Subito.it",       color: "bg-blue-500/10 border-blue-500/30 text-blue-400",        url: (q: string) => `https://www.subito.it/annunci-italia/vendita/usato/?q=${encodeURIComponent(q)}` },
   { name: "Amazon.it",       color: "bg-orange-500/10 border-orange-500/30 text-orange-400",  url: (q: string) => `https://www.amazon.it/s?k=${encodeURIComponent(q)}` },
   { name: "Vinted",          color: "bg-teal-500/10 border-teal-500/30 text-teal-400",        url: (q: string) => `https://www.vinted.it/catalog?search_text=${encodeURIComponent(q)}` },
-  { name: "Wallapop",        color: "bg-red-500/10 border-red-500/30 text-red-400",           url: (q: string) => `https://it.wallapop.com/search?keywords=${encodeURIComponent(q)}` },
+  { name: "Wallapop",              color: "bg-red-500/10 border-red-500/30 text-red-400",           url: (q: string) => `https://it.wallapop.com/search?keywords=${encodeURIComponent(q)}` },
+  { name: "MangaComicsMarket.it", color: "bg-pink-500/10 border-pink-500/30 text-pink-400",         url: (q: string) => `https://www.mangacomicsmarket.it/?s=${encodeURIComponent(q)}` },
 ];
 
 let nextId = 1;
