@@ -168,6 +168,19 @@ export async function POST(req: NextRequest) {
     const shipping = session.shipping_cost?.amount_total ?? 0;
     const total = session.amount_total ?? 0;
 
+    // Salva ordine in Supabase
+    await supabaseAdmin.from("orders").insert({
+      id: session.id,
+      customer_name: customerName,
+      customer_email: customerEmail,
+      address,
+      items: purchasedItems,
+      subtotal,
+      shipping,
+      total,
+      status: "paid",
+    });
+
     // Email all'admin
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
