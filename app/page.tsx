@@ -93,7 +93,7 @@ export default async function HomePage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-xs font-medium text-accent tracking-widest uppercase mb-10 animate-fade-in">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Nuovi pezzi ogni settimana
+            La collezione di un appassionato
           </div>
 
           {/* Headline */}
@@ -184,7 +184,7 @@ export default async function HomePage() {
       <section className="max-w-7xl mx-auto px-6 pb-28">
         <div className="flex items-end justify-between mb-12">
           <div>
-            <p className="text-xs tracking-[0.3em] uppercase text-accent mb-3">Appena arrivati</p>
+            <p className="text-xs tracking-[0.3em] uppercase text-accent mb-3">In vetrina</p>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-white">Ultimi pezzi</h2>
           </div>
           <Link href="/products" className="hidden md:flex items-center gap-2 text-sm text-neutral-500 hover:text-white transition-colors group">
