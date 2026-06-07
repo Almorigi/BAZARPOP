@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
+import NewsletterSection from "@/components/NewsletterSection";
 import { Product } from "@/types";
 
 async function getFeaturedProducts(): Promise<Product[]> {
@@ -231,6 +232,9 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* ── NEWSLETTER ── */}
+      <NewsletterSection />
     </div>
   );
 }

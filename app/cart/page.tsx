@@ -4,14 +4,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { getCart, removeFromCart, updateQuantity, cartTotal } from "@/lib/cart";
 import { CartItem } from "@/types";
-import { Trash2, ShoppingBag, ArrowRight, Minus, Plus, Loader2 } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, Minus, Plus, Loader2, Tag, X, CheckCircle2 } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+interface CouponResult {
+  code: string;
+  discountCents: number;
+  label: string;
+}
+
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [coupon, setCoupon] = useState<CouponResult | null>(null);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     const update = () => setItems(getCart());
@@ -20,14 +30,30 @@ export default function CartPage() {
     return () => window.removeEventListener("cart-updated", update);
   }, []);
 
-  const total = cartTotal(items);
+  const subtotal = cartTotal(items);
+  const discount = coupon?.discountCents ?? 0;
+  const total = Math.max(0, subtotal - discount);
+
+  async function applyCoupon() {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true); setCouponError(""); setCoupon(null);
+    const res = await fetch("/api/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: couponInput.trim(), total: subtotal }),
+    });
+    const data = await res.json();
+    setCouponLoading(false);
+    if (res.ok) { setCoupon(data); setCouponInput(""); }
+    else setCouponError(data.error ?? "Codice non valido");
+  }
 
   async function handleCheckout() {
     setLoading(true);
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items }),
+      body: JSON.stringify({ items, couponCode: coupon?.code ?? null }),
     });
     const { sessionId, error } = await res.json();
     if (error) { alert(error); setLoading(false); return; }
@@ -99,20 +125,61 @@ export default function CartPage() {
         <div className="bg-surface-2 rounded-2xl p-6 border border-border h-fit lg:sticky lg:top-24">
           <h2 className="font-serif text-xl font-bold text-white mb-5">Riepilogo</h2>
 
+          {/* Coupon input */}
+          <div className="mb-5">
+            {coupon ? (
+              <div className="flex items-center justify-between bg-emerald-400/10 border border-emerald-400/20 rounded-xl px-3 py-2.5">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-emerald-400" />
+                  <span className="text-emerald-400 font-mono font-bold text-sm">{coupon.code}</span>
+                  <span className="text-emerald-400 text-xs">{coupon.label}</span>
+                </div>
+                <button onClick={() => setCoupon(null)} className="text-neutral-500 hover:text-white transition-colors">
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Tag size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
+                  <input
+                    value={couponInput}
+                    onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); }}
+                    onKeyDown={e => e.key === "Enter" && applyCoupon()}
+                    placeholder="Codice sconto"
+                    className="w-full bg-[#161616] border border-white/10 rounded-xl pl-8 pr-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-accent/40 placeholder-neutral-600"
+                    style={{ colorScheme: "dark" }}
+                  />
+                </div>
+                <button onClick={applyCoupon} disabled={couponLoading || !couponInput.trim()}
+                  className="flex items-center gap-1 bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-white/10 text-neutral-300 text-xs font-semibold px-3 rounded-xl transition-colors disabled:opacity-40">
+                  {couponLoading ? <Loader2 size={12} className="animate-spin" /> : "Applica"}
+                </button>
+              </div>
+            )}
+            {couponError && <p className="text-red-400 text-xs mt-1.5 ml-1">{couponError}</p>}
+          </div>
+
           <div className="space-y-3 mb-5">
             <div className="flex justify-between text-sm text-neutral-400">
               <span>Subtotale</span>
-              <span>€{(total / 100).toFixed(2)}</span>
+              <span>€{(subtotal / 100).toFixed(2)}</span>
             </div>
+            {coupon && (
+              <div className="flex justify-between text-sm text-emerald-400">
+                <span>Sconto ({coupon.code})</span>
+                <span>−€{(discount / 100).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm text-neutral-400">
               <span>Spedizione</span>
               <span className="text-emerald-400 text-xs">
                 {total >= 3500 ? "🎉 Gratuita!" : "Calcolata al checkout"}
               </span>
             </div>
-            {total < 3500 && (
+            {total < 3500 && !coupon && (
               <div className="text-xs text-neutral-600 bg-surface-3 rounded-xl p-3 text-center">
-                Aggiungi <span className="text-accent font-semibold">€{((3500 - total) / 100).toFixed(2)}</span> per la spedizione gratuita!
+                Aggiungi <span className="text-accent font-semibold">€{((3500 - subtotal) / 100).toFixed(2)}</span> per la spedizione gratuita!
               </div>
             )}
           </div>
