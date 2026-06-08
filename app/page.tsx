@@ -129,7 +129,7 @@ export default async function HomePage() {
           <div className="flex flex-wrap justify-center gap-12 mt-20 animate-fade-up" style={{ animationDelay: "0.3s", opacity: 0 }}>
             {[
               { n: "1000+", label: "Pezzi disponibili" },
-              { n: "4",     label: "Categorie" },
+              { n: "5",     label: "Categorie" },
               { n: "100%",  label: "Selezionato a mano" },
             ].map(({ n, label }) => (
               <div key={label} className="text-center">
