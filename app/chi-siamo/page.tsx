@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Chi Siamo — La Soffitta del Collezionista",
-  description: "La storia di un appassionato di fumetti cresciuto tra le pagine di Dylan Dog, Topolino e Dragon Ball. Scopri chi c'è dietro La Soffitta del Collezionista.",
+  description: "La storia di un appassionato di fumetti cresciuto tra le pagine di Topolino, Tex e Alan Ford. Scopri chi c'è dietro La Soffitta del Collezionista.",
 };
 
 const valori = [
@@ -50,9 +50,10 @@ export default function ChiSiamoPage() {
           <p>
             Tutto è cominciato da bambino, con una copia di <strong className="text-white">Topolino</strong> comprata all'edicola sotto casa.
             Quella settimana non aspettavo altro — il martedì era il giorno più bello della settimana.
-            Da lì è stata una discesa libera: Dylan Dog, Tex, poi il boom dei manga con
-            <strong className="text-white"> Dragon Ball</strong> e <strong className="text-white">Naruto</strong>,
-            e infine i fumetti americani, le console retro, i videogiochi che profumavano ancora di plastica nuova.
+            Da lì è stata una discesa libera: <strong className="text-white">Tex</strong>, <strong className="text-white">Zagor</strong>,
+            il <strong className="text-white">Comandante Mark</strong>, <strong className="text-white">Alan Ford</strong>,
+            e poi i grandi eroi Marvel — <strong className="text-white">Spider-Man</strong>, <strong className="text-white">Doctor Strange</strong> —
+            fino alle console retro e ai videogiochi che profumavano ancora di plastica nuova.
           </p>
           <p>
             Nel tempo ho accumulato centinaia di pezzi — scaffali pieni, scatole in cantina, qualche rimpianto
