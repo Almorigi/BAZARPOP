@@ -17,7 +17,7 @@ export default function CategoryChart({ data }: { data: { name: string; value: n
         </Pie>
         <Tooltip
           contentStyle={{ background: "#111", border: "1px solid #333", borderRadius: "12px", color: "#fff", fontSize: 12 }}
-          formatter={(v: number, name: string) => [v, LABELS[name] ?? name]}
+          formatter={(v, name) => [v, LABELS[String(name)] ?? String(name)]}
         />
         <Legend formatter={(v) => LABELS[v] ?? v} wrapperStyle={{ fontSize: 11, color: "#999" }} />
       </PieChart>

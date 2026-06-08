@@ -16,7 +16,7 @@ export default function RevenueChart({ data }: { data: { settimana: string; rica
         <YAxis tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip
           contentStyle={{ background: "#111", border: "1px solid #333", borderRadius: "12px", color: "#fff", fontSize: 12 }}
-          formatter={(v: number) => [`€${v}`, "Ricavi"]}
+          formatter={(v) => [`€${v}`, "Ricavi"]}
         />
         <Area type="monotone" dataKey="ricavi" stroke="#f97316" strokeWidth={2} fill="url(#colorRicavi)" dot={false} />
       </AreaChart>
