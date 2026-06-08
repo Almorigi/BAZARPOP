@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, ArrowUpRight, Star, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import NewsletterSection from "@/components/NewsletterSection";
@@ -14,6 +15,22 @@ async function getFeaturedProducts(): Promise<Product[]> {
     .order("created_at", { ascending: false })
     .limit(8);
   return data ?? [];
+}
+
+async function getSpotlightProduct(): Promise<Product | null> {
+  // Prende il prodotto in evidenza: featured=true se esiste, altrimenti il più recente disponibile con immagine
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("sold", false)
+    .gt("stock", 0)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (!data || data.length === 0) return null;
+  // Preferisci prodotti con immagini e descrizione
+  const withImg = data.filter((p: Product) => p.images?.length > 0 && p.description);
+  return withImg[0] ?? data[0];
 }
 
 const categories = [
@@ -65,7 +82,7 @@ const categories = [
 ];
 
 export default async function HomePage() {
-  const products = await getFeaturedProducts();
+  const [products, spotlight] = await Promise.all([getFeaturedProducts(), getSpotlightProduct()]);
 
   return (
     <div className="overflow-hidden">
@@ -181,6 +198,53 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* ── SPOTLIGHT / PRODOTTO IN EVIDENZA ── */}
+      {spotlight && (
+        <section className="max-w-7xl mx-auto px-6 pb-24">
+          <div className="flex items-center gap-2 mb-8">
+            <Sparkles size={14} className="text-accent" />
+            <p className="text-xs tracking-[0.3em] uppercase text-accent">Prodotto in evidenza</p>
+          </div>
+          <Link href={`/products/${spotlight.id}`}
+            className="group relative overflow-hidden rounded-3xl glass border border-border hover:border-accent/30 transition-all duration-300 flex flex-col md:flex-row glow-orange">
+            {/* Image */}
+            <div className="relative md:w-1/3 aspect-[3/2] md:aspect-auto bg-surface-2 flex-shrink-0">
+              {spotlight.images[0]
+                ? <Image src={spotlight.images[0]} alt={spotlight.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width:768px) 100vw, 33vw" />
+                : <div className="flex items-center justify-center h-full text-6xl">📦</div>
+              }
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d0d] hidden md:block" />
+            </div>
+            {/* Content */}
+            <div className="flex flex-col justify-center p-8 md:p-12 flex-1">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs bg-accent/20 border border-accent/30 text-accent px-3 py-1 rounded-full font-semibold tracking-wider uppercase">
+                  ✦ In evidenza
+                </span>
+                {spotlight.avg_rating != null && spotlight.review_count != null && spotlight.review_count > 0 && (
+                  <span className="flex items-center gap-1 text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full">
+                    <Star size={10} fill="currentColor" />
+                    {spotlight.avg_rating.toFixed(1)} ({spotlight.review_count})
+                  </span>
+                )}
+              </div>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
+                {spotlight.title}
+              </h2>
+              {spotlight.description && (
+                <p className="text-neutral-400 text-sm leading-relaxed mb-6 line-clamp-3">{spotlight.description}</p>
+              )}
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="font-serif text-3xl font-bold text-accent">€{(spotlight.price / 100).toFixed(2)}</span>
+                <span className="flex items-center gap-2 bg-accent text-white font-bold px-6 py-3 rounded-2xl text-sm group-hover:bg-orange-600 transition-colors">
+                  Vedi il prodotto <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </span>
+              </div>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* ── LATEST PRODUCTS ── */}
       <section className="max-w-7xl mx-auto px-6 pb-28">

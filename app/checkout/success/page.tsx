@@ -3,9 +3,21 @@ import { useEffect } from "react";
 import { clearCart } from "@/lib/cart";
 import { CheckCircle, Package, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import confetti from "canvas-confetti";
 
 export default function SuccessPage() {
-  useEffect(() => { clearCart(); }, []);
+  useEffect(() => {
+    clearCart();
+    // Confetti burst
+    const fire = (particleRatio: number, opts: confetti.Options) => {
+      confetti({ origin: { y: 0.7 }, ...opts, particleCount: Math.floor(200 * particleRatio) });
+    };
+    fire(0.25, { spread: 26, startVelocity: 55, colors: ["#f97316", "#fb923c"] });
+    fire(0.2, { spread: 60, colors: ["#ffffff", "#f97316"] });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: ["#f97316", "#fbbf24"] });
+    fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+    fire(0.1, { spread: 120, startVelocity: 45 });
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-24">

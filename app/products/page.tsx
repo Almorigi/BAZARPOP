@@ -3,7 +3,7 @@ import { Product, Category } from "@/types";
 import { ArrowUpDown } from "lucide-react";
 import SearchAutocomplete from "@/components/SearchAutocomplete";
 import PriceFilter from "@/components/PriceFilter";
-import InfiniteProductGrid from "@/components/InfiniteProductGrid";
+import ViewToggle from "@/components/ViewToggle";
 import ConditionGuide from "@/components/ConditionGuide";
 import Link from "next/link";
 import { clsx } from "clsx";
@@ -214,8 +214,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         ))}
       </div>
 
-      {/* Grid con infinite scroll */}
-      <InfiniteProductGrid
+      {/* Grid/List con infinite scroll e toggle vista */}
+      <ViewToggle
         initialProducts={products}
         initialTotal={total}
         filters={filters}

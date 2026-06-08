@@ -7,6 +7,8 @@ import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Sha
 import WishlistButton from "@/components/WishlistButton";
 import ProductReviews from "@/components/ProductReviews";
 import ConditionGuide from "@/components/ConditionGuide";
+import WatchingNow from "@/components/WatchingNow";
+import RecentlyViewed, { trackProductView } from "@/components/RecentlyViewed";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -95,6 +97,9 @@ export default function ProductDetail({ product, related }: { product: Product; 
   const price = (product.price / 100).toFixed(2);
   const cond = conditionConfig[product.condition];
 
+  // Track recently viewed
+  useEffect(() => { trackProductView(product); }, [product]);
+
   // Chiudi lightbox con Escape, naviga con frecce
   useEffect(() => {
     if (!lightbox) return;
@@ -110,6 +115,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
   function handleAdd() {
     addToCart(product);
     setAdded(true);
+    window.dispatchEvent(new CustomEvent("cart-toast", { detail: product }));
     setTimeout(() => setAdded(false), 2000);
   }
 
@@ -209,7 +215,10 @@ export default function ProductDetail({ product, related }: { product: Product; 
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">{product.title}</h1>
             <WishlistButton productId={product.id} size="lg" />
           </div>
-          <div className="font-serif text-4xl font-bold text-accent">€{price}</div>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="font-serif text-4xl font-bold text-accent">€{price}</div>
+            <WatchingNow />
+          </div>
           {product.description && (
             <p className="text-neutral-400 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
           )}
@@ -237,6 +246,8 @@ export default function ProductDetail({ product, related }: { product: Product; 
       </div>
       {/* Recensioni */}
       <ProductReviews productId={product.id} />
+      {/* Visti di recente */}
+      <RecentlyViewed excludeId={product.id} />
 
       {/* Prodotti correlati */}
       {related.length > 0 && (
