@@ -17,12 +17,13 @@ const CATEGORIES = [
 ];
 
 async function getStats() {
-  const [{ count: total }, { count: sold }, { count: available }] = await Promise.all([
+  const [{ count: total }, { count: sold }, { count: available }, { count: newOrders }] = await Promise.all([
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("products").select("*", { count: "exact", head: true }).eq("sold", true),
     supabase.from("products").select("*", { count: "exact", head: true }).eq("sold", false),
+    supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "paid"),
   ]);
-  return { total: total ?? 0, sold: sold ?? 0, available: available ?? 0 };
+  return { total: total ?? 0, sold: sold ?? 0, available: available ?? 0, newOrders: newOrders ?? 0 };
 }
 
 async function getProducts(category?: string, q?: string) {
@@ -79,8 +80,13 @@ export default async function AdminPage({ searchParams }: PageProps) {
             <Bell size={15} /> Avvisami
           </Link>
           <Link href="/admin/ordini"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
+            className="relative flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
             <ShoppingBag size={15} /> Ordini
+            {stats.newOrders > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {stats.newOrders > 9 ? "9+" : stats.newOrders}
+              </span>
+            )}
           </Link>
           <Link href="/admin/confronta-prezzi"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">

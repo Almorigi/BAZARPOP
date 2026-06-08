@@ -12,6 +12,8 @@ export interface Product {
   slug: string;
   created_at: string;
   sold: boolean;
+  avg_rating?: number | null;
+  review_count?: number | null;
 }
 
 export interface CartItem {

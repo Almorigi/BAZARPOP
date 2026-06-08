@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Check } from "lucide-react";
+import { ShoppingCart, Check, Star } from "lucide-react";
 import { Product } from "@/types";
 import { addToCart } from "@/lib/cart";
 import { clsx } from "clsx";
@@ -75,6 +75,15 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.title}
           </h3>
         </Link>
+
+        {/* Stelle recensioni */}
+        {product.avg_rating != null && product.review_count != null && product.review_count > 0 && (
+          <div className="flex items-center gap-1">
+            <Star size={11} className="text-yellow-400 fill-yellow-400 flex-shrink-0" />
+            <span className="text-xs text-yellow-400 font-semibold">{product.avg_rating.toFixed(1)}</span>
+            <span className="text-xs text-neutral-600">({product.review_count})</span>
+          </div>
+        )}
 
         <div className="flex items-center justify-between mt-auto pt-1">
           <span className="font-serif text-xl font-bold text-accent">€{price}</span>

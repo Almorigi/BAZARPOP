@@ -187,9 +187,18 @@ export default function CartPage() {
                 return d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "short" });
               })()}</span>
             </div>
-            {total < 3500 && !coupon && (
-              <div className="text-xs text-neutral-600 bg-surface-3 rounded-xl p-3 text-center">
-                Aggiungi <span className="text-accent font-semibold">€{((3500 - subtotal) / 100).toFixed(2)}</span> per la spedizione gratuita!
+            {subtotal < 3500 && (
+              <div className="bg-surface-3 rounded-xl p-3">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-neutral-500">Spedizione gratuita da €35</span>
+                  <span className="text-accent font-semibold">mancano €{((3500 - subtotal) / 100).toFixed(2)}</span>
+                </div>
+                <div className="w-full bg-surface-2 rounded-full h-1.5">
+                  <div
+                    className="bg-accent h-1.5 rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, (subtotal / 3500) * 100)}%` }}
+                  />
+                </div>
               </div>
             )}
           </div>

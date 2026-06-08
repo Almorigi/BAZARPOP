@@ -25,6 +25,14 @@ export const metadata: Metadata = {
     siteName: "La Soffitta del Collezionista",
     locale: "it_IT",
     type: "website",
+    images: [
+      {
+        url: "https://www.lasoffittadelcollezionista.it/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi usati",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
