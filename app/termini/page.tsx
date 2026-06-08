@@ -14,10 +14,18 @@ export default function TerminiPage() {
 
       <div className="prose prose-invert prose-sm max-w-none space-y-8 text-neutral-400 leading-relaxed">
 
+        {/* Disclaimer in evidenza */}
+        <div className="bg-accent/5 border border-accent/20 rounded-2xl px-5 py-4 mb-4">
+          <p className="text-sm text-neutral-300 leading-relaxed">
+            <strong className="text-accent">Nota importante:</strong> Tutti gli articoli in vendita provengono dalla collezione personale del venditore e sono beni usati di proprietà privata. Non viene svolta attività professionale di commercio.
+          </p>
+        </div>
+
         <section>
           <h2 className="font-serif text-xl font-bold text-white mb-3">1. Venditore</h2>
           <p>
-            La Soffitta del Collezionista è un negozio online di articoli da collezione.
+            La Soffitta del Collezionista è un negozio online di articoli da collezione gestito da un privato.
+            Tutti gli articoli provengono dalla collezione personale del venditore e sono beni usati di proprietà privata. Non viene svolta alcuna attività professionale o abituale di commercio.
             Per qualsiasi comunicazione: <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>.
           </p>
         </section>

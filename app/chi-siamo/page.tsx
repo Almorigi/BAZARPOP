@@ -98,6 +98,14 @@ export default function ChiSiamoPage() {
         </div>
       </div>
 
+      {/* Disclaimer legale */}
+      <div className="mb-10 flex items-start gap-3 bg-white/3 border border-white/8 rounded-2xl px-5 py-4">
+        <span className="text-neutral-600 mt-0.5 flex-shrink-0">ℹ️</span>
+        <p className="text-xs text-neutral-500 leading-relaxed">
+          Tutti gli articoli in vendita provengono dalla collezione personale del venditore e sono beni usati di proprietà privata. Non viene svolta attività professionale di commercio.
+        </p>
+      </div>
+
       {/* CTA */}
       <div className="text-center glass rounded-3xl p-10 border border-border">
         <p className="text-xs tracking-[0.3em] uppercase text-accent mb-4">Unisciti alla community</p>

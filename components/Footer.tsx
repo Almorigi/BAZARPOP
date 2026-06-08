@@ -101,6 +101,13 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Disclaimer */}
+        <div className="border-t border-white/5 pt-8 mb-6">
+          <p className="text-xs text-neutral-700 leading-relaxed text-center max-w-2xl mx-auto">
+            Tutti gli articoli in vendita provengono dalla collezione personale del venditore e sono beni usati di proprietà privata. Non viene svolta attività professionale di commercio.
+          </p>
+        </div>
+
         {/* Bottom bar */}
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-neutral-700">
