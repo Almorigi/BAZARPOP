@@ -6,6 +6,7 @@ import { Product } from "@/types";
 import { addToCart } from "@/lib/cart";
 import { clsx } from "clsx";
 import { useState } from "react";
+import WishlistButton from "./WishlistButton";
 
 const conditionConfig = {
   nuovo:    { label: "Nuovo",    cls: "text-emerald-400 bg-emerald-400/8 border-emerald-400/15" },
@@ -58,6 +59,13 @@ export default function ProductCard({ product }: { product: Product }) {
             {cond.label}
           </span>
         </div>
+
+        {/* Wishlist */}
+        {!product.sold && (
+          <div className="absolute top-2 right-2">
+            <WishlistButton productId={product.id} />
+          </div>
+        )}
       </Link>
 
       {/* Info */}

@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import { Product, Category } from "@/types";
-import { Search, ArrowUpDown } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -83,19 +84,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </div>
       </div>
 
-      {/* Search */}
-      <form method="GET" action="/products" className="mb-6">
-        <div className="relative">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
-          <input
-            name="q"
-            defaultValue={params.q}
-            placeholder="Cerca titolo..."
-            className="w-full bg-surface-2 border border-border rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-accent/40 transition-colors"
-          />
-          {params.category && <input type="hidden" name="category" value={params.category} />}
-        </div>
-      </form>
+      {/* Search con autocomplete */}
+      <div className="mb-6">
+        <SearchAutocomplete defaultValue={params.q ?? ""} />
+      </div>
 
       {/* Sort + risultati */}
       <div className="flex items-center justify-between gap-3 mb-4">

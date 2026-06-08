@@ -177,6 +177,16 @@ export default function CartPage() {
                 {total >= 3500 ? "🎉 Gratuita!" : "Calcolata al checkout"}
               </span>
             </div>
+            <div className="flex justify-between text-xs text-neutral-600">
+              <span>📅 Stima consegna</span>
+              <span>{(() => {
+                const d = new Date();
+                d.setDate(d.getDate() + (d.getHours() < 14 ? 4 : 5));
+                // Salta weekend
+                while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+                return d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "short" });
+              })()}</span>
+            </div>
             {total < 3500 && !coupon && (
               <div className="text-xs text-neutral-600 bg-surface-3 rounded-xl p-3 text-center">
                 Aggiungi <span className="text-accent font-semibold">€{((3500 - subtotal) / 100).toFixed(2)}</span> per la spedizione gratuita!

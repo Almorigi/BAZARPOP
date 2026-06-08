@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail } from "lucide-react";
+import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
+import DuplicateButton from "./DuplicateButton";
 import { clsx } from "clsx";
 
 const CATEGORIES = [
@@ -57,6 +58,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <h1 className="font-serif text-3xl font-bold text-white">Admin</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/admin/statistiche"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
+            <TrendingUp size={15} /> Statistiche
+          </Link>
           <Link href="/admin/newsletter"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
             <Mail size={15} /> Newsletter
@@ -85,6 +90,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
             <FileSpreadsheet size={15} /> Import CSV
           </Link>
+          <a href="/api/admin/products/export"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
+            <Download size={15} /> Export CSV
+          </a>
           <Link href="/admin/products/new"
             className="flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
             <PlusCircle size={16} /> Aggiungi prodotto
@@ -170,6 +179,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                   className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white bg-[#1e1e1e] hover:bg-[#2a2a2a] px-3 py-1.5 rounded-xl transition-colors">
                   <Pencil size={12} /> Modifica
                 </Link>
+                <DuplicateButton id={p.id} />
                 <DeleteButton id={p.id} />
               </div>
             </div>

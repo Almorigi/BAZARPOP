@@ -3,7 +3,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
-import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell } from "lucide-react";
+import WishlistButton from "@/components/WishlistButton";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -48,6 +49,42 @@ const conditionConfig: Record<string, { label: string; cls: string }> = {
 const categoryLabel: Record<string, string> = {
   fumetti: "Fumetto", libri: "Libro", videogiochi: "Videogioco", dvd: "Film DVD", oggetti: "Oggetto",
 };
+const categoryHref: Record<string, string> = {
+  fumetti: "/products?category=fumetti", libri: "/products?category=libri",
+  videogiochi: "/products?category=videogiochi", dvd: "/products?category=dvd", oggetti: "/products?category=oggetti",
+};
+
+function NotifyMe({ productId }: { productId: string }) {
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    await fetch("/api/notify-me", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, productId }),
+    });
+    setLoading(false); setSent(true);
+  }
+
+  if (sent) return <p className="text-emerald-400 text-sm flex items-center gap-2"><CheckCircle size={14} /> Ti avviseremo quando disponibile!</p>;
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+        placeholder="La tua email"
+        className="flex-1 bg-surface-3 border border-border rounded-xl px-3 py-2 text-white text-sm placeholder-neutral-600 focus:outline-none focus:border-accent/40"
+        style={{ colorScheme: "dark" }} />
+      <button type="submit" disabled={loading}
+        className="flex items-center gap-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-white/10 text-neutral-300 text-xs font-semibold px-3 py-2 rounded-xl transition-colors disabled:opacity-50">
+        {loading ? "..." : <><Bell size={12} /> Avvisami</>}
+      </button>
+    </form>
+  );
+}
 
 export default function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
   const [activeImg, setActiveImg] = useState(0);
@@ -108,9 +145,18 @@ export default function ProductDetail({ product, related }: { product: Product; 
       </div>
     )}
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
-      <Link href="/products" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-white mb-8 transition-colors group">
-        <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" /> Torna ai prodotti
-      </Link>
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-xs text-neutral-600 mb-8 flex-wrap">
+        <Link href="/" className="hover:text-white transition-colors">Home</Link>
+        <Chevron size={12} />
+        <Link href="/products" className="hover:text-white transition-colors">Collezione</Link>
+        <Chevron size={12} />
+        <Link href={categoryHref[product.category] ?? "/products"} className="hover:text-white transition-colors capitalize">
+          {categoryLabel[product.category] ?? product.category}
+        </Link>
+        <Chevron size={12} />
+        <span className="text-neutral-400 truncate max-w-[200px]">{product.title}</span>
+      </nav>
 
       <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
         {/* Images */}
@@ -156,7 +202,10 @@ export default function ProductDetail({ product, related }: { product: Product; 
               {cond.label}
             </span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">{product.title}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">{product.title}</h1>
+            <WishlistButton productId={product.id} size="lg" />
+          </div>
           <div className="font-serif text-4xl font-bold text-accent">€{price}</div>
           {product.description && (
             <p className="text-neutral-400 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
@@ -173,7 +222,13 @@ export default function ProductDetail({ product, related }: { product: Product; 
               {added ? <><CheckCircle size={18} /> Aggiunto!</> : <><ShoppingCart size={18} /> Aggiungi al carrello</>}
             </button>
           ) : (
-            <div className="w-full py-4 rounded-2xl bg-surface-3 text-neutral-600 text-center font-semibold text-sm mt-2">Non disponibile</div>
+            <div className="flex flex-col gap-3 mt-2">
+              <div className="w-full py-4 rounded-2xl bg-surface-3 text-neutral-600 text-center font-semibold text-sm">Non disponibile</div>
+              <div>
+                <p className="text-xs text-neutral-600 mb-2 flex items-center gap-1"><Bell size={11} /> Vuoi essere avvisato se torna disponibile?</p>
+                <NotifyMe productId={product.id} />
+              </div>
+            </div>
           )}
         </div>
       </div>

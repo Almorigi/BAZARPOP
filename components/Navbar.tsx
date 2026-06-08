@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCart } from "@/lib/cart";
+import { useWishlistCount } from "./WishlistButton";
 import { clsx } from "clsx";
 
 const links = [
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const wishlistCount = useWishlistCount();
 
   useEffect(() => {
     const updateCart = () => {
@@ -70,6 +72,14 @@ export default function Navbar() {
 
         {/* Right */}
         <div className="flex items-center gap-2">
+          <Link href="/preferiti" className="relative p-2.5 rounded-xl hover:bg-white/5 transition-colors group">
+            <Heart size={20} className="text-neutral-400 group-hover:text-red-400 transition-colors" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center px-1">
+                {wishlistCount > 9 ? "9+" : wishlistCount}
+              </span>
+            )}
+          </Link>
           <Link href="/cart" className="relative p-2.5 rounded-xl hover:bg-white/5 transition-colors group">
             <ShoppingCart size={20} className="text-neutral-400 group-hover:text-white transition-colors" />
             {cartCount > 0 && (
