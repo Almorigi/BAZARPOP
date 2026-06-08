@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { Bell, Mail } from "lucide-react";
+import { Bell, Mail, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,10 @@ export default async function AdminAvvisamiPage() {
   const totalProducts = Object.keys(grouped).length;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 pt-24 py-8">
+      <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-white transition-colors mb-6">
+        <ArrowLeft size={14} /> Torna all&apos;admin
+      </Link>
       <div className="mb-8">
         <p className="text-xs tracking-[0.25em] uppercase text-accent mb-2">Admin</p>
         <div className="flex items-end justify-between">
