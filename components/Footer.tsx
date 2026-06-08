@@ -41,7 +41,7 @@ export default function Footer() {
               <div className="text-[10px] tracking-[0.3em] uppercase text-accent font-medium">del Collezionista</div>
             </div>
             <p className="text-sm text-neutral-600 leading-relaxed max-w-xs">
-              Fumetti, libri, videogiochi e oggetti unici selezionati con cura. Ogni pezzo ha la sua storia.
+              Fumetti, libri, videogiochi, film DVD e oggetti unici selezionati con cura. Ogni pezzo ha la sua storia.
             </p>
           </div>
 
