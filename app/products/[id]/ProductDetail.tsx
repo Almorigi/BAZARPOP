@@ -6,6 +6,7 @@ import { Product } from "@/types";
 import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell } from "lucide-react";
 import WishlistButton from "@/components/WishlistButton";
 import ProductReviews from "@/components/ProductReviews";
+import ConditionGuide from "@/components/ConditionGuide";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -195,13 +196,14 @@ export default function ProductDetail({ product, related }: { product: Product; 
 
         {/* Info */}
         <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs bg-surface-3 text-neutral-400 px-3 py-1 rounded-full border border-border">
               {categoryLabel[product.category] ?? product.category}
             </span>
             <span className={clsx("text-xs font-medium px-3 py-1 rounded-full border", cond.cls)}>
               {cond.label}
             </span>
+            <ConditionGuide compact />
           </div>
           <div className="flex items-start justify-between gap-3">
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">{product.title}</h1>

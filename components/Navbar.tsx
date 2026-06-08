@@ -6,12 +6,13 @@ import { getCart } from "@/lib/cart";
 import { useWishlistCount } from "./WishlistButton";
 import { clsx } from "clsx";
 
-const links = [
+const links: { href: string; label: string; highlight?: boolean }[] = [
   { href: "/products?category=fumetti",     label: "Fumetti" },
   { href: "/products?category=libri",       label: "Libri" },
   { href: "/products?category=videogiochi", label: "Videogiochi" },
   { href: "/products?category=dvd",         label: "Film DVD" },
   { href: "/products?category=oggetti",     label: "Oggetti" },
+  { href: "/offerte",                       label: "🔥 Offerte", highlight: true },
   { href: "/chi-siamo",                     label: "Chi siamo" },
   { href: "/contatti",                      label: "Contatti" },
 ];
@@ -63,7 +64,12 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="hover-underline text-sm font-medium text-neutral-400 hover:text-white transition-colors duration-200 tracking-wide"
+              className={clsx(
+                "hover-underline text-sm font-medium transition-colors duration-200 tracking-wide",
+                l.highlight
+                  ? "text-accent hover:text-orange-400 font-semibold"
+                  : "text-neutral-400 hover:text-white"
+              )}
             >
               {l.label}
             </Link>
@@ -110,7 +116,10 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               onClick={() => setMenuOpen(false)}
-              className="text-sm text-neutral-400 hover:text-white transition-colors py-1 tracking-wide"
+              className={clsx(
+                "text-sm transition-colors py-1 tracking-wide",
+                l.highlight ? "text-accent font-semibold" : "text-neutral-400 hover:text-white"
+              )}
             >
               {l.label}
             </Link>

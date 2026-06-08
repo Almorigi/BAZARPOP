@@ -4,6 +4,7 @@ import { ArrowUpDown } from "lucide-react";
 import SearchAutocomplete from "@/components/SearchAutocomplete";
 import PriceFilter from "@/components/PriceFilter";
 import InfiniteProductGrid from "@/components/InfiniteProductGrid";
+import ConditionGuide from "@/components/ConditionGuide";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { Suspense } from "react";
@@ -192,6 +193,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       </div>
 
       {/* Condition filter */}
+      <div className="flex items-center gap-3 mb-2">
+        <span className="text-xs text-neutral-600">Condizione:</span>
+        <Suspense fallback={null}><ConditionGuide compact /></Suspense>
+      </div>
       <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {CONDITIONS.map((c) => (
           <Link
