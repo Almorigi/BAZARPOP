@@ -73,8 +73,8 @@ export default function ChiSiamoPage() {
             <div className="text-sm text-neutral-500">Pezzi selezionati a mano</div>
           </div>
           <div className="glass rounded-3xl p-6 border border-border">
-            <div className="font-serif text-4xl font-bold text-accent mb-1">4</div>
-            <div className="text-sm text-neutral-500">Categorie — fumetti, libri, videogiochi, oggetti</div>
+            <div className="font-serif text-4xl font-bold text-accent mb-1">5</div>
+            <div className="text-sm text-neutral-500">Categorie — fumetti, libri, videogiochi, dvd, oggetti</div>
           </div>
           <div className="glass rounded-3xl p-6 border border-border">
             <div className="font-serif text-4xl font-bold text-accent mb-1">∞</div>
