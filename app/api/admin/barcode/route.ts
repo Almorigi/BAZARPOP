@@ -190,9 +190,15 @@ async function searchComicVine(query: string): Promise<BarcodeResult[]> {
     // 1. Cerca il volume (serie) che corrisponde esattamente alla query
     const searchUrl = `https://comicvine.gamespot.com/api/search/?api_key=${key}&format=json&query=${q}&resources=volume&field_list=id,name,publisher,image,start_year,count_of_issues&limit=10`;
     const searchRes = await fetch(searchUrl, { cache: "no-store" });
-    if (!searchRes.ok) return [];
+    if (!searchRes.ok) {
+      console.error(`[CV] HTTP ${searchRes.status} per query "${query}"`);
+      return [];
+    }
     const searchData = await searchRes.json();
-    if (searchData.status_code !== 1) return [];
+    if (searchData.status_code !== 1) {
+      console.error(`[CV] status_code=${searchData.status_code} error="${searchData.error}" per query "${query}"`);
+      return [];
+    }
 
     // Trova il volume che contiene tutte le parole della query nel titolo
     const allVolumes: Record<string, unknown>[] = searchData.results ?? [];
@@ -294,17 +300,31 @@ export async function GET(req: NextRequest) {
 
   // ── RICERCA PER TITOLO ──
   if (titleQuery) {
-    // Comic Vine e Google Books in parallelo — usa CV se trova qualcosa, altrimenti GB
-    const [cvResults, gbResults] = await Promise.all([
-      searchComicVine(titleQuery).catch(() => [] as BarcodeResult[]),
-      searchGoogleBooks(titleQuery, false).catch(() => [] as BarcodeResult[]),
+    // Comic Vine e Google Books in parallelo
+    const [cvResults, gbResults] = await Promise.allSettled([
+      searchComicVine(titleQuery),
+      searchGoogleBooks(titleQuery, false),
     ]);
-    if (cvResults.length > 0) {
-      return NextResponse.json({ ...cvResults[0], found: true, multiple: cvResults });
+
+    const cv = cvResults.status === "fulfilled" ? cvResults.value : [];
+    const gb = gbResults.status === "fulfilled" ? gbResults.value : [];
+
+    // Log per debug
+    console.log(`[barcode] title="${titleQuery}" CV=${cv.length} GB=${gb.length}`);
+
+    if (cv.length > 0) {
+      return NextResponse.json({ ...cv[0], found: true, multiple: cv, source: "comicvine" });
     }
-    if (gbResults.length > 0) {
-      return NextResponse.json({ ...gbResults[0], found: true, multiple: gbResults });
+    if (gb.length > 0) {
+      return NextResponse.json({ ...gb[0], found: true, multiple: gb, source: "googlebooks" });
     }
+
+    // Fallback: prova Open Library come ultima risorsa
+    const olResult = await lookupOpenLibrarySearch(titleQuery).catch(() => null);
+    if (olResult) {
+      return NextResponse.json({ ...olResult, found: true, multiple: [olResult], source: "openlibrary" });
+    }
+
     return NextResponse.json({ found: false, multiple: [], title: "", description: "", category: "fumetti" });
   }
 
