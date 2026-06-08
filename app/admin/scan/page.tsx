@@ -33,7 +33,7 @@ interface SearchResult {
 
 const emptyForm: ProductForm = {
   title: "", description: "", price: "",
-  category: "fumetti", condition: "buono", stock: "1", imageUrl: "",
+  category: "fumetti", condition: "ottimo", stock: "1", imageUrl: "",
 };
 
 export default function ScanPage() {
