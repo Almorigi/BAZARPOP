@@ -1,12 +1,13 @@
 import { supabase } from "@/lib/supabase";
-import ProductCard from "@/components/ProductCard";
 import { Product, Category } from "@/types";
 import { ArrowUpDown } from "lucide-react";
 import SearchAutocomplete from "@/components/SearchAutocomplete";
 import PriceFilter from "@/components/PriceFilter";
+import InfiniteProductGrid from "@/components/InfiniteProductGrid";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 const CATEGORIES = [
   { value: "",            label: "Tutti" },
@@ -25,7 +26,14 @@ const CONDITIONS = [
   { value: "discreto", label: "Discreto" },
 ];
 
-interface SearchParams { category?: string; condition?: string; q?: string; page?: string; sort?: string; minPrice?: string; maxPrice?: string; }
+interface SearchParams {
+  category?: string;
+  condition?: string;
+  q?: string;
+  sort?: string;
+  minPrice?: string;
+  maxPrice?: string;
+}
 
 const PAGE_SIZE = 24;
 
@@ -36,18 +44,54 @@ const SORT_OPTIONS = [
   { value: "title_asc", label: "A → Z" },
 ];
 
+const CATEGORY_META: Record<string, { title: string; description: string }> = {
+  fumetti:     { title: "Fumetti da collezione",     description: "Fumetti rari e da collezione: Dylan Dog, Tex, Bonelli, manga e molto altro. Acquista online su La Soffitta del Collezionista." },
+  libri:       { title: "Libri usati e rari",         description: "Libri di ogni genere, edizioni rare e fuori catalogo. Spedizione in tutta Italia da La Soffitta del Collezionista." },
+  videogiochi: { title: "Videogiochi retro e usati",  description: "Videogiochi per tutte le console, dai classici retro alle uscite recenti. Condizioni ottima e buono." },
+  dvd:         { title: "Film DVD e Blu-ray",         description: "Film DVD in ottime condizioni, classici e rarità. Spedizione veloce da La Soffitta del Collezionista." },
+  oggetti:     { title: "Oggetti da collezione",      description: "Action figure, gadget, statuette e oggetti da collezione unici. Trova il pezzo mancante alla tua collezione." },
+};
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
+  const params = await searchParams;
+  const cat = params.category ?? "";
+  const meta = CATEGORY_META[cat];
+
+  if (meta) {
+    return {
+      title: `${meta.title} — La Soffitta del Collezionista`,
+      description: meta.description,
+      openGraph: { title: meta.title, description: meta.description },
+    };
+  }
+
+  if (params.q) {
+    return {
+      title: `Risultati per "${params.q}" — La Soffitta del Collezionista`,
+      description: `Cerca "${params.q}" nel catalogo di fumetti, libri, videogiochi e oggetti da collezione.`,
+    };
+  }
+
+  return {
+    title: "Catalogo — La Soffitta del Collezionista",
+    description: "Esplora l'intera collezione: fumetti, libri, videogiochi, DVD e oggetti da collezione. Nuovi arrivi ogni settimana.",
+    openGraph: {
+      title: "Catalogo — La Soffitta del Collezionista",
+      description: "Fumetti, libri, videogiochi, DVD e oggetti da collezione.",
+    },
+  };
+}
+
 async function getProducts(params: SearchParams) {
-  const page = parseInt(params.page ?? "1") - 1;
   let query = supabase
     .from("products")
     .select("*", { count: "exact" })
-    .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+    .range(0, PAGE_SIZE - 1);
 
-  // Ordinamento
   switch (params.sort) {
-    case "price_asc":  query = query.order("price", { ascending: true });   break;
-    case "price_desc": query = query.order("price", { ascending: false });  break;
-    case "title_asc":  query = query.order("title", { ascending: true });   break;
+    case "price_asc":  query = query.order("price", { ascending: true });  break;
+    case "price_desc": query = query.order("price", { ascending: false }); break;
+    case "title_asc":  query = query.order("title", { ascending: true });  break;
     default:           query = query.order("created_at", { ascending: false }); break;
   }
 
@@ -56,6 +100,7 @@ async function getProducts(params: SearchParams) {
   if (params.q)         query = query.ilike("title", `%${params.q}%`);
   if (params.minPrice)  query = query.gte("price", Math.round(parseFloat(params.minPrice) * 100));
   if (params.maxPrice)  query = query.lte("price", Math.round(parseFloat(params.maxPrice) * 100));
+
   const { data, count } = await query;
   return { products: data ?? [] as Product[], total: count ?? 0 };
 }
@@ -63,8 +108,15 @@ async function getProducts(params: SearchParams) {
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const { products, total } = await getProducts(params);
-  const currentPage = parseInt(params.page ?? "1");
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  // Filtri da passare all'infinite scroll client component
+  const filters: Record<string, string> = {};
+  if (params.category)  filters.category  = params.category;
+  if (params.condition) filters.condition = params.condition;
+  if (params.q)         filters.q         = params.q;
+  if (params.sort)      filters.sort      = params.sort;
+  if (params.minPrice)  filters.minPrice  = params.minPrice;
+  if (params.maxPrice)  filters.maxPrice  = params.maxPrice;
 
   function buildUrl(overrides: Partial<SearchParams>) {
     const p = { ...params, ...overrides };
@@ -93,35 +145,33 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         <SearchAutocomplete defaultValue={params.q ?? ""} />
       </div>
 
-      {/* Sort + risultati */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <ArrowUpDown size={13} className="text-neutral-500" />
-          <div className="flex gap-1.5 flex-wrap">
-            {SORT_OPTIONS.map(opt => (
-              <Link
-                key={opt.value}
-                href={buildUrl({ sort: opt.value, page: "1" })}
-                className={clsx(
-                  "text-xs px-3 py-1.5 rounded-full border transition-colors",
-                  (params.sort ?? "") === opt.value
-                    ? "border-accent/40 bg-accent/10 text-white"
-                    : "border-border text-neutral-500 hover:text-neutral-300"
-                )}
-              >
-                {opt.label}
-              </Link>
-            ))}
-          </div>
+      {/* Sort */}
+      <div className="flex items-center gap-3 mb-4">
+        <ArrowUpDown size={13} className="text-neutral-500" />
+        <div className="flex gap-1.5 flex-wrap">
+          {SORT_OPTIONS.map(opt => (
+            <Link
+              key={opt.value}
+              href={buildUrl({ sort: opt.value })}
+              className={clsx(
+                "text-xs px-3 py-1.5 rounded-full border transition-colors",
+                (params.sort ?? "") === opt.value
+                  ? "border-accent/40 bg-accent/10 text-white"
+                  : "border-border text-neutral-500 hover:text-neutral-300"
+              )}
+            >
+              {opt.label}
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* Category tabs — scrollabile su mobile */}
+      {/* Category tabs */}
       <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {CATEGORIES.map((c) => (
           <Link
             key={c.value}
-            href={buildUrl({ category: c.value, page: "1" })}
+            href={buildUrl({ category: c.value })}
             className={clsx(
               "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
               params.category === c.value || (!params.category && c.value === "")
@@ -141,12 +191,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </Suspense>
       </div>
 
-      {/* Condition filter — scrollabile su mobile */}
+      {/* Condition filter */}
       <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {CONDITIONS.map((c) => (
           <Link
             key={c.value}
-            href={buildUrl({ condition: c.value, page: "1" })}
+            href={buildUrl({ condition: c.value })}
             className={clsx(
               "flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
               params.condition === c.value || (!params.condition && c.value === "")
@@ -159,31 +209,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         ))}
       </div>
 
-      {/* Grid */}
-      {products.length === 0 ? (
-        <div className="text-center py-24 text-neutral-600">Nessun prodotto trovato.</div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-          {products.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-3 mt-12">
-          {currentPage > 1 && (
-            <Link href={buildUrl({ page: String(currentPage - 1) })} className="px-5 py-2.5 bg-surface-3 rounded-xl text-sm hover:bg-surface-4 transition-colors">
-              ← Precedente
-            </Link>
-          )}
-          <span className="text-sm text-neutral-500">{currentPage} / {totalPages}</span>
-          {currentPage < totalPages && (
-            <Link href={buildUrl({ page: String(currentPage + 1) })} className="px-5 py-2.5 bg-surface-3 rounded-xl text-sm hover:bg-surface-4 transition-colors">
-              Successiva →
-            </Link>
-          )}
-        </div>
-      )}
+      {/* Grid con infinite scroll */}
+      <InfiniteProductGrid
+        initialProducts={products}
+        initialTotal={total}
+        filters={filters}
+      />
     </div>
   );
 }
