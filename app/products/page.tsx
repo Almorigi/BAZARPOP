@@ -3,8 +3,10 @@ import ProductCard from "@/components/ProductCard";
 import { Product, Category } from "@/types";
 import { ArrowUpDown } from "lucide-react";
 import SearchAutocomplete from "@/components/SearchAutocomplete";
+import PriceFilter from "@/components/PriceFilter";
 import Link from "next/link";
 import { clsx } from "clsx";
+import { Suspense } from "react";
 
 const CATEGORIES = [
   { value: "",            label: "Tutti" },
@@ -23,7 +25,7 @@ const CONDITIONS = [
   { value: "discreto", label: "Discreto" },
 ];
 
-interface SearchParams { category?: string; condition?: string; q?: string; page?: string; sort?: string; }
+interface SearchParams { category?: string; condition?: string; q?: string; page?: string; sort?: string; minPrice?: string; maxPrice?: string; }
 
 const PAGE_SIZE = 24;
 
@@ -52,6 +54,8 @@ async function getProducts(params: SearchParams) {
   if (params.category)  query = query.eq("category", params.category as Category);
   if (params.condition) query = query.eq("condition", params.condition);
   if (params.q)         query = query.ilike("title", `%${params.q}%`);
+  if (params.minPrice)  query = query.gte("price", Math.round(parseFloat(params.minPrice) * 100));
+  if (params.maxPrice)  query = query.lte("price", Math.round(parseFloat(params.maxPrice) * 100));
   const { data, count } = await query;
   return { products: data ?? [] as Product[], total: count ?? 0 };
 }
@@ -128,6 +132,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             {c.label}
           </Link>
         ))}
+      </div>
+
+      {/* Price filter */}
+      <div className="mb-4">
+        <Suspense fallback={null}>
+          <PriceFilter />
+        </Suspense>
       </div>
 
       {/* Condition filter — scrollabile su mobile */}

@@ -5,6 +5,7 @@ import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
 import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell } from "lucide-react";
 import WishlistButton from "@/components/WishlistButton";
+import ProductReviews from "@/components/ProductReviews";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -232,6 +233,9 @@ export default function ProductDetail({ product, related }: { product: Product; 
           )}
         </div>
       </div>
+      {/* Recensioni */}
+      <ProductReviews productId={product.id} />
+
       {/* Prodotti correlati */}
       {related.length > 0 && (
         <div className="mt-20">

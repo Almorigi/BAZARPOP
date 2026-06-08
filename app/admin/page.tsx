@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp } from "lucide-react";
+import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star } from "lucide-react";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
 import DuplicateButton from "./DuplicateButton";
@@ -69,6 +69,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <Link href="/admin/coupon"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
             <Tag size={15} /> Coupon
+          </Link>
+          <Link href="/admin/recensioni"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
+            <Star size={15} /> Recensioni
           </Link>
           <Link href="/admin/ordini"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
