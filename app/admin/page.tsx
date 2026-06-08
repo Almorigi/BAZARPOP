@@ -59,6 +59,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <h1 className="font-serif text-3xl font-bold text-white">Admin</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/admin/scan"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
+            <ScanLine size={15} /> Scansiona
+          </Link>
           <Link href="/admin/statistiche"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
             <TrendingUp size={15} /> Statistiche
@@ -95,10 +99,6 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <Link href="/admin/impostazioni"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
             <Settings size={15} /> Impostazioni
-          </Link>
-          <Link href="/admin/scan"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <ScanLine size={15} /> Scansiona
           </Link>
           <Link href="/admin/import"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
