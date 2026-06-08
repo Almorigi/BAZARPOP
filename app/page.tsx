@@ -188,8 +188,7 @@ export default async function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
               <span className="text-4xl">{cat.emoji}</span>
               <div>
-                <div className="font-serif text-xl font-bold text-white mb-1">{cat.label}</div>
-                <div className="text-xs text-neutral-500 leading-relaxed">{cat.sub}</div>
+                <div className="font-serif text-xl font-bold text-white">{cat.label}</div>
               </div>
               <div className="flex items-center gap-1 text-xs text-neutral-600 group-hover:text-accent transition-colors mt-auto">
                 Scopri <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
