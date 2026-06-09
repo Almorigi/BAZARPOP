@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { clearCart } from "@/lib/cart";
-import { CheckCircle, Package, Mail, ArrowRight } from "lucide-react";
+import { CheckCircle, Package, Mail, ArrowRight, Search } from "lucide-react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 
@@ -65,9 +65,9 @@ export default function SuccessPage() {
           className="flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-2xl transition-colors text-sm shadow-[0_0_30px_rgba(249,115,22,0.2)]">
           Continua a sfogliare <ArrowRight size={16} />
         </Link>
-        <Link href="/"
+        <Link href="/ordine"
           className="flex items-center gap-2 glass border border-border hover:border-accent/30 text-white font-semibold px-8 py-4 rounded-2xl transition-colors text-sm">
-          Torna alla home
+          <Search size={16} /> Traccia ordine
         </Link>
       </div>
     </div>

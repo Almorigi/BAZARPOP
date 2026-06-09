@@ -91,6 +91,11 @@ function customerEmailHtml(session: {
     <h1 style="color:#f97316;font-size:28px;margin-bottom:4px">${SHOP_NAME}</h1>
     <h2 style="color:#fff;font-size:20px;font-weight:normal;margin-top:8px">Grazie per il tuo acquisto, ${session.customerName.split(" ")[0]}! 🎉</h2>
     <p style="color:#999">Il tuo ordine è stato ricevuto e verrà preparato al più presto.</p>
+    <div style="background:#1a1a1a;border-radius:8px;padding:12px 20px;margin:16px 0;border:1px solid #333;display:inline-block">
+      <span style="color:#777;font-size:11px;text-transform:uppercase;letter-spacing:0.1em">Numero ordine</span>
+      <p style="color:#f97316;font-size:22px;font-weight:900;font-family:monospace;margin:4px 0 0 0">#${session.orderId.replace(/-/g, "").slice(-8).toUpperCase()}</p>
+      <p style="color:#555;font-size:11px;margin:2px 0 0 0">Conservalo per tracciare il tuo ordine</p>
+    </div>
 
     <div style="background:#1a1a1a;border-radius:12px;padding:24px;margin:24px 0;border:1px solid #333">
       <h2 style="color:#f97316;font-size:16px;margin-top:0">Riepilogo ordine</h2>

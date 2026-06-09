@@ -66,6 +66,7 @@ export default function Footer() {
               {[
                 { href: "/products",  label: "Tutti i prodotti" },
                 { href: "/cart",      label: "Carrello" },
+                { href: "/ordine",    label: "Traccia ordine" },
                 { href: "/chi-siamo", label: "Chi siamo" },
                 { href: "/contatti",  label: "Contatti & FAQ" },
               ].map((l) => (
