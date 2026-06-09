@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Package, User, MapPin } from "lucide-react";
 import { clsx } from "clsx";
 import ShipButton from "./ShipButton";
+import PrintButton from "./PrintButton";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -126,6 +127,18 @@ export default async function OrdiniPage() {
                     </span>
                   )}
                   <ShipButton orderId={order.id} currentStatus={order.status} />
+                  <PrintButton order={{
+                    id: order.id,
+                    created_at: order.created_at,
+                    customer_name: order.customer_name,
+                    customer_email: order.customer_email,
+                    address: order.address,
+                    items: items,
+                    total: order.total,
+                    shipping: order.shipping,
+                    tracking_number: order.tracking_number,
+                    status: order.status,
+                  }} />
                 </div>
               </div>
             );
