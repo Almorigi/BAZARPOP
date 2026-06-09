@@ -252,7 +252,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
           </p>
           <ShareButtons product={product} />
 
-          {!product.sold && product.stock > 0 ? (
+          {!product.sold && (product.stock == null || product.stock > 0) ? (
             <div className="flex flex-col gap-2 mt-2">
               {/* Compra subito */}
               <button onClick={handleBuyNow} disabled={buyingNow}
