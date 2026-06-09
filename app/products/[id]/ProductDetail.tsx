@@ -3,7 +3,10 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
-import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell, Zap } from "lucide-react";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 import WishlistButton from "@/components/WishlistButton";
 import ProductReviews from "@/components/ProductReviews";
 import ConditionGuide from "@/components/ConditionGuide";
@@ -94,6 +97,7 @@ function NotifyMe({ productId }: { productId: string }) {
 export default function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
   const [activeImg, setActiveImg] = useState(0);
   const [added, setAdded] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
   const [lightbox, setLightbox] = useState(false);
   const price = (product.price / 100).toFixed(2);
   const cond = conditionConfig[product.condition];
@@ -118,6 +122,23 @@ export default function ProductDetail({ product, related }: { product: Product; 
     setAdded(true);
     window.dispatchEvent(new CustomEvent("cart-toast", { detail: product }));
     setTimeout(() => setAdded(false), 2000);
+  }
+
+  async function handleBuyNow() {
+    setBuyingNow(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: [{ product, quantity: 1 }] }),
+      });
+      const { sessionId, error } = await res.json();
+      if (error) { alert(error); setBuyingNow(false); return; }
+      const stripe = await stripePromise;
+      await stripe!.redirectToCheckout({ sessionId });
+    } catch {
+      setBuyingNow(false);
+    }
   }
 
   return (
@@ -229,11 +250,24 @@ export default function ProductDetail({ product, related }: { product: Product; 
           <ShareButtons product={product} />
 
           {!product.sold && product.stock > 0 ? (
-            <button onClick={handleAdd}
-              className={clsx("flex items-center justify-center gap-2 w-full font-bold py-4 rounded-2xl transition-all text-sm mt-2",
-                added ? "bg-emerald-500 text-white" : "bg-accent hover:bg-orange-600 text-white shadow-[0_0_30px_rgba(249,115,22,0.25)]")}>
-              {added ? <><CheckCircle size={18} /> Aggiunto!</> : <><ShoppingCart size={18} /> Aggiungi al carrello</>}
-            </button>
+            <div className="flex flex-col gap-2 mt-2">
+              {/* Compra subito */}
+              <button onClick={handleBuyNow} disabled={buyingNow}
+                className="flex items-center justify-center gap-2 w-full font-bold py-4 rounded-2xl transition-all text-sm bg-white hover:bg-neutral-100 text-black disabled:opacity-70">
+                {buyingNow
+                  ? <><span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Reindirizzamento...</>
+                  : <><Zap size={16} className="fill-black" /> Compra subito</>
+                }
+              </button>
+              {/* Aggiungi al carrello */}
+              <button onClick={handleAdd}
+                className={clsx("flex items-center justify-center gap-2 w-full font-bold py-3.5 rounded-2xl transition-all text-sm border",
+                  added
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                    : "bg-accent/10 hover:bg-accent border-accent/30 hover:border-transparent text-accent hover:text-white")}>
+                {added ? <><CheckCircle size={16} /> Aggiunto al carrello!</> : <><ShoppingCart size={16} /> Aggiungi al carrello</>}
+              </button>
+            </div>
           ) : (
             <div className="flex flex-col gap-3 mt-2">
               <div className="w-full py-4 rounded-2xl bg-surface-3 text-neutral-600 text-center font-semibold text-sm">Non disponibile</div>
