@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail, MessageCircle, ChevronDown } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export const metadata: Metadata = {
   title: "Contatti & FAQ — La Soffitta del Collezionista",
   description: "Hai domande? Contattaci via WhatsApp o email. Risposte alle domande più frequenti su spedizioni, pagamenti e resi.",
 };
 
-const FAQ = [
+async function getShippingThreshold(): Promise<number> {
+  const { data } = await supabase.from("settings").select("value").eq("key", "shipping_free_threshold").single();
+  return data ? parseInt(data.value) : 4000;
+}
+
+const FAQ_STATIC = [
   {
     q: "Come avviene la spedizione?",
     a: "Spediamo in tutta Italia tramite corriere. La spedizione standard impiega 3–7 giorni lavorativi, quella express 1–2 giorni. Ricevi un'email con il codice di tracciamento non appena il pacco viene spedito.",
@@ -16,33 +22,40 @@ const FAQ = [
     q: "Quali metodi di pagamento accettate?",
     a: "Accettiamo tutte le principali carte di credito e debito (Visa, Mastercard, American Express) e Apple Pay / Google Pay tramite Stripe, la piattaforma di pagamento più sicura al mondo.",
   },
-  {
-    q: "La spedizione è gratuita?",
-    a: "Sì! La spedizione è gratuita per ordini superiori a €35. Per ordini inferiori la spedizione standard ha un piccolo costo visibile al checkout.",
-  },
-  {
-    q: "I prodotti sono controllati prima della vendita?",
-    a: "Assolutamente sì. Ogni prodotto è selezionato e ispezionato personalmente. La condizione (Nuovo, Ottimo, Buono, Discreto) è indicata nella scheda prodotto con onestà.",
-  },
-  {
-    q: "Posso restituire un acquisto?",
-    a: "Se il prodotto non corrisponde alla descrizione, contattaci entro 14 giorni dal ricevimento. Valutiamo ogni caso singolarmente e troviamo sempre una soluzione.",
-  },
-  {
-    q: "Come posso sapere dov'è il mio ordine?",
-    a: "Ricevi un'email con il link per seguire il tuo ordine non appena viene spedito. Puoi anche accedere alla pagina di tracciamento usando il link nell'email di conferma.",
-  },
-  {
-    q: "Vendete anche all'estero?",
-    a: "Per ora spediamo solo in Italia. Se sei interessato a un prodotto e sei all'estero, contattaci: valutiamo caso per caso.",
-  },
-  {
-    q: "Come vengono imballati i prodotti?",
-    a: "I fumetti e libri vengono protetti con buste rigide o cartoni appositi per evitare pieghe e danni durante il trasporto. La cura nell'imballaggio è una nostra priorità.",
-  },
 ];
 
-export default function ContattiPage() {
+export default async function ContattiPage() {
+  const freeThreshold = await getShippingThreshold();
+  const thresholdEur = (freeThreshold / 100).toFixed(0);
+
+  const FAQ = [
+    ...FAQ_STATIC,
+    {
+      q: "La spedizione è gratuita?",
+      a: `Sì! La spedizione è gratuita per ordini superiori a €${thresholdEur}. Per ordini inferiori la spedizione standard ha un piccolo costo visibile al checkout.`,
+    },
+    {
+      q: "I prodotti sono controllati prima della vendita?",
+      a: "Assolutamente sì. Ogni prodotto è selezionato e ispezionato personalmente. La condizione (Nuovo, Ottimo, Buono, Discreto) è indicata nella scheda prodotto con onestà.",
+    },
+    {
+      q: "Posso restituire un acquisto?",
+      a: "Se il prodotto non corrisponde alla descrizione, contattaci entro 14 giorni dal ricevimento. Valutiamo ogni caso singolarmente e troviamo sempre una soluzione.",
+    },
+    {
+      q: "Come posso sapere dov'è il mio ordine?",
+      a: "Ricevi un'email con il link per seguire il tuo ordine non appena viene spedito. Puoi anche accedere alla pagina di tracciamento usando il link nell'email di conferma.",
+    },
+    {
+      q: "Vendete anche all'estero?",
+      a: "Per ora spediamo solo in Italia. Se sei interessato a un prodotto e sei all'estero, contattaci: valutiamo caso per caso.",
+    },
+    {
+      q: "Come vengono imballati i prodotti?",
+      a: "I fumetti e libri vengono protetti con buste rigide o cartoni appositi per evitare pieghe e danni durante il trasporto. La cura nell'imballaggio è una nostra priorità.",
+    },
+  ];
+
   return (
     <div className="max-w-3xl mx-auto px-4 pt-24 pb-16">
       <div className="mb-12">

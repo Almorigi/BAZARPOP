@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { supabase } from "@/lib/supabase";
 
 export const metadata: Metadata = {
   title: "Termini e Condizioni — La Soffitta del Collezionista",
@@ -6,7 +7,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function TerminiPage() {
+async function getShippingSettings() {
+  const { data } = await supabase.from("settings").select("key, value");
+  const map: Record<string, number> = {};
+  for (const row of data ?? []) map[row.key] = parseInt(row.value);
+  return {
+    standard: map.shipping_standard ?? 890,
+    express: map.shipping_express ?? 1390,
+    free: map.shipping_free_threshold ?? 4000,
+  };
+}
+
+export default async function TerminiPage() {
+  const shipping = await getShippingSettings();
   return (
     <div className="max-w-3xl mx-auto px-6 pt-28 pb-20">
       <p className="text-xs tracking-[0.25em] uppercase text-accent mb-2">Legale</p>
@@ -55,9 +68,9 @@ export default function TerminiPage() {
         <section>
           <h2 className="font-serif text-xl font-bold text-white mb-3">4. Spedizioni</h2>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong className="text-white">Spedizione Standard:</strong> €8,90 — consegna in 3-5 giorni lavorativi</li>
-            <li><strong className="text-white">Spedizione Express:</strong> €13,90 — consegna in 1-2 giorni lavorativi</li>
-            <li><strong className="text-white">Spedizione gratuita</strong> per ordini superiori a €35</li>
+            <li><strong className="text-white">Spedizione Standard:</strong> €{(shipping.standard / 100).toFixed(2).replace(".", ",")} — consegna in 3-5 giorni lavorativi</li>
+            <li><strong className="text-white">Spedizione Express:</strong> €{(shipping.express / 100).toFixed(2).replace(".", ",")} — consegna in 1-2 giorni lavorativi</li>
+            <li><strong className="text-white">Spedizione gratuita</strong> per ordini superiori a €{(shipping.free / 100).toFixed(0)}</li>
           </ul>
           <p className="mt-2">
             Spediamo in tutta Italia. Il tracking sarà inviato via email. I tempi di evasione sono di 1-2 giorni lavorativi.

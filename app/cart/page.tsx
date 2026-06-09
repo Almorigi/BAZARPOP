@@ -22,11 +22,21 @@ export default function CartPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [coupon, setCoupon] = useState<CouponResult | null>(null);
   const [couponError, setCouponError] = useState("");
+  const [freeThreshold, setFreeThreshold] = useState(4000); // centesimi, default 40€
 
   useEffect(() => {
     const update = () => setItems(getCart());
     update();
     window.addEventListener("cart-updated", update);
+    // Carica soglia spedizione gratuita dal DB
+    fetch("/api/settings")
+      .then(r => r.json())
+      .then(data => {
+        if (data.shipping_free_threshold) {
+          setFreeThreshold(parseInt(data.shipping_free_threshold));
+        }
+      })
+      .catch(() => {}); // usa default se fallisce
     return () => window.removeEventListener("cart-updated", update);
   }, []);
 
@@ -174,7 +184,7 @@ export default function CartPage() {
             <div className="flex justify-between text-sm text-neutral-400">
               <span>Spedizione</span>
               <span className="text-emerald-400 text-xs">
-                {total >= 3500 ? "🎉 Gratuita!" : "Calcolata al checkout"}
+                {total >= freeThreshold ? "🎉 Gratuita!" : "Calcolata al checkout"}
               </span>
             </div>
             <div className="flex justify-between text-xs text-neutral-600">
@@ -187,16 +197,16 @@ export default function CartPage() {
                 return d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "short" });
               })()}</span>
             </div>
-            {subtotal < 3500 && (
+            {subtotal < freeThreshold && (
               <div className="bg-surface-3 rounded-xl p-3">
                 <div className="flex justify-between text-xs mb-2">
-                  <span className="text-neutral-500">Spedizione gratuita da €35</span>
-                  <span className="text-accent font-semibold">mancano €{((3500 - subtotal) / 100).toFixed(2)}</span>
+                  <span className="text-neutral-500">Spedizione gratuita da €{(freeThreshold / 100).toFixed(0)}</span>
+                  <span className="text-accent font-semibold">mancano €{((freeThreshold - subtotal) / 100).toFixed(2)}</span>
                 </div>
                 <div className="w-full bg-surface-2 rounded-full h-1.5">
                   <div
                     className="bg-accent h-1.5 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(100, (subtotal / 3500) * 100)}%` }}
+                    style={{ width: `${Math.min(100, (subtotal / freeThreshold) * 100)}%` }}
                   />
                 </div>
               </div>
