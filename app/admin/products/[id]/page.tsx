@@ -34,10 +34,14 @@ export default function EditProductPage() {
     stock: "1",
     sold: false,
   });
+  const [priceHistory, setPriceHistory] = useState<{ old_price: number; new_price: number; changed_at: string }[]>([]);
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/admin/products/${id}`);
+      const [res, histRes] = await Promise.all([
+        fetch(`/api/admin/products/${id}`),
+        fetch(`/api/admin/products/${id}/price-history`),
+      ]);
       const json = await res.json();
       if (json.product) {
         const p = json.product;
@@ -51,6 +55,10 @@ export default function EditProductPage() {
           sold: p.sold ?? false,
         });
         setExistingImages(p.images ?? []);
+      }
+      if (histRes.ok) {
+        const h = await histRes.json();
+        setPriceHistory(h.history ?? []);
       }
       setFetching(false);
     }
@@ -245,6 +253,25 @@ export default function EditProductPage() {
           </div>
           <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
         </div>
+
+        {/* Cronologia prezzi */}
+        {priceHistory.length > 0 && (
+          <div className="bg-[#161616] border border-white/10 rounded-2xl p-4">
+            <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider mb-3">Cronologia prezzi</p>
+            <div className="flex flex-col gap-2">
+              {priceHistory.map((h, i) => (
+                <div key={i} className="flex items-center justify-between text-xs text-neutral-500">
+                  <span>{new Date(h.changed_at).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                  <span>
+                    <span className="line-through text-neutral-600">€{(h.old_price / 100).toFixed(2)}</span>
+                    {" → "}
+                    <span className="text-white font-semibold">€{(h.new_price / 100).toFixed(2)}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <button type="submit" disabled={loading}
           className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-orange-600 text-white font-bold py-4 rounded-2xl transition-colors disabled:opacity-50 mt-2">

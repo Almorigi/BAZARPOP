@@ -28,10 +28,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
 
-  // Leggi stato precedente del prodotto per rilevare se torna disponibile
+  // Leggi stato precedente del prodotto
   const { data: before } = await supabaseAdmin
     .from("products")
-    .select("sold, stock, title")
+    .select("sold, stock, title, price")
     .eq("id", id)
     .single();
 
@@ -43,6 +43,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Logga cambio prezzo se diverso
+  if (before && body.price !== undefined && before.price !== body.price) {
+    await supabaseAdmin.from("price_history").insert({
+      product_id: id,
+      old_price: before.price,
+      new_price: body.price,
+    }).select();
+  }
 
   // Rileva se il prodotto è tornato disponibile
   const wasUnavailable = before && (before.sold === true || before.stock === 0);

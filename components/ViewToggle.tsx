@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, GalleryVertical } from "lucide-react";
 import InfiniteProductGrid from "@/components/InfiniteProductGrid";
 import { Product } from "@/types";
 import { clsx } from "clsx";
 
 const KEY = "soffitta_view_mode";
+type View = "grid" | "list" | "masonry";
 
 interface Props {
   initialProducts: Product[];
@@ -14,14 +15,14 @@ interface Props {
 }
 
 export default function ViewToggle({ initialProducts, initialTotal, filters }: Props) {
-  const [view, setView] = useState<"grid" | "list">("grid");
+  const [view, setView] = useState<View>("grid");
 
   useEffect(() => {
-    const saved = localStorage.getItem(KEY);
-    if (saved === "list" || saved === "grid") setView(saved);
+    const saved = localStorage.getItem(KEY) as View | null;
+    if (saved === "list" || saved === "grid" || saved === "masonry") setView(saved);
   }, []);
 
-  function toggle(v: "grid" | "list") {
+  function toggle(v: View) {
     setView(v);
     localStorage.setItem(KEY, v);
   }
@@ -30,24 +31,18 @@ export default function ViewToggle({ initialProducts, initialTotal, filters }: P
     <>
       {/* Toggle buttons */}
       <div className="flex items-center justify-end mb-4 gap-1">
-        <button
-          onClick={() => toggle("grid")}
-          className={clsx("p-2 rounded-lg border transition-colors",
-            view === "grid" ? "border-accent/40 bg-accent/10 text-white" : "border-border text-neutral-600 hover:text-neutral-400"
-          )}
-          title="Vista griglia"
-        >
-          <LayoutGrid size={15} />
-        </button>
-        <button
-          onClick={() => toggle("list")}
-          className={clsx("p-2 rounded-lg border transition-colors",
-            view === "list" ? "border-accent/40 bg-accent/10 text-white" : "border-border text-neutral-600 hover:text-neutral-400"
-          )}
-          title="Vista lista"
-        >
-          <List size={15} />
-        </button>
+        {([
+          { v: "grid" as View,    icon: <LayoutGrid size={15} />,    title: "Griglia" },
+          { v: "masonry" as View, icon: <GalleryVertical size={15} />, title: "Pinterest" },
+          { v: "list" as View,    icon: <List size={15} />,           title: "Lista" },
+        ] as { v: View; icon: React.ReactNode; title: string }[]).map(({ v, icon, title }) => (
+          <button key={v} onClick={() => toggle(v)} title={title}
+            className={clsx("p-2 rounded-lg border transition-colors",
+              view === v ? "border-accent/40 bg-accent/10 text-white" : "border-border text-neutral-600 hover:text-neutral-400"
+            )}>
+            {icon}
+          </button>
+        ))}
       </div>
 
       <InfiniteProductGrid

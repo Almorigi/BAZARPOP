@@ -11,7 +11,7 @@ interface Props {
   initialProducts: Product[];
   initialTotal: number;
   filters: Record<string, string>;
-  view?: "grid" | "list";
+  view?: "grid" | "list" | "masonry";
 }
 
 const PAGE_SIZE = 24;
@@ -58,6 +58,7 @@ function ProductListRow({ product }: { product: Product }) {
 }
 
 export default function InfiniteProductGrid({ initialProducts, initialTotal, filters, view = "grid" }: Props) {
+  // view can be "grid" | "list" | "masonry"
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(2); // prima pagina già caricata dal server
@@ -113,6 +114,14 @@ export default function InfiniteProductGrid({ initialProducts, initialTotal, fil
       ) : view === "list" ? (
         <div className="flex flex-col gap-2">
           {products.map(p => <ProductListRow key={p.id} product={p} />)}
+        </div>
+      ) : view === "masonry" ? (
+        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
+          {products.map(p => (
+            <div key={p.id} className="break-inside-avoid">
+              <ProductCard product={p} />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">

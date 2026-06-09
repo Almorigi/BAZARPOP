@@ -9,6 +9,7 @@ import ProductReviews from "@/components/ProductReviews";
 import ConditionGuide from "@/components/ConditionGuide";
 import WatchingNow from "@/components/WatchingNow";
 import RecentlyViewed, { trackProductView } from "@/components/RecentlyViewed";
+import RecommendedProducts from "@/components/RecommendedProducts";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -247,6 +248,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
       {/* Recensioni */}
       <ProductReviews productId={product.id} />
       {/* Visti di recente */}
+      <RecommendedProducts excludeId={product.id} />
       <RecentlyViewed excludeId={product.id} />
 
       {/* Prodotti correlati */}
