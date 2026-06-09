@@ -17,6 +17,15 @@ async function getFeaturedProducts(): Promise<Product[]> {
   return data ?? [];
 }
 
+async function getBundles() {
+  const { data } = await supabase
+    .from("bundles")
+    .select("id, title, description, price, images, product_ids")
+    .order("created_at", { ascending: false })
+    .limit(3);
+  return data ?? [];
+}
+
 async function getSpotlightProduct(): Promise<Product | null> {
   // Prende il prodotto in evidenza: featured=true se esiste, altrimenti il più recente disponibile con immagine
   const { data } = await supabase
@@ -82,7 +91,7 @@ const categories = [
 ];
 
 export default async function HomePage() {
-  const [products, spotlight] = await Promise.all([getFeaturedProducts(), getSpotlightProduct()]);
+  const [products, spotlight, bundles] = await Promise.all([getFeaturedProducts(), getSpotlightProduct(), getBundles()]);
 
   return (
     <div className="overflow-hidden">
@@ -197,6 +206,44 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* ── BUNDLE ── */}
+      {bundles.length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 pb-24">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-xs tracking-[0.3em] uppercase text-accent mb-3">Risparmia di più</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold text-white">Bundle & Lotti</h2>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {bundles.map((b) => (
+              <a key={b.id} href={`/bundle/${b.id}`}
+                className="group glass border border-border rounded-3xl overflow-hidden hover:border-accent/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
+                <div className="relative aspect-video bg-surface-2">
+                  {b.images?.[0]
+                    ? <Image src={b.images[0]} alt={b.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 100vw, 33vw" />
+                    : <div className="flex items-center justify-center h-full text-5xl">📦</div>
+                  }
+                  <div className="absolute top-3 left-3 bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                    {b.product_ids?.length ?? 0} pezzi
+                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="font-serif text-lg font-bold text-white mb-1 line-clamp-1">{b.title}</h3>
+                  {b.description && <p className="text-neutral-500 text-xs line-clamp-2 mb-3">{b.description}</p>}
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-2xl font-bold text-accent">€{(b.price / 100).toFixed(2)}</span>
+                    <span className="text-xs text-neutral-500 group-hover:text-accent transition-colors flex items-center gap-1">
+                      Vedi bundle <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── SPOTLIGHT / PRODOTTO IN EVIDENZA ── */}
       {spotlight && (
