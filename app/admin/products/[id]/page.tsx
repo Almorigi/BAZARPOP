@@ -85,12 +85,24 @@ export default function EditProductPage() {
 
     const imageUrls: string[] = [...existingImages];
     for (const file of newFiles) {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (json.url) imageUrls.push(json.url);
-      else { alert("Errore upload foto: " + json.error); setLoading(false); return; }
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+        const res = await fetch("/api/admin/upload", { method: "POST", body: fd, signal: controller.signal });
+        clearTimeout(timeout);
+        const json = await res.json();
+        if (json.url) imageUrls.push(json.url);
+        else { alert("Errore upload foto: " + (json.error ?? "risposta non valida")); setLoading(false); return; }
+      } catch (err) {
+        const msg = err instanceof Error && err.name === "AbortError"
+          ? "Upload timeout — connessione troppo lenta. Riprova."
+          : "Errore di rete durante l'upload. Riprova.";
+        alert(msg);
+        setLoading(false);
+        return;
+      }
     }
 
     const res = await fetch(`/api/admin/products/${id}`, {
