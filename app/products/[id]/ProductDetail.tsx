@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { addToCart } from "@/lib/cart";
 import { Product } from "@/types";
-import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell, Zap } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Share2, ChevronRight as Chevron, Bell, Zap, HandCoins } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -13,6 +13,8 @@ import ConditionGuide from "@/components/ConditionGuide";
 import WatchingNow from "@/components/WatchingNow";
 import RecentlyViewed, { trackProductView } from "@/components/RecentlyViewed";
 import RecommendedProducts from "@/components/RecommendedProducts";
+import CompletaSerie from "@/components/CompletaSerie";
+import OfferModal from "@/components/OfferModal";
 import Link from "next/link";
 import { clsx } from "clsx";
 
@@ -99,6 +101,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
   const [added, setAdded] = useState(false);
   const [buyingNow, setBuyingNow] = useState(false);
   const [lightbox, setLightbox] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
   const price = (product.price / 100).toFixed(2);
   const cond = conditionConfig[product.condition];
 
@@ -267,6 +270,11 @@ export default function ProductDetail({ product, related }: { product: Product; 
                     : "bg-accent/10 hover:bg-accent border-accent/30 hover:border-transparent text-accent hover:text-white")}>
                 {added ? <><CheckCircle size={16} /> Aggiunto al carrello!</> : <><ShoppingCart size={16} /> Aggiungi al carrello</>}
               </button>
+              {/* Fai un'offerta */}
+              <button onClick={() => setShowOfferModal(true)}
+                className="flex items-center justify-center gap-2 w-full text-neutral-500 hover:text-white border border-white/8 hover:border-white/20 py-2.5 rounded-2xl transition-all text-xs">
+                <HandCoins size={13} /> Fai un&apos;offerta
+              </button>
             </div>
           ) : (
             <div className="flex flex-col gap-3 mt-2">
@@ -279,11 +287,17 @@ export default function ProductDetail({ product, related }: { product: Product; 
           )}
         </div>
       </div>
+      {/* Completa la serie */}
+      <CompletaSerie product={product} />
       {/* Recensioni */}
       <ProductReviews productId={product.id} />
       {/* Visti di recente */}
       <RecommendedProducts excludeId={product.id} />
       <RecentlyViewed excludeId={product.id} />
+      {/* Modal offerta */}
+      {showOfferModal && (
+        <OfferModal product={product} onClose={() => setShowOfferModal(false)} />
+      )}
 
       {/* Prodotti correlati */}
       {related.length > 0 && (

@@ -23,6 +23,7 @@ export default function CartPage() {
   const [coupon, setCoupon] = useState<CouponResult | null>(null);
   const [couponError, setCouponError] = useState("");
   const [freeThreshold, setFreeThreshold] = useState(4000); // centesimi, default 40€
+  const [savedEmail, setSavedEmail] = useState("");
 
   useEffect(() => {
     const update = () => setItems(getCart());
@@ -56,6 +57,18 @@ export default function CartPage() {
     setCouponLoading(false);
     if (res.ok) { setCoupon(data); setCouponInput(""); }
     else setCouponError(data.error ?? "Codice non valido");
+  }
+
+  // Salva carrello abbandonato quando l'utente inserisce email
+  function handleEmailSave(email: string) {
+    setSavedEmail(email);
+    if (email && items.length > 0) {
+      fetch("/api/cron/abandoned-carts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, items: items.map(i => ({ name: i.product.title, qty: i.quantity, price: i.product.price })) }),
+      }).catch(() => {});
+    }
   }
 
   async function handleCheckout() {
@@ -216,6 +229,21 @@ export default function CartPage() {
           <div className="border-t border-border pt-4 flex justify-between font-bold text-white mb-6">
             <span>Totale</span>
             <span className="font-serif text-xl text-accent">€{(total / 100).toFixed(2)}</span>
+          </div>
+
+          {/* Email per recupero carrello */}
+          <div className="mb-4">
+            <label className="text-xs text-neutral-600 mb-1.5 block">
+              📧 Inserisci email per salvare il carrello
+            </label>
+            <input
+              type="email"
+              value={savedEmail}
+              onChange={e => handleEmailSave(e.target.value)}
+              placeholder="La tua email (facoltativo)"
+              className="w-full bg-white/5 border border-white/8 rounded-xl px-3 py-2.5 text-white text-xs placeholder-neutral-700 focus:outline-none focus:border-orange-500/40 transition-colors"
+              style={{ colorScheme: "dark" }}
+            />
           </div>
 
           <button

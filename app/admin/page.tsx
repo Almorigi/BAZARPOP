@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star, Bell, Layers } from "lucide-react";
+import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star, Bell, Layers, HandCoins, RotateCcw } from "lucide-react";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
 import DuplicateButton from "./DuplicateButton";
@@ -113,6 +113,14 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <Link href="/admin/import"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
             <FileSpreadsheet size={14} /> Import CSV
+          </Link>
+          <Link href="/admin/offerte"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <HandCoins size={14} /> Offerte
+          </Link>
+          <Link href="/admin/resi"
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <RotateCcw size={14} /> Resi
           </Link>
           <a href="/api/admin/products/export"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">

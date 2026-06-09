@@ -191,6 +191,30 @@ export async function POST(req: NextRequest) {
       status: "paid",
     });
 
+    // Assegna punti fedeltà (1 punto per ogni euro speso + 20 bonus primo ordine)
+    if (customerEmail) {
+      const points = Math.floor((subtotal - shipping) / 100); // 1pt per euro, escluse spedizioni
+      const { count: prevOrders } = await supabaseAdmin
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("customer_email", customerEmail);
+      const isFirstOrder = (prevOrders ?? 0) <= 1;
+      const bonusPoints = isFirstOrder ? 20 : 0;
+
+      if (points + bonusPoints > 0) {
+        const inserts = [
+          { email: customerEmail, points, reason: `Ordine #${session.id.slice(-8).toUpperCase()}`, order_id: session.id },
+        ];
+        if (bonusPoints > 0) {
+          inserts.push({ email: customerEmail, points: bonusPoints, reason: "Bonus primo ordine 🎉", order_id: session.id });
+        }
+        await supabaseAdmin.from("loyalty_points").insert(inserts);
+      }
+
+      // Rimuovi carrello abbandonato se esiste
+      await supabaseAdmin.from("abandoned_carts").delete().eq("email", customerEmail);
+    }
+
     // Email all'admin
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);

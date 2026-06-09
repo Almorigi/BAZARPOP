@@ -9,6 +9,8 @@ import BackToTop from "@/components/BackToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import CartToast from "@/components/CartToast";
 import PWARegister from "@/components/PWARegister";
+import FirstVisitBanner from "@/components/FirstVisitBanner";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -98,6 +100,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ScrollProgress />
         <CartToast />
         <PWARegister />
+        <FirstVisitBanner />
+        <ExitIntentPopup />
       </body>
     </html>
   );
