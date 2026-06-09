@@ -90,10 +90,34 @@ const categories = [
   },
 ];
 
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "La Soffitta del Collezionista",
+  url: "https://www.lasoffittadelcollezionista.it",
+  logo: "https://www.lasoffittadelcollezionista.it/og-image.jpg",
+  contactPoint: { "@type": "ContactPoint", email: "amoro6321@gmail.com", contactType: "customer service", areaServed: "IT" },
+};
+
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "La Soffitta del Collezionista",
+  url: "https://www.lasoffittadelcollezionista.it",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: { "@type": "EntryPoint", urlTemplate: "https://www.lasoffittadelcollezionista.it/products?q={search_term_string}" },
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default async function HomePage() {
   const [products, spotlight, bundles] = await Promise.all([getFeaturedProducts(), getSpotlightProduct(), getBundles()]);
 
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
     <div className="overflow-hidden">
 
       {/* ── HERO ── */}
@@ -347,5 +371,6 @@ export default async function HomePage() {
       {/* ── NEWSLETTER ── */}
       <NewsletterSection />
     </div>
+    </>
   );
 }

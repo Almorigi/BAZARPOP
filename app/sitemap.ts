@@ -5,16 +5,27 @@ const BASE_URL = "https://www.lasoffittadelcollezionista.it";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
-    { url: `${BASE_URL}/products`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE_URL}/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
-    { url: `${BASE_URL}/termini`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: BASE_URL,                       lastModified: new Date(), changeFrequency: "weekly",  priority: 1.0 },
+    { url: `${BASE_URL}/products`,         lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE_URL}/chi-siamo`,        lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/contatti`,         lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE_URL}/offerte`,          lastModified: new Date(), changeFrequency: "daily",   priority: 0.7 },
+    { url: `${BASE_URL}/privacy`,          lastModified: new Date(), changeFrequency: "yearly",  priority: 0.2 },
+    { url: `${BASE_URL}/termini`,          lastModified: new Date(), changeFrequency: "yearly",  priority: 0.2 },
   ];
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("id, created_at")
-    .eq("sold", false);
+  // Pagine categoria
+  const categoryPages: MetadataRoute.Sitemap = ["fumetti","libri","videogiochi","dvd","oggetti"].map(cat => ({
+    url: `${BASE_URL}/products?category=${cat}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
+    priority: 0.8,
+  }));
+
+  const [{ data: products }, { data: bundles }] = await Promise.all([
+    supabase.from("products").select("id, created_at").eq("sold", false),
+    supabase.from("bundles").select("id, created_at"),
+  ]);
 
   const productPages: MetadataRoute.Sitemap = (products ?? []).map((p) => ({
     url: `${BASE_URL}/products/${p.id}`,
@@ -23,5 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...productPages];
+  const bundlePages: MetadataRoute.Sitemap = (bundles ?? []).map((b) => ({
+    url: `${BASE_URL}/bundle/${b.id}`,
+    lastModified: new Date(b.created_at),
+    changeFrequency: "weekly" as const,
+    priority: 0.6,
+  }));
+
+  return [...staticPages, ...categoryPages, ...productPages, ...bundlePages];
 }

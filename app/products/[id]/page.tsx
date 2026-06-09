@@ -36,30 +36,105 @@ export default async function ProductPage({ params }: Props) {
     .limit(4);
 
   const price = (product.price / 100).toFixed(2);
+  const productUrl = `https://www.lasoffittadelcollezionista.it/products/${product.id}`;
+  const availability = product.sold || product.stock === 0
+    ? "https://schema.org/OutOfStock"
+    : "https://schema.org/InStock";
+  const itemCondition = product.condition === "nuovo"
+    ? "https://schema.org/NewCondition"
+    : "https://schema.org/UsedCondition";
+
+  const categoryMap: Record<string, string> = {
+    fumetti: "Media > Books > Comics & Graphic Novels",
+    libri:   "Media > Books",
+    videogiochi: "Electronics > Video Games",
+    dvd:     "Media > DVDs & Videos",
+    oggetti: "Arts & Entertainment > Collectibles",
+  };
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
-    description: product.description ?? product.title,
-    image: product.images,
+    description: product.description ?? `${product.title} in condizioni ${product.condition}. Acquista su La Soffitta del Collezionista.`,
+    image: product.images.length > 0 ? product.images : undefined,
+    sku: product.id,
+    url: productUrl,
+    category: categoryMap[product.category] ?? "Collectibles",
+    brand: {
+      "@type": "Brand",
+      name: "La Soffitta del Collezionista",
+    },
+    itemCondition,
+    ...(product.avg_rating && product.review_count && product.review_count > 0 ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: product.avg_rating.toFixed(1),
+        reviewCount: product.review_count,
+        bestRating: "5",
+        worstRating: "1",
+      },
+    } : {}),
     offers: {
       "@type": "Offer",
+      url: productUrl,
       priceCurrency: "EUR",
       price: price,
-      availability: product.sold || product.stock === 0
-        ? "https://schema.org/OutOfStock"
-        : "https://schema.org/InStock",
-      seller: { "@type": "Organization", name: "La Soffitta del Collezionista" },
-      url: `https://www.lasoffittadelcollezionista.it/products/${product.id}`,
+      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      availability,
+      itemCondition,
+      seller: {
+        "@type": "Organization",
+        name: "La Soffitta del Collezionista",
+        url: "https://www.lasoffittadelcollezionista.it",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "8.90",
+          currency: "EUR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "IT",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          businessDays: {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+          },
+          cutoffTime: "12:00:00+01:00",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+          transitTime:  { "@type": "QuantitativeValue", minValue: 2, maxValue: 5, unitCode: "DAY" },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IT",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
+      },
     },
-    itemCondition: product.condition === "nuovo"
-      ? "https://schema.org/NewCondition"
-      : "https://schema.org/UsedCondition",
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home",       item: "https://www.lasoffittadelcollezionista.it" },
+      { "@type": "ListItem", position: 2, name: "Collezione", item: "https://www.lasoffittadelcollezionista.it/products" },
+      { "@type": "ListItem", position: 3, name: product.title, item: productUrl },
+    ],
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <ProductDetail product={product} related={related ?? []} />
     </>
   );
