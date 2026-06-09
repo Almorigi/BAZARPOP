@@ -1,0 +1,67 @@
+{
+  "name": "La Soffitta del Collezionista",
+  "short_name": "La Soffitta",
+  "description": "Fumetti, libri, videogiochi e oggetti da collezione usati. Selezionati con cura, spediti in tutta Italia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "lang": "it",
+  "categories": ["shopping", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Homepage de La Soffitta del Collezionista"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Fumetti",
+      "short_name": "Fumetti",
+      "url": "/products?category=fumetti",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Videogiochi",
+      "short_name": "Videogiochi",
+      "url": "/products?category=videogiochi",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "I miei Preferiti",
+      "short_name": "Preferiti",
+      "url": "/preferiti",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

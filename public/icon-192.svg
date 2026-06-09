@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="#0a0a0a"/>
+  <!-- Attic/roof shape -->
+  <polygon points="96,28 168,72 168,164 24,164 24,72" fill="#1a1a1a"/>
+  <!-- Roof line -->
+  <polygon points="96,18 175,68 17,68" fill="#f97316"/>
+  <!-- Window/arch in attic -->
+  <ellipse cx="96" cy="90" rx="28" ry="32" fill="#f97316" opacity="0.15"/>
+  <path d="M68 90 Q68 62 96 62 Q124 62 124 90 L124 122 L68 122 Z" fill="none" stroke="#f97316" stroke-width="3"/>
+  <!-- Star/sparkle -->
+  <circle cx="96" cy="96" r="10" fill="#f97316"/>
+  <line x1="96" y1="80" x2="96" y2="112" stroke="#f97316" stroke-width="2"/>
+  <line x1="80" y1="96" x2="112" y2="96" stroke="#f97316" stroke-width="2"/>
+  <line x1="84" y1="84" x2="108" y2="108" stroke="#f97316" stroke-width="1.5"/>
+  <line x1="108" y1="84" x2="84" y2="108" stroke="#f97316" stroke-width="1.5"/>
+  <!-- Door -->
+  <rect x="82" y="130" width="28" height="34" rx="4" fill="#f97316" opacity="0.8"/>
+  <!-- Small text hint "SC" -->
+  <text x="96" y="152" text-anchor="middle" font-size="14" font-weight="bold" fill="#0a0a0a" font-family="serif">SC</text>
+</svg>

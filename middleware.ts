@@ -18,7 +18,7 @@ export function middleware(req: NextRequest) {
   if (true) {
     const adminToken = req.cookies.get("admin_token")?.value;
     const isAdmin = adminToken === ADMIN_PWD;
-    const bypass = ["/admin", "/api", "/coming-soon", "/_next", "/favicon", "/privacy", "/termini", "/ordine", "/contatti", "/sitemap.xml", "/robots.txt", "/preferiti", "/offerte", "/bundle"];
+    const bypass = ["/admin", "/api", "/coming-soon", "/_next", "/favicon", "/privacy", "/termini", "/ordine", "/contatti", "/sitemap.xml", "/robots.txt", "/preferiti", "/offerte", "/bundle", "/offline", "/manifest.json", "/sw.js", "/icon-"];
     if (!isAdmin && !bypass.some((p) => pathname.startsWith(p))) {
       return NextResponse.redirect(new URL("/coming-soon", req.url));
     }

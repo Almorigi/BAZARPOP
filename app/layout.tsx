@@ -8,6 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import BackToTop from "@/components/BackToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import CartToast from "@/components/CartToast";
+import PWARegister from "@/components/PWARegister";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -20,6 +21,12 @@ export const metadata: Metadata = {
   title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi usati",
   description: "Acquista fumetti, manga, libri, videogiochi e oggetti da collezione usati. Selezionati con cura, spediti velocemente in tutta Italia. Prezzi onesti.",
   keywords: ["fumetti usati", "manga usati", "videogiochi usati", "libri usati", "collezione", "fumetti vintage", "retrogaming", "compra fumetti online"],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "La Soffitta",
+  },
   openGraph: {
     title: "La Soffitta del Collezionista",
     description: "Fumetti, libri, videogiochi e oggetti da collezione. Selezionati con cura, spediti in tutta Italia.",
@@ -58,6 +65,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it">
       <head>
+        {/* PWA theme color */}
+        <meta name="theme-color" content="#f97316" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        {/* Apple PWA tags */}
+        <link rel="apple-touch-icon" href="/icon-192.svg" />
+        <meta name="apple-mobile-web-app-title" content="La Soffitta" />
         {/* Google Analytics */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
@@ -84,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BackToTop />
         <ScrollProgress />
         <CartToast />
+        <PWARegister />
       </body>
     </html>
   );
