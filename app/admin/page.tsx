@@ -53,43 +53,49 @@ export default async function AdminPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-24 pb-10">
-      <div className="flex items-center justify-between mb-10">
-        <div>
-          <p className="text-xs tracking-[0.25em] uppercase text-accent mb-1">Pannello</p>
-          <h1 className="font-serif text-3xl font-bold text-white">Admin</h1>
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-xs tracking-[0.25em] uppercase text-accent mb-1">Pannello</p>
+            <h1 className="font-serif text-3xl font-bold text-white">Admin</h1>
+          </div>
+          <Link href="/admin/products/new"
+            className="flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
+            <PlusCircle size={16} /> Aggiungi prodotto
+          </Link>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/admin/scan"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <ScanLine size={15} /> Scansiona
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <ScanLine size={14} /> Scansiona
           </Link>
           <Link href="/admin/statistiche"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <TrendingUp size={15} /> Statistiche
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <TrendingUp size={14} /> Statistiche
           </Link>
           <Link href="/admin/newsletter"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Mail size={15} /> Newsletter
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Mail size={14} /> Newsletter
           </Link>
           <Link href="/admin/coupon"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Tag size={15} /> Coupon
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Tag size={14} /> Coupon
           </Link>
           <Link href="/admin/recensioni"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Star size={15} /> Recensioni
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Star size={14} /> Recensioni
           </Link>
           <Link href="/admin/bundle"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Layers size={15} /> Bundle
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Layers size={14} /> Bundle
           </Link>
           <Link href="/admin/avvisami"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Bell size={15} /> Avvisami
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Bell size={14} /> Avvisami
           </Link>
           <Link href="/admin/ordini"
-            className="relative flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <ShoppingBag size={15} /> Ordini
+            className="relative flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <ShoppingBag size={14} /> Ordini
             {stats.newOrders > 0 && (
               <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
                 {stats.newOrders > 9 ? "9+" : stats.newOrders}
@@ -97,25 +103,21 @@ export default async function AdminPage({ searchParams }: PageProps) {
             )}
           </Link>
           <Link href="/admin/confronta-prezzi"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <BarChart2 size={15} /> Confronta prezzi
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <BarChart2 size={14} /> Confronta prezzi
           </Link>
           <Link href="/admin/impostazioni"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Settings size={15} /> Impostazioni
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Settings size={14} /> Impostazioni
           </Link>
           <Link href="/admin/import"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <FileSpreadsheet size={15} /> Import CSV
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <FileSpreadsheet size={14} /> Import CSV
           </Link>
           <a href="/api/admin/products/export"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm border border-white/10">
-            <Download size={15} /> Export CSV
+            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            <Download size={14} /> Export CSV
           </a>
-          <Link href="/admin/products/new"
-            className="flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm">
-            <PlusCircle size={16} /> Aggiungi prodotto
-          </Link>
         </div>
       </div>
 
