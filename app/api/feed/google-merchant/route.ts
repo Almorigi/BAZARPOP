@@ -32,12 +32,20 @@ function esc(s: string): string {
 
 // Feed prodotti per Google Merchant Center (Shopping gratuito)
 export async function GET() {
-  const { data: products } = await supabase
-    .from("products")
-    .select("*")
-    .eq("sold", false)
-    .gt("stock", 0)
-    .order("created_at", { ascending: false });
+  const [{ data: products }, { data: settings }] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*")
+      .eq("sold", false)
+      .gt("stock", 0)
+      .order("created_at", { ascending: false }),
+    supabase.from("settings").select("*"),
+  ]);
+
+  const settingsMap: Record<string, string> = {};
+  for (const row of settings ?? []) settingsMap[row.key] = row.value;
+  const shippingCents = parseInt(settingsMap.shipping_standard ?? "590");
+  const freeThresholdCents = parseInt(settingsMap.shipping_free_threshold ?? "4000");
 
   const items = (products ?? [])
     .filter((p) => p.images?.length > 0) // Google richiede l'immagine
@@ -56,7 +64,7 @@ export async function GET() {
       <g:identifier_exists>false</g:identifier_exists>
       <g:shipping>
         <g:country>IT</g:country>
-        <g:price>8.90 EUR</g:price>
+        <g:price>${(freeThresholdCents > 0 && p.price >= freeThresholdCents ? 0 : shippingCents / 100).toFixed(2)} EUR</g:price>
       </g:shipping>
     </item>`)
     .join("\n");

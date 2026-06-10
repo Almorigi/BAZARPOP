@@ -27,13 +27,24 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   // Prodotti correlati: stessa categoria, escludi prodotto corrente, max 4
-  const { data: related } = await supabase
-    .from("products")
-    .select("*")
-    .eq("category", product.category)
-    .eq("sold", false)
-    .neq("id", id)
-    .limit(4);
+  const [{ data: related }, { data: settingsRows }] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*")
+      .eq("category", product.category)
+      .eq("sold", false)
+      .neq("id", id)
+      .limit(4),
+    supabase.from("settings").select("*"),
+  ]);
+
+  const settingsMap: Record<string, string> = {};
+  for (const row of settingsRows ?? []) settingsMap[row.key] = row.value;
+  const shippingCents = parseInt(settingsMap.shipping_standard ?? "590");
+  const freeThresholdCents = parseInt(settingsMap.shipping_free_threshold ?? "4000");
+  const shippingValue = freeThresholdCents > 0 && product.price >= freeThresholdCents
+    ? "0.00"
+    : (shippingCents / 100).toFixed(2);
 
   const price = (product.price / 100).toFixed(2);
   const productUrl = `https://www.lasoffittadelcollezionista.it/products/${product.id}`;
@@ -92,7 +103,7 @@ export default async function ProductPage({ params }: Props) {
         "@type": "OfferShippingDetails",
         shippingRate: {
           "@type": "MonetaryAmount",
-          value: "8.90",
+          value: shippingValue,
           currency: "EUR",
         },
         shippingDestination: {
