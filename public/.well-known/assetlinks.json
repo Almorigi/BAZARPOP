@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "it.lasoffittadelcollezionista.app",
+    "sha256_cert_fingerprints": [
+      "E8:69:B5:E4:04:CC:54:CC:E0:A4:22:38:00:55:2B:F1:E5:29:6E:FD:66:6C:88:6A:B6:D8:10:7C:98:7D:57:FC"
+    ]
+  }
+}]
