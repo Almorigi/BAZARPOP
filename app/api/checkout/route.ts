@@ -55,7 +55,9 @@ export async function POST(req: NextRequest) {
   const shipping = await getShippingSettings();
 
   const standardCost = shipping.freeThreshold > 0 && subtotal >= shipping.freeThreshold ? 0 : shipping.standard;
-  const offerPieghi = totalItems <= shipping.pieghiMaxItems;
+  const pieghiCategories = ["fumetti", "dvd"];
+  const allPieghiEligible = items.every(item => pieghiCategories.includes(item.product.category));
+  const offerPieghi = totalItems <= shipping.pieghiMaxItems && allPieghiEligible;
 
   const lineItems = items.map((item) => ({
     price_data: {
