@@ -64,7 +64,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
             <PlusCircle size={16} /> Aggiungi prodotto
           </Link>
         </div>
-        <div className="flex gap-2 flex-wrap md:flex-wrap overflow-x-auto md:overflow-visible pb-1 scrollbar-none">
+        <div className="flex gap-2 flex-wrap">
           <Link href="/admin/scan"
             className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
             <ScanLine size={14} /> Scansiona
