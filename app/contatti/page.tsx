@@ -16,7 +16,7 @@ async function getShippingThreshold(): Promise<number> {
 const FAQ_STATIC = [
   {
     q: "Come avviene la spedizione?",
-    a: "Spediamo in tutta Italia tramite corriere. La spedizione standard impiega 3–7 giorni lavorativi, quella express 1–2 giorni. Ricevi un'email con il codice di tracciamento non appena il pacco viene spedito.",
+    a: "Spediamo in tutta Italia tramite corriere. La spedizione standard impiega 3–7 giorni lavorativi, quella express 1–2 giorni. Per ordini di fumetti, libri (max 2), videogiochi e DVD fino a 5 articoli è disponibile anche la tariffa economica Pieghi di libri di Poste Italiane (4–10 giorni lavorativi). Ricevi un'email con il codice di tracciamento non appena il pacco viene spedito.",
   },
   {
     q: "Quali metodi di pagamento accettate?",
