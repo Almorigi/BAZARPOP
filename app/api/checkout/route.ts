@@ -55,9 +55,10 @@ export async function POST(req: NextRequest) {
   const shipping = await getShippingSettings();
 
   const standardCost = shipping.freeThreshold > 0 && subtotal >= shipping.freeThreshold ? 0 : shipping.standard;
-  const pieghiCategories = ["fumetti", "dvd"];
+  const pieghiCategories = ["fumetti", "dvd", "videogiochi", "libri"];
   const allPieghiEligible = items.every(item => pieghiCategories.includes(item.product.category));
-  const offerPieghi = totalItems <= shipping.pieghiMaxItems && allPieghiEligible;
+  const totalLibri = items.filter(i => i.product.category === "libri").reduce((s, i) => s + i.quantity, 0);
+  const offerPieghi = totalItems <= shipping.pieghiMaxItems && allPieghiEligible && totalLibri <= 2;
 
   const lineItems = items.map((item) => ({
     price_data: {
