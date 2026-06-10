@@ -156,7 +156,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-neutral-400 text-lg md:text-xl max-w-lg mx-auto mb-12 leading-relaxed animate-fade-up" style={{ animationDelay: "0.1s", opacity: 0 }}>
-            Fumetti, libri, videogiochi e oggetti unici.<br />
+            Fumetti, libri, videogiochi, film DVD e oggetti unici.<br />
             Selezionati con cura da un collezionista appassionato.
           </p>
 
@@ -179,7 +179,7 @@ export default async function HomePage() {
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-12 mt-20 animate-fade-up" style={{ animationDelay: "0.3s", opacity: 0 }}>
             {[
-              { n: "1000+", label: "Pezzi disponibili" },
+              { n: "2000+", label: "Pezzi disponibili" },
               { n: "5",     label: "Categorie" },
               { n: "100%",  label: "Selezionato a mano" },
             ].map(({ n, label }) => (
@@ -211,7 +211,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {categories.map((cat) => (
             <Link
               key={cat.href}
