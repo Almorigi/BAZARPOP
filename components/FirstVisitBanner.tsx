@@ -7,11 +7,15 @@ export default function FirstVisitBanner() {
 
   useEffect(() => {
     const seen = localStorage.getItem("soffitta_welcome_seen");
-    if (!seen) {
-      // Mostra dopo 3 secondi dalla prima visita
-      const t = setTimeout(() => setVisible(true), 3000);
-      return () => clearTimeout(t);
-    }
+    if (seen) return;
+    // Aspetta che l'utente abbia risposto al banner cookie prima di mostrarsi
+    const interval = setInterval(() => {
+      if (localStorage.getItem("cookie_consent")) {
+        clearInterval(interval);
+        setTimeout(() => setVisible(true), 1500);
+      }
+    }, 500);
+    return () => clearInterval(interval);
   }, []);
 
   function dismiss() {
