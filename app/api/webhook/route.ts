@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { sendPushToAdmin } from "@/lib/push";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -214,6 +215,15 @@ export async function POST(req: NextRequest) {
       // Rimuovi carrello abbandonato se esiste
       await supabaseAdmin.from("abandoned_carts").delete().eq("email", customerEmail);
     }
+
+    // Notifica push all'admin
+    try {
+      await sendPushToAdmin(
+        "🛒 Nuovo ordine!",
+        `${customerName || customerEmail || "Cliente"} — ${formatPrice(total)}`,
+        "/admin/ordini"
+      );
+    } catch {} // non bloccare il webhook se il push fallisce
 
     // Email all'admin
     if (process.env.RESEND_API_KEY) {

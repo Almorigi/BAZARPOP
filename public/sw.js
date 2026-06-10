@@ -1,5 +1,5 @@
 // Service Worker — La Soffitta del Collezionista
-const CACHE_NAME = "soffitta-v1";
+const CACHE_NAME = "soffitta-v2";
 
 // Risorse da cachare subito (shell dell'app)
 const PRECACHE_URLS = [
@@ -123,4 +123,25 @@ self.addEventListener("fetch", (event) => {
         });
       })
   );
+});
+
+// ── Notifiche Push ──
+self.addEventListener("push", (event) => {
+  let data = { title: "La Soffitta", body: "Nuova notifica", url: "/admin" };
+  try { data = { ...data, ...event.data.json() }; } catch {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "/icon-192.svg",
+      badge: "/icon-192.svg",
+      data: { url: data.url },
+      vibrate: [200, 100, 200],
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/admin";
+  event.waitUntil(clients.openWindow(url));
 });

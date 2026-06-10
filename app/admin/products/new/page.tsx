@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, X, Loader2, CheckCircle } from "lucide-react";
+import { Upload, X, Loader2, CheckCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { Category } from "@/types";
 
@@ -21,6 +21,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [previews, setPreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -44,6 +45,48 @@ export default function NewProductPage() {
   function removeImage(i: number) {
     setFiles((f) => f.filter((_, idx) => idx !== i));
     setPreviews((p) => p.filter((_, idx) => idx !== i));
+  }
+
+  async function handleRecognize() {
+    if (files.length === 0) { alert("Carica prima una foto del prodotto"); return; }
+    setAiLoading(true);
+    try {
+      // Ridimensiona l'immagine per ridurre i token
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxSide = 1024;
+          const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.onerror = reject;
+        img.src = previews[0];
+      });
+      const base64 = dataUrl.split(",")[1];
+
+      const res = await fetch("/api/admin/recognize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64, mediaType: "image/jpeg" }),
+      });
+      const data = await res.json();
+      if (data.error) { alert("Errore AI: " + data.error); return; }
+      setForm(f => ({
+        ...f,
+        title: data.title || f.title,
+        description: data.description || f.description,
+        category: (data.category || f.category) as Category,
+        price: data.suggested_price_eur ? String(data.suggested_price_eur).replace(".", ",") : f.price,
+      }));
+    } catch {
+      alert("Errore durante il riconoscimento");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -157,6 +200,14 @@ export default function NewProductPage() {
             )}
           </div>
           <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+          {previews.length > 0 && (
+            <button type="button" onClick={handleRecognize} disabled={aiLoading}
+              className="mt-3 flex items-center gap-2 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 font-semibold px-4 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50">
+              {aiLoading
+                ? <><Loader2 size={15} className="animate-spin" /> Riconoscimento in corso...</>
+                : <><Sparkles size={15} /> Riconosci con AI (compila titolo, descrizione, categoria)</>}
+            </button>
+          )}
         </div>
 
         <button type="submit" disabled={loading}
