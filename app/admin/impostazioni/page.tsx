@@ -1,12 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Save, Loader2, CheckCircle, Truck, Zap, Gift } from "lucide-react";
+import { ArrowLeft, Save, Loader2, CheckCircle, Truck, Zap, Gift, Package } from "lucide-react";
 
 interface ShippingSettings {
   shipping_standard: string;
   shipping_express: string;
   shipping_free_threshold: string;
+  shipping_pieghi: string;
+  shipping_pieghi_max_items: string;
 }
 
 export default function ImpostazioniPage() {
@@ -14,6 +16,8 @@ export default function ImpostazioniPage() {
     shipping_standard: "8.90",
     shipping_express: "13.90",
     shipping_free_threshold: "35.00",
+    shipping_pieghi: "1.50",
+    shipping_pieghi_max_items: "5",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,6 +31,8 @@ export default function ImpostazioniPage() {
           shipping_standard: (parseInt(data.shipping_standard || "890") / 100).toFixed(2),
           shipping_express: (parseInt(data.shipping_express || "1390") / 100).toFixed(2),
           shipping_free_threshold: (parseInt(data.shipping_free_threshold || "3500") / 100).toFixed(2),
+          shipping_pieghi: (parseInt(data.shipping_pieghi || "150") / 100).toFixed(2),
+          shipping_pieghi_max_items: data.shipping_pieghi_max_items || "5",
         });
         setLoading(false);
       });
@@ -42,6 +48,8 @@ export default function ImpostazioniPage() {
         shipping_standard: Math.round(parseFloat(settings.shipping_standard.replace(",", ".")) * 100),
         shipping_express: Math.round(parseFloat(settings.shipping_express.replace(",", ".")) * 100),
         shipping_free_threshold: Math.round(parseFloat(settings.shipping_free_threshold.replace(",", ".")) * 100),
+        shipping_pieghi: Math.round(parseFloat(settings.shipping_pieghi.replace(",", ".")) * 100),
+        shipping_pieghi_max_items: parseInt(settings.shipping_pieghi_max_items),
       }),
     });
     const json = await res.json();
@@ -108,6 +116,34 @@ export default function ImpostazioniPage() {
               placeholder="es. 35,00" className={inputCls} style={{ colorScheme: "dark" }}
             />
             <p className="text-xs text-neutral-600 mt-1">Imposta 0 per disabilitare la spedizione gratuita</p>
+          </div>
+
+          <div className="border-t border-white/5 pt-6">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-neutral-300 mb-4">
+              <Package size={14} className="text-accent" /> Pieghi di libri (Poste Italiane)
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-neutral-400 mb-1.5 block">Prezzo Pieghi di libri (€)</label>
+                <input
+                  type="text" inputMode="decimal"
+                  value={settings.shipping_pieghi}
+                  onChange={e => setSettings({ ...settings, shipping_pieghi: e.target.value })}
+                  placeholder="es. 1,50" className={inputCls} style={{ colorScheme: "dark" }}
+                />
+                <p className="text-xs text-neutral-600 mt-1">Tempi stimati: 4-10 giorni lavorativi. Mostrato solo se n° articoli ≤ limite</p>
+              </div>
+              <div>
+                <label className="text-sm text-neutral-400 mb-1.5 block">Max articoli per i Pieghi</label>
+                <input
+                  type="number" min="1" max="20"
+                  value={settings.shipping_pieghi_max_items}
+                  onChange={e => setSettings({ ...settings, shipping_pieghi_max_items: e.target.value })}
+                  placeholder="5" className={inputCls} style={{ colorScheme: "dark" }}
+                />
+                <p className="text-xs text-neutral-600 mt-1">Opzione mostrata al checkout solo se il totale articoli è ≤ questo numero</p>
+              </div>
+            </div>
           </div>
 
           <button

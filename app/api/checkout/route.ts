@@ -15,7 +15,9 @@ async function getShippingSettings() {
   return {
     standard: map.shipping_standard ?? 890,
     express: map.shipping_express ?? 1390,
-    freeThreshold: map.shipping_free_threshold ?? 3500,
+    freeThreshold: map.shipping_free_threshold ?? 4000,
+    pieghi: map.shipping_pieghi ?? 150, // Pieghi di libri Poste Italiane, default €1,50
+    pieghiMaxItems: map.shipping_pieghi_max_items ?? 5, // max articoli per i pieghi
   };
 }
 
@@ -41,49 +43,70 @@ async function validateAndApplyCoupon(code: string, total: number) {
 }
 
 export async function POST(req: NextRequest) {
-  const { items, couponCode }: { items: CartItem[]; couponCode?: string } = await req.json();
+  const { items }: { items: CartItem[] } = await req.json();
 
   if (!items || items.length === 0) {
     return NextResponse.json({ error: "Carrello vuoto" }, { status: 400 });
   }
 
   const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.product.price * item.quantity, 0);
+  const totalItems = items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const shipping = await getShippingSettings();
 
-  // Applica coupon se presente
-  let discountCents = 0;
-  let appliedCoupon: string | null = null;
-  if (couponCode) {
-    const result = await validateAndApplyCoupon(couponCode, subtotal);
-    if (result) { discountCents = result.discountCents; appliedCoupon = result.code; }
-  }
+  const standardCost = shipping.freeThreshold > 0 && subtotal >= shipping.freeThreshold ? 0 : shipping.standard;
+  const offerPieghi = totalItems <= shipping.pieghiMaxItems;
 
-  const total = Math.max(0, subtotal - discountCents);
-  const standardCost = shipping.freeThreshold > 0 && total >= shipping.freeThreshold ? 0 : shipping.standard;
+  const lineItems = items.map((item) => ({
+    price_data: {
+      currency: "eur",
+      product_data: {
+        name: item.product.title,
+        images: item.product.images.slice(0, 1),
+        metadata: { product_id: item.product.id },
+      },
+      unit_amount: item.product.price,
+    },
+    quantity: item.quantity,
+  }));
 
-  // Line items: prodotti + eventuale sconto come voce negativa
-  const lineItems = [
-    ...items.map((item) => ({
-      price_data: {
-        currency: "eur",
-        product_data: {
-          name: item.product.title,
-          images: item.product.images.slice(0, 1),
-          metadata: { product_id: item.product.id },
+  const shippingOptions = [
+    // Pieghi di libri — solo se ≤ pieghiMaxItems articoli
+    ...(offerPieghi ? [{
+      shipping_rate_data: {
+        type: "fixed_amount" as const,
+        fixed_amount: { amount: shipping.pieghi, currency: "eur" },
+        display_name: "Pieghi di libri (Poste Italiane)",
+        delivery_estimate: {
+          minimum: { unit: "business_day" as const, value: 4 },
+          maximum: { unit: "business_day" as const, value: 10 },
         },
-        unit_amount: item.product.price,
       },
-      quantity: item.quantity,
-    })),
-    ...(discountCents > 0 ? [{
-      price_data: {
-        currency: "eur",
-        product_data: { name: `Sconto codice ${appliedCoupon}` },
-        unit_amount: -discountCents,
-      },
-      quantity: 1,
     }] : []),
+    // Spedizione standard / gratuita
+    {
+      shipping_rate_data: {
+        type: "fixed_amount" as const,
+        fixed_amount: { amount: standardCost, currency: "eur" },
+        display_name: standardCost === 0 ? "Spedizione gratuita 🎉" : "Corriere standard",
+        delivery_estimate: {
+          minimum: { unit: "business_day" as const, value: 3 },
+          maximum: { unit: "business_day" as const, value: 7 },
+        },
+      },
+    },
+    // Express
+    {
+      shipping_rate_data: {
+        type: "fixed_amount" as const,
+        fixed_amount: { amount: shipping.express, currency: "eur" },
+        display_name: "Corriere express",
+        delivery_estimate: {
+          minimum: { unit: "business_day" as const, value: 1 },
+          maximum: { unit: "business_day" as const, value: 2 },
+        },
+      },
+    },
   ];
 
   const session = await stripe.checkout.sessions.create({
@@ -91,30 +114,7 @@ export async function POST(req: NextRequest) {
     mode: "payment",
     locale: "it",
     shipping_address_collection: { allowed_countries: ["IT"] },
-    shipping_options: [
-      {
-        shipping_rate_data: {
-          type: "fixed_amount",
-          fixed_amount: { amount: standardCost, currency: "eur" },
-          display_name: standardCost === 0 ? "Spedizione gratuita 🎉" : "Spedizione standard",
-          delivery_estimate: {
-            minimum: { unit: "business_day", value: 3 },
-            maximum: { unit: "business_day", value: 7 },
-          },
-        },
-      },
-      {
-        shipping_rate_data: {
-          type: "fixed_amount",
-          fixed_amount: { amount: shipping.express, currency: "eur" },
-          display_name: "Spedizione express",
-          delivery_estimate: {
-            minimum: { unit: "business_day", value: 1 },
-            maximum: { unit: "business_day", value: 2 },
-          },
-        },
-      },
-    ],
+    shipping_options: shippingOptions,
     line_items: lineItems,
     success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${siteUrl}/cart`,
