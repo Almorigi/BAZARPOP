@@ -66,35 +66,35 @@ export default async function AdminPage({ searchParams }: PageProps) {
         </div>
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
           <Link href="/admin/scan"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <ScanLine size={14} /> Scansiona
           </Link>
           <Link href="/admin/statistiche"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <TrendingUp size={14} /> Statistiche
           </Link>
           <Link href="/admin/newsletter"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Mail size={14} /> Newsletter
           </Link>
           <Link href="/admin/coupon"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Tag size={14} /> Coupon
           </Link>
           <Link href="/admin/recensioni"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Star size={14} /> Recensioni
           </Link>
           <Link href="/admin/bundle"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Layers size={14} /> Bundle
           </Link>
           <Link href="/admin/avvisami"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Bell size={14} /> Avvisami
           </Link>
           <Link href="/admin/ordini"
-            className="relative flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="relative flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <ShoppingBag size={14} /> Ordini
             {stats.newOrders > 0 && (
               <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
@@ -103,27 +103,27 @@ export default async function AdminPage({ searchParams }: PageProps) {
             )}
           </Link>
           <Link href="/admin/confronta-prezzi"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <BarChart2 size={14} /> Confronta prezzi
           </Link>
           <Link href="/admin/impostazioni"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Settings size={14} /> Impostazioni
           </Link>
           <Link href="/admin/import"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <FileSpreadsheet size={14} /> Import CSV
           </Link>
           <Link href="/admin/offerte"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <HandCoins size={14} /> Offerte
           </Link>
           <Link href="/admin/resi"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <RotateCcw size={14} /> Resi
           </Link>
           <a href="/api/admin/products/export"
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-neutral-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-white/10">
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Download size={14} /> Export CSV
           </a>
         </div>
