@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star, Bell, Layers, HandCoins, RotateCcw } from "lucide-react";
+import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star, Bell, Layers, HandCoins, RotateCcw, Trophy } from "lucide-react";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
 import PushButton from "./PushButton";
@@ -122,6 +122,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <Link href="/admin/resi"
             className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <RotateCcw size={14} /> Resi
+          </Link>
+          <Link href="/admin/punti"
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
+            <Trophy size={14} /> Punti
           </Link>
           <PushButton />
           <a href="/api/admin/products/export"
