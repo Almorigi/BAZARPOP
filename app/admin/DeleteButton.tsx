@@ -21,10 +21,10 @@ export default function DeleteButton({ id }: { id: string }) {
     <button
       onClick={handleDelete}
       disabled={loading}
-      className="flex items-center gap-1.5 text-xs text-red-400 hover:text-white hover:bg-red-500/20 bg-red-500/10 px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50"
+      className="flex items-center gap-1 text-xs text-red-400 hover:text-white hover:bg-red-500/20 bg-red-500/10 px-2 py-1.5 rounded-lg transition-colors disabled:opacity-50 border border-red-900/40"
     >
-      {loading ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
-      Elimina
+      {loading ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+      <span className="hidden sm:inline">Elimina</span><span className="sm:hidden">Elm.</span>
     </button>
   );
 }

@@ -20,9 +20,9 @@ export default function DuplicateButton({ id }: { id: string }) {
   return (
     <button onClick={handleDuplicate} disabled={loading}
       title="Duplica prodotto"
-      className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white bg-[#1e1e1e] hover:bg-[#2a2a2a] px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50">
-      {loading ? <Loader2 size={12} className="animate-spin" /> : <Copy size={12} />}
-      Duplica
+      className="flex items-center gap-1 text-xs text-neutral-400 hover:text-white bg-neutral-900 hover:bg-neutral-800 px-2 py-1.5 rounded-lg transition-colors disabled:opacity-50 border border-neutral-700">
+      {loading ? <Loader2 size={11} className="animate-spin" /> : <Copy size={11} />}
+      <span className="hidden sm:inline">Duplica</span><span className="sm:hidden">Dup.</span>
     </button>
   );
 }

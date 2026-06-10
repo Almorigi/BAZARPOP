@@ -201,11 +201,11 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 <p className="text-sm font-medium text-white truncate">{p.title}</p>
                 <p className="text-xs text-neutral-600 capitalize">{p.category} · {p.condition} · €{(p.price / 100).toFixed(2)}</p>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {p.sold && <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">Venduto</span>}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {p.sold && <span className="text-xs text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded-full hidden sm:inline">Venduto</span>}
                 <Link href={`/admin/products/${p.id}`}
-                  className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white bg-[#1e1e1e] hover:bg-[#2a2a2a] px-3 py-1.5 rounded-xl transition-colors">
-                  <Pencil size={12} /> Modifica
+                  className="flex items-center gap-1 text-xs text-neutral-400 hover:text-white bg-neutral-900 hover:bg-neutral-800 px-2 py-1.5 rounded-lg transition-colors border border-neutral-700">
+                  <Pencil size={11} /> <span className="hidden sm:inline">Modifica</span><span className="sm:hidden">Mod.</span>
                 </Link>
                 <DuplicateButton id={p.id} />
                 <DeleteButton id={p.id} />
