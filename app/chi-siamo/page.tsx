@@ -70,7 +70,7 @@ export default function ChiSiamoPage() {
 
         <div className="md:col-span-2 flex flex-col gap-4">
           <div className="glass rounded-3xl p-6 border border-border">
-            <div className="font-serif text-4xl font-bold text-accent mb-1">1000+</div>
+            <div className="font-serif text-4xl font-bold text-accent mb-1">2000+</div>
             <div className="text-sm text-neutral-500">Pezzi selezionati a mano</div>
           </div>
           <div className="glass rounded-3xl p-6 border border-border">
