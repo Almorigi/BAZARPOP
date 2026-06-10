@@ -84,6 +84,22 @@ export default function ChiSiamoPage() {
         </div>
       </div>
 
+      {/* Caricamento progressivo */}
+      <div className="mb-20 relative overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-8">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <p className="text-xs tracking-[0.3em] uppercase text-accent mb-3">Come funziona</p>
+        <h3 className="font-serif text-2xl font-bold text-white mb-4">
+          La collezione cresce ogni giorno
+        </h3>
+        <p className="text-neutral-400 text-sm leading-relaxed max-w-2xl">
+          Ho accumulato una vita di oggetti — fumetti, libri, videogiochi, dvd e tanto altro — e li sto catalogando e mettendo online <strong className="text-white">uno alla volta, con cura</strong>.
+          Questo significa che ogni volta che torni, trovi qualcosa di nuovo. Non è un magazzino che si svuota: è una soffitta che si apre, piano piano.
+        </p>
+        <p className="text-neutral-500 text-xs mt-4">
+          📦 Nuovi prodotti vengono aggiunti regolarmente — attiva le notifiche o iscriviti alla newsletter per non perderti nulla.
+        </p>
+      </div>
+
       {/* Valori */}
       <div className="mb-20">
         <p className="text-xs tracking-[0.3em] uppercase text-accent mb-4">Come lavoriamo</p>
