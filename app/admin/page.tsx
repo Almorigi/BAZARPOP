@@ -132,14 +132,14 @@ export default async function AdminPage({ searchParams }: PageProps) {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-10">
         {[
-          { label: "Totale", value: stats.total, icon: Package, color: "text-white" },
-          { label: "Disponibili", value: stats.available, icon: Clock, color: "text-accent" },
-          { label: "Venduti", value: stats.sold, icon: CheckCircle, color: "text-emerald-400" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="glass rounded-2xl p-5 border border-border">
-            <Icon size={20} className={`${color} mb-3`} />
-            <div className={`font-serif text-3xl font-bold ${color} mb-1`}>{value}</div>
-            <div className="text-xs text-neutral-600">{label}</div>
+          { label: "Totale", value: stats.total, icon: Package, numCls: "text-neutral-100", iconCls: "text-neutral-100" },
+          { label: "Disponibili", value: stats.available, icon: Clock, numCls: "text-orange-400", iconCls: "text-orange-400" },
+          { label: "Venduti", value: stats.sold, icon: CheckCircle, numCls: "text-emerald-400", iconCls: "text-emerald-400" },
+        ].map(({ label, value, icon: Icon, numCls, iconCls }) => (
+          <div key={label} className="bg-neutral-900 rounded-2xl p-5 border border-neutral-700">
+            <Icon size={20} className={`${iconCls} mb-3`} />
+            <div className={`font-serif text-3xl font-bold ${numCls} mb-1`}>{value}</div>
+            <div className="text-xs text-neutral-500">{label}</div>
           </div>
         ))}
       </div>
