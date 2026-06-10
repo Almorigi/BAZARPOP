@@ -347,6 +347,19 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── CARICAMENTO PROGRESSIVO ── */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <div className="flex items-start gap-4 rounded-2xl border border-accent/20 bg-accent/5 px-6 py-5">
+          <span className="text-2xl flex-shrink-0">📦</span>
+          <div>
+            <p className="text-white font-semibold text-sm mb-1">La collezione cresce ogni giorno</p>
+            <p className="text-neutral-400 text-sm leading-relaxed">
+              Sto catalogando e pubblicando i miei oggetti <strong className="text-white">uno alla volta, con cura</strong>. Ogni volta che torni potresti trovare qualcosa di nuovo — iscriviti alla newsletter per non perderti i nuovi arrivi.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ── BANNER ── */}
       <section className="max-w-7xl mx-auto px-6 pb-28">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent/20 via-orange-600/10 to-transparent border border-accent/20 p-12 md:p-16 text-center glow-orange">
