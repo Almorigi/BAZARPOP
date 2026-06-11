@@ -119,7 +119,7 @@ export default function EditProductPage() {
       body: JSON.stringify({
         title: form.title,
         description: form.description,
-        price: Math.round(parseFloat(form.price) * 100),
+        price: Math.round(parseFloat(form.price.replace(",", ".")) * 100),
         category: form.category,
         condition: form.condition,
         stock: parseInt(form.stock),
