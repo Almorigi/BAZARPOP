@@ -65,7 +65,6 @@ export default function Footer() {
             <ul className="flex flex-col gap-3">
               {[
                 { href: "/products",  label: "Tutti i prodotti" },
-                { href: "/box",       label: "Box Misteriose 🎁" },
                 { href: "/cart",      label: "Carrello" },
                 { href: "/ordine",    label: "Traccia ordine" },
                 { href: "/reso",      label: "Richiedi un reso" },

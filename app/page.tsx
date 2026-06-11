@@ -17,16 +17,6 @@ async function getFeaturedProducts(): Promise<Product[]> {
   return data ?? [];
 }
 
-async function hasBoxes(): Promise<boolean> {
-  const { count } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .ilike("title", "box misteriosa%")
-    .eq("sold", false)
-    .gt("stock", 0);
-  return (count ?? 0) > 0;
-}
-
 async function getBundles() {
   const { data } = await supabase
     .from("bundles")
@@ -122,7 +112,7 @@ const websiteLd = {
 };
 
 export default async function HomePage() {
-  const [products, spotlight, bundles, boxesAvailable] = await Promise.all([getFeaturedProducts(), getSpotlightProduct(), getBundles(), hasBoxes()]);
+  const [products, spotlight, bundles] = await Promise.all([getFeaturedProducts(), getSpotlightProduct(), getBundles()]);
 
   return (
     <>
@@ -241,29 +231,6 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* ── BOX MISTERIOSE ── */}
-      {boxesAvailable && (
-        <section className="max-w-7xl mx-auto px-6 pb-24">
-          <Link href="/box"
-            className="group relative block overflow-hidden rounded-3xl border border-violet-500/30 bg-gradient-to-br from-violet-600/15 via-fuchsia-600/10 to-transparent p-10 md:p-14 hover:border-violet-400/50 transition-all duration-300 hover:shadow-[0_0_50px_rgba(139,92,246,0.15)]">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_80%_50%,rgba(139,92,246,0.12),transparent)] pointer-events-none" />
-            <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
-              <span className="text-6xl md:text-7xl flex-shrink-0">🎁</span>
-              <div className="flex-1">
-                <p className="text-xs tracking-[0.3em] uppercase text-violet-300 mb-2">Sorpresa garantita</p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-2">Box Misteriose</h2>
-                <p className="text-neutral-400 text-sm md:text-base max-w-lg">
-                  Pezzi a sorpresa selezionati a mano, con un valore sempre superiore al prezzo. L&apos;emozione dell&apos;unboxing, perfetta anche da regalare.
-                </p>
-              </div>
-              <span className="flex items-center gap-2 bg-violet-600 group-hover:bg-violet-500 text-white font-bold px-7 py-4 rounded-2xl text-sm transition-colors flex-shrink-0 self-start md:self-center">
-                Scopri le box <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
-              </span>
-            </div>
-          </Link>
-        </section>
-      )}
 
       {/* ── BUNDLE ── */}
       {bundles.length > 0 && (
