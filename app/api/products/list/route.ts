@@ -35,5 +35,9 @@ export async function GET(req: NextRequest) {
   if (maxPrice)  query = query.lte("price", Math.round(parseFloat(maxPrice) * 100));
 
   const { data, count } = await query;
-  return NextResponse.json({ products: data ?? [], total: count ?? 0, pageSize: PAGE_SIZE });
+  // CORS aperto: dati pubblici di catalogo, usati anche dalla Soffitta Magica
+  return NextResponse.json(
+    { products: data ?? [], total: count ?? 0, pageSize: PAGE_SIZE },
+    { headers: { "Access-Control-Allow-Origin": "*" } }
+  );
 }

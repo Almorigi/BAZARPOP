@@ -5,7 +5,10 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q") ?? "";
   const limit = parseInt(req.nextUrl.searchParams.get("limit") ?? "5");
 
-  if (q.trim().length < 2) return NextResponse.json({ products: [] });
+  // CORS aperto: dati pubblici di catalogo, usati anche dalla Soffitta Magica
+  const cors = { "Access-Control-Allow-Origin": "*" };
+
+  if (q.trim().length < 2) return NextResponse.json({ products: [] }, { headers: cors });
 
   const { data } = await supabase
     .from("products")
@@ -14,5 +17,5 @@ export async function GET(req: NextRequest) {
     .ilike("title", `%${q}%`)
     .limit(limit);
 
-  return NextResponse.json({ products: data ?? [] });
+  return NextResponse.json({ products: data ?? [] }, { headers: cors });
 }
