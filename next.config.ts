@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Le immagini vengono già ridimensionate al caricamento (1200px WebP):
+    // l'ottimizzatore Vercel non serve e ha un limite di 5000 trasformazioni/mese
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
