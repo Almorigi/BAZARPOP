@@ -113,7 +113,8 @@ export async function POST(req: NextRequest) {
   ];
 
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
+    // Nessun payment_method_types: Stripe mostra automaticamente
+    // tutti i metodi attivati nella dashboard (carte, PayPal, Klarna, Satispay...)
     mode: "payment",
     locale: "it",
     shipping_address_collection: { allowed_countries: ["IT"] },
