@@ -78,7 +78,6 @@ export default function NewProductPage() {
       setForm(f => ({
         ...f,
         title: data.title || f.title,
-        description: data.description || f.description,
         category: (data.category || f.category) as Category,
         price: data.suggested_price_eur ? String(data.suggested_price_eur).replace(".", ",") : f.price,
       }));

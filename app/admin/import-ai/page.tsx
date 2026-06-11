@@ -91,7 +91,6 @@ export default function ImportAiPage() {
         updateRow(i, {
           status: "ready",
           title: data.title || "",
-          description: data.description || "",
           category: (["fumetti","libri","videogiochi","dvd","oggetti"].includes(data.category) ? data.category : "oggetti") as Category,
           price: data.suggested_price_eur ? String(data.suggested_price_eur).replace(".", ",") : "",
         });

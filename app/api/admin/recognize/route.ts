@@ -9,11 +9,10 @@ const SCHEMA = {
   type: "object" as const,
   properties: {
     title: { type: "string", description: "Titolo completo del prodotto, incluso numero del volume/episodio se visibile" },
-    description: { type: "string", description: "Descrizione accattivante in italiano per un e-commerce di collezionismo, 2-4 frasi: di cosa si tratta, autore/editore/anno se riconoscibili, perché è interessante per un collezionista" },
     category: { type: "string", enum: ["fumetti", "libri", "videogiochi", "dvd", "oggetti"] },
     suggested_price_eur: { type: "number", description: "Prezzo indicativo di mercato per l'usato in euro" },
   },
-  required: ["title", "description", "category", "suggested_price_eur"],
+  required: ["title", "category", "suggested_price_eur"],
   additionalProperties: false,
 };
 
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
           },
           {
             type: "text",
-            text: "Riconosci questo oggetto da collezione (fumetto, libro, videogioco, DVD o altro) e compila i dati per la scheda prodotto di un e-commerce italiano di oggetti usati da collezione.",
+            text: "Riconosci questo oggetto da collezione (fumetto, libro, videogioco, DVD o altro) e indica titolo, categoria e prezzo di mercato dell'usato.",
           },
         ],
       }],
