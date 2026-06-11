@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star, Bell, Layers, HandCoins, RotateCcw, Trophy } from "lucide-react";
+import { Package, PlusCircle, CheckCircle, Clock, Pencil, Search, FileSpreadsheet, ScanLine, Settings, BarChart2, ShoppingBag, Tag, Mail, Download, TrendingUp, Star, Bell, Layers, HandCoins, RotateCcw, Trophy, Sparkles } from "lucide-react";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
 import PushButton from "./PushButton";
@@ -66,6 +66,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </Link>
         </div>
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
+          <Link href="/admin/import-ai"
+            className="flex items-center gap-2 bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-violet-500/40">
+            <Sparkles size={14} /> Import AI
+          </Link>
           <Link href="/admin/scan"
             className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <ScanLine size={14} /> Scansiona
