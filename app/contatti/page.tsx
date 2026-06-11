@@ -20,7 +20,7 @@ const FAQ_STATIC = [
   },
   {
     q: "Quali metodi di pagamento accettate?",
-    a: "Accettiamo tutte le principali carte di credito e debito (Visa, Mastercard, American Express) e Apple Pay / Google Pay tramite Stripe, la piattaforma di pagamento più sicura al mondo.",
+    a: "Accettiamo tutte le principali carte di credito e debito (Visa, Mastercard, American Express), PayPal, Satispay, Klarna (anche a rate) e Apple Pay / Google Pay. Tutti i pagamenti passano da Stripe, la piattaforma di pagamento più sicura al mondo.",
   },
 ];
 
