@@ -120,16 +120,16 @@ export default function ImpostazioniPage() {
 
           <div className="border-t border-white/5 pt-6">
             <h3 className="flex items-center gap-2 text-sm font-semibold text-neutral-300 mb-4">
-              <Package size={14} className="text-accent" /> Pieghi di libri (Poste Italiane)
+              <Package size={14} className="text-accent" /> Piego di libri raccomandato (Poste Italiane)
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-neutral-400 mb-1.5 block">Prezzo Pieghi di libri (€)</label>
+                <label className="text-sm text-neutral-400 mb-1.5 block">Prezzo Piego raccomandato (€)</label>
                 <input
                   type="text" inputMode="decimal"
                   value={settings.shipping_pieghi}
                   onChange={e => setSettings({ ...settings, shipping_pieghi: e.target.value })}
-                  placeholder="es. 1,50" className={inputCls} style={{ colorScheme: "dark" }}
+                  placeholder="es. 3,50" className={inputCls} style={{ colorScheme: "dark" }}
                 />
                 <p className="text-xs text-neutral-600 mt-1">Tempi stimati: 4-10 giorni lavorativi. Mostrato solo se n° articoli ≤ limite</p>
               </div>

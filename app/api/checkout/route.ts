@@ -16,7 +16,7 @@ async function getShippingSettings() {
     standard: map.shipping_standard ?? 890,
     express: map.shipping_express ?? 1390,
     freeThreshold: map.shipping_free_threshold ?? 4000,
-    pieghi: map.shipping_pieghi ?? 150, // Pieghi di libri Poste Italiane, default €1,50
+    pieghi: map.shipping_pieghi ?? 350, // Piego di libri raccomandato, default €3,50
     pieghiMaxItems: map.shipping_pieghi_max_items ?? 5, // max articoli per i pieghi
   };
 }
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       shipping_rate_data: {
         type: "fixed_amount" as const,
         fixed_amount: { amount: shipping.pieghi, currency: "eur" },
-        display_name: "Pieghi di libri (Poste Italiane)",
+        display_name: "Piego di libri raccomandato (Poste Italiane, tracciato)",
         delivery_estimate: {
           minimum: { unit: "business_day" as const, value: 4 },
           maximum: { unit: "business_day" as const, value: 10 },
