@@ -3,6 +3,11 @@
 // Uso: node --env-file=.env.local scripts/compress-images.mjs
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
+import { mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
+
+const BACKUP_DIR = join(process.cwd(), "backup-foto-originali");
+mkdirSync(BACKUP_DIR, { recursive: true });
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -39,6 +44,9 @@ for (const [i, f] of files.entries()) {
     const { data: blob, error: dlErr } = await supabase.storage.from(BUCKET).download(f.name);
     if (dlErr) throw dlErr;
     const input = Buffer.from(await blob.arrayBuffer());
+
+    // Backup locale dell'originale prima di toccarlo
+    writeFileSync(join(BACKUP_DIR, f.name), input);
 
     const meta = await sharp(input).metadata();
     const isJpegLike = ["jpeg", "png", "webp"].includes(meta.format);
