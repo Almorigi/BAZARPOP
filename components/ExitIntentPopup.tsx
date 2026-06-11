@@ -1,14 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { X, Mail, ArrowRight, Loader2 } from "lucide-react";
 
 export default function ExitIntentPopup() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
+  const isAdmin = pathname?.startsWith("/admin");
+
   useEffect(() => {
+    if (isAdmin) return; // niente popup nell'area admin
     const dismissed = sessionStorage.getItem("soffitta_exit_dismissed");
     if (dismissed) return;
 
@@ -29,7 +34,7 @@ export default function ExitIntentPopup() {
       clearTimeout(t);
       document.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, []);
+  }, [isAdmin]);
 
   function dismiss() {
     sessionStorage.setItem("soffitta_exit_dismissed", "1");
