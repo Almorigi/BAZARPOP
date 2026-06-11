@@ -73,12 +73,25 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <section>
-          <h2 className="font-serif text-xl font-bold text-white mb-3">7. Diritti dell&apos;interessato</h2>
+        <section id="cancellazione">
+          <h2 className="font-serif text-xl font-bold text-white mb-3">7. Diritti dell&apos;interessato e cancellazione dei dati</h2>
           <p>
             Hai il diritto di accedere, rettificare, cancellare i tuoi dati, opporti al trattamento e richiedere
-            la portabilità. Puoi esercitare questi diritti scrivendo a{" "}
-            <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>.
+            la portabilità.
+          </p>
+          <p className="mt-3">
+            <strong className="text-white">Come richiedere la cancellazione dei tuoi dati</strong> (sito e app
+            La Soffitta del Collezionista): invia un&apos;email a{" "}
+            <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>{" "}
+            con oggetto &quot;Cancellazione dati&quot; indicando l&apos;indirizzo email utilizzato per gli ordini
+            o la newsletter. Elaboreremo la richiesta entro 30 giorni.
+          </p>
+          <p className="mt-3">
+            <strong className="text-white">Dati eliminati:</strong> nome, indirizzo email, indirizzo di spedizione,
+            iscrizione alla newsletter, punti fedeltà e storico di navigazione.{" "}
+            <strong className="text-white">Dati conservati:</strong> i dati fiscali relativi a ordini già evasi
+            (ricevute di pagamento) vengono conservati per 10 anni come richiesto dalla normativa fiscale italiana,
+            quindi eliminati.
           </p>
         </section>
 
