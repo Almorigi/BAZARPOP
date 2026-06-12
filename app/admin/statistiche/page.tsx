@@ -27,7 +27,7 @@ export default async function StatistichePage() {
     supabaseAdmin.from("products").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("products").select("*", { count: "exact", head: true }).eq("sold", true),
     supabaseAdmin.from("products").select("*", { count: "exact", head: true }).eq("sold", false),
-    supabaseAdmin.from("products").select("category").eq("sold", false),
+    supabaseAdmin.from("products").select("category, price, stock").eq("sold", false),
     supabaseAdmin.from("newsletter").select("*", { count: "exact", head: true }),
   ]);
 
@@ -55,6 +55,9 @@ export default async function StatistichePage() {
       ricavi: Math.round(weekOrders.reduce((s, o) => s + (o.total ?? 0), 0) / 100),
     };
   });
+
+  // Valore totale dell'inventario disponibile (prezzo × quantità)
+  const inventoryValue = (categories ?? []).reduce((s, p) => s + p.price * (p.stock || 1), 0);
 
   // Distribuzione categorie
   const catCount: Record<string, number> = {};
@@ -94,11 +97,12 @@ export default async function StatistichePage() {
       </div>
 
       {/* Prodotti */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Totale prodotti", value: totalProducts ?? 0 },
           { label: "Disponibili", value: availableProducts ?? 0 },
           { label: "Venduti", value: soldProducts ?? 0 },
+          { label: "Valore inventario", value: formatPrice(inventoryValue) },
         ].map(({ label, value }) => (
           <div key={label} className="glass border border-border rounded-2xl p-4 text-center">
             <Package size={16} className="text-neutral-500 mx-auto mb-2" />
