@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Truck, CreditCard } from "lucide-react";
+import { ShieldCheck, Truck, CreditCard, Mail } from "lucide-react";
 
 const categories = [
   { href: "/products?category=fumetti",     label: "Fumetti" },
@@ -79,8 +79,8 @@ export default function Footer() {
                 </li>
               ))}
               <li>
-                <a href="mailto:amoro6321@gmail.com" className="text-sm text-neutral-500 hover:text-white transition-colors hover-underline">
-                  amoro6321@gmail.com
+                <a href="mailto:amoro6321@gmail.com" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-white transition-colors hover-underline">
+                  <Mail size={14} className="text-accent" /> Scrivimi
                 </a>
               </li>
             </ul>
