@@ -11,12 +11,13 @@ const supabase = createClient(
 const BASE_URL = "https://www.lasoffittadelcollezionista.it";
 
 // Mappa categorie → Google product category
+// Valori dalla tassonomia ufficiale Google (https://www.google.com/basepages/producttype/taxonomy.it-IT.txt)
 const GOOGLE_CATEGORIES: Record<string, string> = {
-  fumetti: "Media > Books > Comics & Graphic Novels",
+  fumetti: "Media > Books",
   libri: "Media > Books",
   videogiochi: "Software > Video Game Software",
   dvd: "Media > DVDs & Videos",
-  oggetti: "Toys & Games > Collectibles",
+  oggetti: "Arts & Entertainment > Hobbies & Creative Arts > Collectibles",
 };
 
 const CONDITION_MAP: Record<string, string> = {
