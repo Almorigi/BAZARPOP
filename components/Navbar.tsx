@@ -12,6 +12,7 @@ const links: { href: string; label: string; highlight?: boolean }[] = [
   { href: "/products?category=videogiochi", label: "Videogiochi" },
   { href: "/products?category=dvd",         label: "Film DVD" },
   { href: "/products?category=oggetti",     label: "Oggetti" },
+  { href: "/blog",                           label: "Blog" },
   { href: "/chi-siamo",                     label: "Chi siamo" },
   { href: "/contatti",                      label: "Contatti" },
 ];

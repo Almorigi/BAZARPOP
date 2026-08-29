@@ -118,6 +118,8 @@ export async function POST(req: NextRequest) {
     mode: "payment",
     locale: "it",
     shipping_address_collection: { allowed_countries: ["IT"] },
+    // Il telefono serve ai corrieri e per gli avvisi di giacenza delle Poste
+    phone_number_collection: { enabled: true },
     shipping_options: shippingOptions,
     line_items: lineItems,
     success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

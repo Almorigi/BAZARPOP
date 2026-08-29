@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { ArrowLeft, Loader2, CheckCircle, X, Search } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Loader2, CheckCircle, X, Search, Upload } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -19,6 +19,9 @@ export default function EditBundlePage() {
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -28,8 +31,8 @@ export default function EditBundlePage() {
       setTitle(bundle.title ?? "");
       setDescription(bundle.description ?? "");
       setPrice((bundle.price / 100).toFixed(2));
+      if (bundle.images?.length) setUploadedImages(bundle.images);
 
-      // Carica i prodotti inclusi
       if (bundle.product_ids?.length) {
         const pRes = await fetch("/api/products/batch", {
           method: "POST",
@@ -68,10 +71,27 @@ export default function EditBundlePage() {
     setSelected(prev => prev.filter(p => p.id !== id));
   }
 
+  async function handleUpload(files: FileList) {
+    setUploading(true);
+    const urls: string[] = [];
+    for (const file of Array.from(files)) {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (json.url) urls.push(json.url);
+    }
+    setUploadedImages(prev => [...prev, ...urls]);
+    setUploading(false);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title || !price || selected.length < 2) return;
+    if (!title || !price) return;
     setLoading(true);
+    const images = uploadedImages.length > 0
+      ? uploadedImages
+      : selected.filter(p => p.images[0]).map(p => p.images[0]).slice(0, 1);
     const res = await fetch(`/api/admin/bundles/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -80,7 +100,7 @@ export default function EditBundlePage() {
         description,
         price: Math.round(parseFloat(price) * 100),
         product_ids: selected.map(p => p.id),
-        images: selected.filter(p => p.images[0]).map(p => p.images[0]).slice(0, 1),
+        images,
       }),
     });
     setLoading(false);
@@ -140,9 +160,32 @@ export default function EditBundlePage() {
             placeholder="es. 19.90" className={inputCls} style={{ colorScheme: "dark" }} />
         </div>
 
+        {/* Foto bundle */}
+        <div>
+          <label className="text-sm text-neutral-400 mb-1.5 block">Foto</label>
+          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden"
+            onChange={e => e.target.files && handleUpload(e.target.files)} />
+          <div className="flex flex-wrap gap-2 mb-2">
+            {uploadedImages.map((url, i) => (
+              <div key={i} className="relative w-20 h-24 rounded-xl overflow-hidden bg-[#1e1e1e]">
+                <Image src={url} alt="" fill className="object-cover" sizes="80px" />
+                <button type="button" onClick={() => setUploadedImages(prev => prev.filter((_, j) => j !== i))}
+                  className="absolute top-1 right-1 bg-black/70 rounded-full p-0.5 text-white hover:text-red-400">
+                  <X size={10} />
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+              className="w-20 h-24 rounded-xl border-2 border-dashed border-white/20 hover:border-accent/50 flex flex-col items-center justify-center gap-1 text-neutral-500 hover:text-accent transition-colors disabled:opacity-50">
+              {uploading ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+              <span className="text-xs">{uploading ? "..." : "Aggiungi"}</span>
+            </button>
+          </div>
+        </div>
+
         {/* Cerca prodotti */}
         <div>
-          <label className="text-sm text-neutral-400 mb-1.5 block">Prodotti nel bundle * (min 2)</label>
+          <label className="text-sm text-neutral-400 mb-1.5 block">Prodotti nel bundle</label>
           <div className="relative mb-3">
             <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input value={q} onChange={e => setQ(e.target.value)}
@@ -191,7 +234,7 @@ export default function EditBundlePage() {
           )}
         </div>
 
-        <button type="submit" disabled={loading || selected.length < 2}
+        <button type="submit" disabled={loading}
           className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-orange-600 text-white font-bold py-4 rounded-2xl transition-colors disabled:opacity-50 mt-2">
           {loading ? <><Loader2 size={18} className="animate-spin" /> Salvataggio...</> : "Salva modifiche"}
         </button>

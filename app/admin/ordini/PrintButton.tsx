@@ -9,6 +9,7 @@ interface Props {
     created_at: string;
     customer_name: string;
     customer_email: string;
+    customer_phone?: string | null;
     address: string;
     items: OrderItem[];
     total: number;
@@ -36,6 +37,72 @@ export default function PrintButton({ order }: Props) {
     // Genera numero ordine breve (ultime 8 cifre dell'UUID)
     const shortId = order.id.replace(/-/g, "").slice(-8).toUpperCase();
 
+    // --- Blocchi riutilizzati dalle due copie ---
+    const headerHtml = `
+  <div class="header">
+    <div>
+      <div class="shop-name">La Soffitta del Collezionista</div>
+      <div class="shop-sub">lasoffittadelcollezionista.it · info@lasoffittadelcollezionista.it</div>
+    </div>
+    <div class="order-meta">
+      <div class="order-num">#${shortId}</div>
+      <div class="order-date">${fmtDate(order.created_at)}</div>
+    </div>
+  </div>`;
+
+    // Il telefono compare solo sulla copia venditore: sul foglio che finisce
+    // nel pacco non serve, ed evita di stampare un recapito senza motivo.
+    const addressesHtml = (conTelefono: boolean) => `
+  <div class="addresses">
+    <div class="addr-box">
+      <div class="addr-label">✉ Mittente</div>
+      <div class="addr-name">La Soffitta del Collezionista</div>
+      <div class="addr-text">lasoffittadelcollezionista.it</div>
+    </div>
+    <div class="addr-box dest">
+      <div class="addr-label">📦 Destinatario</div>
+      <div class="addr-name">${order.customer_name}</div>
+      <div class="addr-text">${order.address.replace(/,\s*/g, "\n")}</div>
+      <div class="addr-text" style="margin-top:6px;color:#777;">${order.customer_email}</div>
+      ${conTelefono && order.customer_phone ? `<div class="addr-text" style="color:#777;">Tel. ${order.customer_phone}</div>` : ""}
+    </div>
+  </div>`;
+
+    const itemsHtml = `
+  <div class="section-title">Articoli ordinati</div>
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th style="width:60%">Prodotto</th>
+        <th style="width:10%;text-align:center">Qtà</th>
+        <th>Prezzo</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items.map(item => `
+        <tr>
+          <td>${item.name}</td>
+          <td style="text-align:center"><span class="item-qty">×${item.qty}</span></td>
+          <td style="text-align:right;font-weight:600">${fmt(item.price * item.qty)}</td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table>
+  <div class="totals">
+    <div class="totals-box">
+      <div class="total-row"><span>Subtotale</span><span>${fmt(order.total - order.shipping)}</span></div>
+      <div class="total-row"><span>Spedizione</span><span>${order.shipping === 0 ? "Gratuita" : fmt(order.shipping)}</span></div>
+      <div class="total-row main"><span>Totale</span><span>${fmt(order.total)}</span></div>
+    </div>
+  </div>`;
+
+    const trackingHtml = order.tracking_number
+      ? `<div class="tracking-box">
+          <div class="tracking-label">📬 Numero di tracciamento</div>
+          <div class="tracking-num">${order.tracking_number}</div>
+        </div>`
+      : `<div style="font-size:10px;color:#bbb;">Numero tracking da aggiungere al momento della spedizione</div>`;
+
     const html = `<!DOCTYPE html>
 <html lang="it">
 <head>
@@ -47,7 +114,10 @@ export default function PrintButton({ order }: Props) {
     @page { size: A4; margin: 15mm 15mm 15mm 15mm; }
     @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
 
-    .page { max-width: 794px; margin: 0 auto; padding: 20px; }
+    /* 180mm = A4 (210mm) meno i margini di @page (15mm per lato).
+       In millimetri e non in pixel, così corrisponde all'area realmente
+       stampabile a qualsiasi risoluzione. */
+    .page { max-width: 180mm; margin: 0 auto; padding: 6mm 0 0 0; }
 
     /* Header */
     .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #f97316; padding-bottom: 14px; margin-bottom: 20px; }
@@ -94,86 +164,67 @@ export default function PrintButton({ order }: Props) {
     .note-box { border: 1px dashed #ddd; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; }
     .note-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #bbb; margin-bottom: 4px; font-weight: 700; }
     .note-lines { height: 24px; border-bottom: 1px solid #eee; margin-top: 6px; }
+
+    /* Copie */
+    .copy-badge { display: inline-block; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 10px; border-radius: 100px; margin-bottom: 14px; }
+    .copy-badge.cliente { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .copy-badge.venditore { background: #f5f5f5; color: #555; border: 1px solid #ddd; }
+    .thanks { border-top: 1px solid #eee; margin-top: 18px; padding-top: 14px; font-size: 11px; color: #666; line-height: 1.7; }
+    .thanks b { color: #111; }
+    .page + .page { page-break-before: always; }
+
+    /* In stampa il contenuto deve stare dentro l'area stampabile (A4 meno i
+       margini di @page), non dentro la larghezza piena del foglio: con
+       max-width fissa a 794px sbordava di circa 3 cm sulla destra.
+       Le spaziature sono compattate per far entrare ogni copia in una pagina. */
+    @media print {
+      /* Il riquadro colorato dell'etichetta va stampato, non scartato come
+         semplice sfondo decorativo. */
+      .copy-badge { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .header { padding-bottom: 10px; margin-bottom: 14px; }
+      .addresses { gap: 12px; margin-bottom: 14px; }
+      .addr-box { padding: 10px; }
+      .items-table { margin-bottom: 12px; }
+      .items-table td { padding: 5px 0; }
+      .totals { margin-bottom: 14px; }
+      .footer { padding-top: 10px; margin-top: 4px; }
+      .note-box { margin-bottom: 14px; }
+      .thanks { margin-top: 14px; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ===== FOGLIO 1 — COPIA PER IL CLIENTE (va nel pacco) ===== -->
 <div class="page">
-
-  <!-- Header -->
-  <div class="header">
-    <div>
-      <div class="shop-name">La Soffitta del Collezionista</div>
-      <div class="shop-sub">lasoffittadelcollezionista.it · info@lasoffittadelcollezionista.it</div>
-    </div>
-    <div class="order-meta">
-      <div class="order-num">#${shortId}</div>
-      <div class="order-date">${fmtDate(order.created_at)}</div>
-    </div>
+  <span class="copy-badge cliente">Copia per il cliente</span>
+  ${headerHtml}
+  ${addressesHtml(false)}
+  ${itemsHtml}
+  <div class="footer">
+    <div>${trackingHtml}</div>
   </div>
-
-  <!-- Indirizzi -->
-  <div class="addresses">
-    <div class="addr-box">
-      <div class="addr-label">✉ Mittente</div>
-      <div class="addr-name">La Soffitta del Collezionista</div>
-      <div class="addr-text">lasoffittadelcollezionista.it</div>
-    </div>
-    <div class="addr-box dest">
-      <div class="addr-label">📦 Destinatario</div>
-      <div class="addr-name">${order.customer_name}</div>
-      <div class="addr-text">${order.address.replace(/,\s*/g, "\n")}</div>
-      <div class="addr-text" style="margin-top:6px;color:#777;">${order.customer_email}</div>
-    </div>
+  <div class="thanks">
+    Grazie per il tuo acquisto su <b>La Soffitta del Collezionista</b>!<br>
+    Per qualsiasi domanda sull'ordine <b>#${shortId}</b> scrivi a <b>info@lasoffittadelcollezionista.it</b>.<br>
+    Hai 14 giorni di tempo per il reso.
   </div>
+</div>
 
-  <!-- Prodotti -->
-  <div class="section-title">Articoli ordinati</div>
-  <table class="items-table">
-    <thead>
-      <tr>
-        <th style="width:60%">Prodotto</th>
-        <th style="width:10%;text-align:center">Qtà</th>
-        <th>Prezzo</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${items.map(item => `
-        <tr>
-          <td>${item.name}</td>
-          <td style="text-align:center"><span class="item-qty">×${item.qty}</span></td>
-          <td style="text-align:right;font-weight:600">${fmt(item.price * item.qty)}</td>
-        </tr>
-      `).join("")}
-    </tbody>
-  </table>
+<!-- ===== FOGLIO 2 — COPIA VENDITORE (archivio interno) ===== -->
+<div class="page">
+  <span class="copy-badge venditore">Copia venditore · archivio</span>
+  ${headerHtml}
+  ${addressesHtml(true)}
+  ${itemsHtml}
 
-  <!-- Totali -->
-  <div class="totals">
-    <div class="totals-box">
-      <div class="total-row"><span>Subtotale</span><span>${fmt(order.total - order.shipping)}</span></div>
-      <div class="total-row"><span>Spedizione</span><span>${order.shipping === 0 ? "Gratuita" : fmt(order.shipping)}</span></div>
-      <div class="total-row main"><span>Totale</span><span>${fmt(order.total)}</span></div>
-    </div>
-  </div>
-
-  <!-- Note consegna -->
   <div class="note-box">
-    <div class="note-label">Note per il corriere</div>
+    <div class="note-label">Note interne / corriere</div>
     <div class="note-lines"></div>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
-    <div>
-      ${order.tracking_number ? `
-        <div class="tracking-box">
-          <div class="tracking-label">📬 Numero di tracciamento</div>
-          <div class="tracking-num">${order.tracking_number}</div>
-        </div>
-      ` : `
-        <div style="font-size:10px;color:#bbb;">Numero tracking da aggiungere al momento della spedizione</div>
-      `}
-    </div>
+    <div>${trackingHtml}</div>
     <div class="barcode-area">
       <div class="barcode-id">${order.id.replace(/-/g, " ")}</div>
       <div class="barcode-lines">
@@ -181,8 +232,11 @@ export default function PrintButton({ order }: Props) {
       </div>
     </div>
   </div>
-
+  <div style="font-size:9px;color:#bbb;margin-top:8px;">
+    Riferimento pagamento Stripe · stato ordine: ${order.status}
+  </div>
 </div>
+
 <script>window.onload = function() { window.print(); }</script>
 </body>
 </html>`;

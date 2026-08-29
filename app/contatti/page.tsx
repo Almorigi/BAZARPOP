@@ -56,8 +56,19 @@ export default async function ContattiPage() {
     },
   ];
 
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 pt-24 pb-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <div className="mb-12">
         <p className="text-xs tracking-[0.25em] uppercase text-accent mb-2">Siamo qui</p>
         <h1 className="font-serif text-4xl font-bold text-white mb-4">Contatti & FAQ</h1>
@@ -83,7 +94,7 @@ export default async function ContattiPage() {
           </div>
           <h2 className="font-semibold text-white mb-1">Email</h2>
           <p className="text-sm text-neutral-500 mb-3">Risposta entro 24h</p>
-          <span className="text-sm text-accent group-hover:underline">amoro6321@gmail.com →</span>
+          <span className="text-sm text-accent group-hover:underline">Scrivi un&apos;email →</span>
         </a>
       </div>
 

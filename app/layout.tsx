@@ -20,9 +20,11 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const GA_ID = "G-5GJCTH7YX2";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.lasoffittadelcollezionista.it"),
   title: "La Soffitta del Collezionista — Fumetti, Libri, Videogiochi usati",
   description: "Acquista fumetti, manga, libri, videogiochi e oggetti da collezione usati. Selezionati con cura, spediti velocemente in tutta Italia. Prezzi onesti.",
   keywords: ["fumetti usati", "manga usati", "videogiochi usati", "libri usati", "collezione", "fumetti vintage", "retrogaming", "compra fumetti online"],
+  alternates: { canonical: "/" },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -49,9 +51,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "La Soffitta del Collezionista",
     description: "Fumetti, libri, videogiochi e oggetti da collezione usati.",
-  },
-  alternates: {
-    canonical: "https://www.lasoffittadelcollezionista.it",
   },
   robots: {
     index: true,

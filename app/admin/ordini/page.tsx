@@ -5,6 +5,9 @@ import { ArrowLeft, Package, User, MapPin } from "lucide-react";
 import { clsx } from "clsx";
 import ShipButton from "./ShipButton";
 import PrintButton from "./PrintButton";
+import ReviewButton from "./ReviewButton";
+import ContactButton from "./ContactButton";
+import PhoneField from "./PhoneField";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,11 +54,16 @@ export default async function OrdiniPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Totale ordini", value: orders?.length ?? 0 },
-          { label: "Pagati", value: orders?.filter(o => o.status === "paid").length ?? 0 },
-          { label: "Spediti", value: orders?.filter(o => o.status === "shipped").length ?? 0 },
+          // Gli stati sono progressivi: un ordine consegnato è stato anche spedito.
+          // Contare lo stato esatto faceva sparire dai conteggi gli ordini completati.
+          // Non c'è un riquadro "Pagati" perché sarebbe sempre uguale al totale:
+          // un ordine viene creato solo dopo il pagamento andato a buon fine.
+          { label: "Da spedire", value: orders?.filter(o => o.status === "paid").length ?? 0 },
+          { label: "Spediti", value: orders?.filter(o => o.status === "shipped" || o.status === "delivered").length ?? 0 },
+          { label: "Consegnati", value: orders?.filter(o => o.status === "delivered").length ?? 0 },
         ].map(({ label, value }) => (
           <div key={label} className="glass rounded-2xl p-4 border border-border text-center">
             <div className="font-serif text-3xl font-bold text-white mb-1">{value}</div>
@@ -100,6 +108,7 @@ export default async function OrdiniPage() {
                     <div>
                       <p className="text-sm text-white font-medium">{order.customer_name}</p>
                       <p className="text-xs text-neutral-500">{order.customer_email}</p>
+                      <PhoneField orderId={order.id} phone={order.customer_phone} />
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
@@ -127,12 +136,15 @@ export default async function OrdiniPage() {
                     </span>
                   )}
                   <ShipButton orderId={order.id} currentStatus={order.status} />
+                  <ReviewButton orderId={order.id} currentStatus={order.status} requestedAt={order.review_requested_at} />
+                  <ContactButton customerName={order.customer_name} customerEmail={order.customer_email} hasPhone={!!order.customer_phone} />
                   <PrintButton order={{
                     id: order.id,
                     created_at: order.created_at,
                     customer_name: order.customer_name,
                     customer_email: order.customer_email,
                     address: order.address,
+                    customer_phone: order.customer_phone,
                     items: items,
                     total: order.total,
                     shipping: order.shipping,

@@ -3,8 +3,7 @@ import { supabase } from "@/lib/supabase";
 
 export const metadata: Metadata = {
   title: "Termini e Condizioni — La Soffitta del Collezionista",
-  description: "Termini e condizioni di vendita del negozio.",
-  robots: { index: false, follow: false },
+  description: "Termini e condizioni di vendita del negozio: spedizioni, pagamenti, resi e garanzie.",
 };
 
 async function getShippingSettings() {
@@ -39,7 +38,7 @@ export default async function TerminiPage() {
           <p>
             La Soffitta del Collezionista è un negozio online di articoli da collezione gestito da un privato.
             Tutti gli articoli provengono dalla collezione personale del venditore e sono beni usati di proprietà privata. Non viene svolta alcuna attività professionale o abituale di commercio.
-            Per qualsiasi comunicazione: <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>.
+            Per qualsiasi comunicazione usa il modulo nella pagina <a href="/contatti" className="text-accent hover:underline">Contatti</a>.
           </p>
         </section>
 
@@ -85,8 +84,7 @@ export default async function TerminiPage() {
             motivazioni.
           </p>
           <p className="mt-2">
-            Per esercitare il recesso scrivi a{" "}
-            <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>{" "}
+            Per esercitare il recesso contattaci dalla pagina <a href="/contatti" className="text-accent hover:underline">Contatti</a>{" "}
             indicando l&apos;ordine di riferimento. Il prodotto deve essere restituito nelle stesse condizioni di ricezione.
             Le spese di restituzione sono a carico dell&apos;acquirente.
           </p>
@@ -106,8 +104,7 @@ export default async function TerminiPage() {
         <section>
           <h2 className="font-serif text-xl font-bold text-white mb-3">7. Reclami e controversie</h2>
           <p>
-            Per qualsiasi reclamo scrivi a{" "}
-            <a href="mailto:amoro6321@gmail.com" className="text-accent hover:underline">amoro6321@gmail.com</a>.
+            Per qualsiasi reclamo contattaci dalla pagina <a href="/contatti" className="text-accent hover:underline">Contatti</a>.
             Risponderemo entro 3 giorni lavorativi. Per le controversie si applicano le leggi italiane.
             Per la risoluzione alternativa delle controversie è disponibile la piattaforma ODR della Commissione Europea.
           </p>

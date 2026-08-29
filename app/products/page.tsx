@@ -5,6 +5,7 @@ import SearchAutocomplete from "@/components/SearchAutocomplete";
 import PriceFilter from "@/components/PriceFilter";
 import ViewToggle from "@/components/ViewToggle";
 import ConditionGuide from "@/components/ConditionGuide";
+import MissingPieceForm from "@/components/MissingPieceForm";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { Suspense } from "react";
@@ -46,11 +47,19 @@ const SORT_OPTIONS = [
 ];
 
 const CATEGORY_META: Record<string, { title: string; description: string }> = {
-  fumetti:     { title: "Fumetti da collezione",     description: "Fumetti rari e da collezione: Dylan Dog, Tex, Bonelli, manga e molto altro. Acquista online su La Soffitta del Collezionista." },
+  fumetti:     { title: "Fumetti da collezione",     description: "Fumetti rari e da collezione: Tex, Zagor, Dampyr, Cassidy, comics americani e molto altro. Acquista online su La Soffitta del Collezionista." },
   libri:       { title: "Libri usati e rari",         description: "Libri di ogni genere, edizioni rare e fuori catalogo. Spedizione in tutta Italia da La Soffitta del Collezionista." },
   videogiochi: { title: "Videogiochi retro e usati",  description: "Videogiochi per tutte le console, dai classici retro alle uscite recenti. Condizioni ottima e buono." },
   dvd:         { title: "Film DVD e Blu-ray",         description: "Film DVD in ottime condizioni, classici e rarità. Spedizione veloce da La Soffitta del Collezionista." },
   oggetti:     { title: "Oggetti da collezione",      description: "Action figure, gadget, statuette e oggetti da collezione unici. Trova il pezzo mancante alla tua collezione." },
+};
+
+const CATEGORY_TEXT: Record<string, string> = {
+  fumetti:     "Scopri la nostra collezione di fumetti usati: comics americani, Dampyr, Zagor, Tex e molto altro. Ogni fumetto è accuratamente selezionato, fotografato e descritto. Acquista fumetti usati a prezzi onesti con spedizione in tutta Italia.",
+  libri:       "Una selezione di libri usati per ogni gusto: romanzi, saggi, narrativa italiana e straniera. Tutti i volumi sono in buone condizioni e disponibili a prezzi accessibili. Spedizione rapida in tutta Italia.",
+  dvd:         "Film in DVD usati a prezzi convenienti: classici, serie TV, action, thriller e commedia. Tutti i DVD sono testati e funzionanti. Amplia la tua collezione con titoli introvabili.",
+  videogiochi: "Videogiochi usati per PC a prezzi ridotti. Titoli selezionati in ottime condizioni. La soluzione ideale per giocare spendendo meno.",
+  oggetti:     "Oggetti vari selezionati per i veri appassionati, con foto reali e descrizioni dettagliate.",
 };
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
@@ -58,11 +67,18 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const cat = params.category ?? "";
   const meta = CATEGORY_META[cat];
 
+  // Pagine con filtri (ordinamento, condizione, prezzo) o ricerca: no-index
+  // per evitare contenuti duplicati e concentrare la scansione sulle pagine utili
+  const hasFilters = Boolean(params.sort || params.condition || params.minPrice || params.maxPrice || params.q);
+  const noindex = hasFilters ? { robots: { index: false, follow: true } } : {};
+
   if (meta) {
     return {
       title: `${meta.title} — La Soffitta del Collezionista`,
       description: meta.description,
       openGraph: { title: meta.title, description: meta.description },
+      alternates: { canonical: hasFilters ? "/products" : `/products?category=${cat}` },
+      ...noindex,
     };
   }
 
@@ -70,6 +86,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     return {
       title: `Risultati per "${params.q}" — La Soffitta del Collezionista`,
       description: `Cerca "${params.q}" nel catalogo di fumetti, libri, videogiochi e oggetti da collezione.`,
+      alternates: { canonical: "/products" },
+      robots: { index: false, follow: true },
     };
   }
 
@@ -80,6 +98,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
       title: "Catalogo — La Soffitta del Collezionista",
       description: "Fumetti, libri, videogiochi, DVD e oggetti da collezione.",
     },
+    alternates: { canonical: "/products" },
+    ...noindex,
   };
 }
 
@@ -140,6 +160,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           <span className="text-sm text-neutral-600 flex-shrink-0">{total} pezzi</span>
         </div>
       </div>
+
+      {/* Testo descrittivo categoria per SEO */}
+      {params.category && CATEGORY_TEXT[params.category] && (
+        <p className="text-neutral-500 text-sm leading-relaxed mb-6 max-w-2xl">
+          {CATEGORY_TEXT[params.category]}
+        </p>
+      )}
 
       {/* Search con autocomplete */}
       <div className="mb-6">
@@ -220,6 +247,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         initialTotal={total}
         filters={filters}
       />
+
+      {/* Ricerca del pezzo mancante */}
+      <MissingPieceForm />
     </div>
   );
 }

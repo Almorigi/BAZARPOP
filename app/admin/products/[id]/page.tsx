@@ -33,6 +33,7 @@ export default function EditProductPage() {
     condition: "ottimo" as typeof CONDITIONS[number],
     stock: "1",
     sold: false,
+    video_url: "",
   });
   const [priceHistory, setPriceHistory] = useState<{ old_price: number; new_price: number; changed_at: string }[]>([]);
 
@@ -53,6 +54,7 @@ export default function EditProductPage() {
           condition: p.condition,
           stock: String(p.stock ?? 1),
           sold: p.sold ?? false,
+          video_url: p.video_url ?? "",
         });
         setExistingImages(p.images ?? []);
       }
@@ -125,6 +127,7 @@ export default function EditProductPage() {
         stock: parseInt(form.stock),
         sold: form.sold,
         images: imageUrls,
+        video_url: form.video_url || null,
       }),
     });
     const json = await res.json();
@@ -221,6 +224,14 @@ export default function EditProductPage() {
           <label htmlFor="sold" className="text-sm text-neutral-400 cursor-pointer">
             Segna come <span className="text-emerald-400 font-medium">Venduto</span>
           </label>
+        </div>
+
+        {/* Video YouTube */}
+        <div>
+          <label className="text-sm text-neutral-400 mb-1.5 block">Video YouTube (opzionale)</label>
+          <input type="url" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+            placeholder="es. https://www.youtube.com/watch?v=..." className={inputCls} style={{ colorScheme: "dark" }} />
+          <p className="text-xs text-neutral-600 mt-1">Incolla il link del video YouTube (anche &quot;non in elenco&quot;)</p>
         </div>
 
         {/* Foto */}

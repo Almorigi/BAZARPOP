@@ -18,6 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: product.description ?? `${product.title} — €${price}`,
       images: product.images[0] ? [{ url: product.images[0] }] : [],
     },
+    alternates: {
+      canonical: `https://www.lasoffittadelcollezionista.it/products/${id}`,
+    },
   };
 }
 

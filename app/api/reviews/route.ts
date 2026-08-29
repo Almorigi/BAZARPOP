@@ -38,16 +38,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Rating non valido" }, { status: 400 });
   }
 
-  // Verifica acquisto se orderId fornito
+  // Verifica acquisto: cerca fra gli ordini della stessa email uno che contenga
+  // questo prodotto. Gli articoli sono salvati come JSON dentro orders.items
+  // (con il titolo del prodotto), quindi il confronto avviene sul titolo.
   let verified = false;
-  if (orderId) {
-    const { data: orderItem } = await supabaseAdmin
-      .from("order_items")
-      .select("id")
-      .eq("order_id", orderId)
-      .eq("product_id", productId)
-      .single();
-    verified = !!orderItem;
+  const { data: product } = await supabaseAdmin
+    .from("products")
+    .select("title, sold")
+    .eq("id", productId)
+    .single();
+
+  if (!product) {
+    return NextResponse.json({ error: "Prodotto non trovato" }, { status: 404 });
+  }
+
+  // Si recensisce solo ciò che è stato effettivamente venduto: blocca anche
+  // chi provasse a inviare la recensione aggirando il form della pagina.
+  if (!product.sold) {
+    return NextResponse.json(
+      { error: "Puoi recensire un articolo solo dopo averlo acquistato" },
+      { status: 403 }
+    );
+  }
+
+  if (product?.title) {
+    const email = authorEmail.trim().toLowerCase();
+    const { data: orders } = await supabaseAdmin
+      .from("orders")
+      .select("customer_email, items")
+      .ilike("customer_email", email)
+      .in("status", ["paid", "shipped", "delivered"]);
+
+    verified = (orders ?? []).some(o =>
+      // ilike tratta _ e % come jolly: riconferma l'uguaglianza esatta
+      o.customer_email?.trim().toLowerCase() === email &&
+      ((o.items ?? []) as { name?: string }[]).some(i => i.name === product.title)
+    );
   }
 
   // Evita duplicati per email + prodotto
@@ -69,48 +95,31 @@ export async function POST(req: NextRequest) {
     comment: comment?.trim() ?? null,
     author_name: authorName?.trim() || "Anonimo",
     author_email: authorEmail.toLowerCase(),
-    approved: true,
+    // Le recensioni restano in attesa finché non vengono approvate dall'admin
+    approved: false,
     verified_purchase: verified,
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Aggiorna avg_rating e review_count sul prodotto (denormalizzato)
-  const { data: allReviews } = await supabaseAdmin
-    .from("reviews")
-    .select("rating")
-    .eq("product_id", productId)
-    .eq("approved", true);
-
-  if (allReviews && allReviews.length > 0) {
-    const avg = allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length;
-    await supabaseAdmin
-      .from("products")
-      .update({ avg_rating: Math.round(avg * 100) / 100, review_count: allReviews.length })
-      .eq("id", productId);
-  }
+  // Media e conteggio non cambiano ora: si aggiornano al momento dell'approvazione
 
   // Notifica admin
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const { data: product } = await supabaseAdmin
-      .from("products")
-      .select("title")
-      .eq("id", productId)
-      .single();
-
     const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
     const productUrl = `https://lasoffittadelcollezionista.it/products/${productId}`;
 
     await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `⭐ Nuova recensione — ${product?.title ?? "Prodotto"} (${stars})`,
+      subject: `⭐ Recensione da approvare — ${product?.title ?? "Prodotto"} (${stars})`,
       html: `
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="background:#0a0a0a;color:#fff;font-family:Georgia,serif;margin:0;padding:0">
   <div style="max-width:500px;margin:0 auto;padding:40px 20px">
     <h2 style="color:#f97316">⭐ Nuova recensione ricevuta</h2>
+    <p style="color:#fbbf24;font-size:13px;margin:0 0 16px 0">In attesa di approvazione: non è ancora visibile sul sito.</p>
     <div style="background:#1a1a1a;border-radius:12px;padding:20px;border:1px solid #333">
       <p style="color:#f59e0b;font-size:20px;margin:0 0 8px 0">${stars}</p>
       <p style="color:#ccc;margin:4px 0"><strong>Prodotto:</strong> ${product?.title ?? productId}</p>

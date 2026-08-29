@@ -14,6 +14,7 @@ export interface Product {
   sold: boolean;
   avg_rating?: number | null;
   review_count?: number | null;
+  video_url?: string | null;
 }
 
 export interface CartItem {

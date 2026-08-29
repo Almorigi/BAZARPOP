@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Product } from "@/types";
-import BundleClient from "./BundleClient";
+import BundleClient, { BundleGallery } from "./BundleClient";
 import type { Metadata } from "next";
 
 const supabase = createClient(
@@ -40,33 +40,13 @@ export default async function BundlePage({ params }: { params: Promise<{ id: str
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
       {/* Header */}
       <div className="grid md:grid-cols-2 gap-10 mb-16">
-        {/* Immagine copertina */}
-        <div className="relative aspect-square bg-surface-2 rounded-3xl overflow-hidden border border-border">
-          {bundle.images?.[0]
-            ? <Image src={bundle.images[0]} alt={bundle.title} fill className="object-cover" sizes="(max-width:768px) 100vw, 50vw" />
-            : (
-              <div className="flex items-center justify-center h-full gap-2 flex-wrap p-4">
-                {bundleProducts.slice(0, 4).map((p: Product) => (
-                  p.images[0] && (
-                    <div key={p.id} className="relative w-[45%] aspect-[3/4] rounded-xl overflow-hidden">
-                      <Image src={p.images[0]} alt={p.title} fill className="object-cover" sizes="25vw" />
-                    </div>
-                  )
-                ))}
-              </div>
-            )
-          }
-          {saving > 0 && (
-            <div className="absolute top-4 left-4 bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full">
-              Risparmi €{(saving / 100).toFixed(2)}
-            </div>
-          )}
-        </div>
+        {/* Galleria immagini */}
+        <BundleGallery images={bundle.images ?? []} saving={saving} title={bundle.title} fallbackProducts={bundleProducts} />
 
         {/* Info */}
         <div className="flex flex-col justify-center gap-5">
           <div>
-            <span className="text-xs tracking-[0.3em] uppercase text-accent">Bundle · {bundleProducts.length} prodotti</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-accent">Bundle{bundleProducts.length > 0 ? ` · ${bundleProducts.length} prodotti` : ""}</span>
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white mt-2 leading-tight">{bundle.title}</h1>
           </div>
 

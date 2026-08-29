@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Star, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DeleteReviewButton from "./DeleteReviewButton";
+import ApproveReviewButton from "./ApproveReviewButton";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +27,11 @@ export default async function AdminRecensioniPage() {
     .select("id, rating, comment, author_name, author_email, approved, verified_purchase, created_at, product_id, products(title)")
     .order("created_at", { ascending: false });
 
-  const avg = reviews?.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+  // La media rispecchia solo le recensioni pubblicate, come sul sito
+  const approved = reviews?.filter(r => r.approved) ?? [];
+  const pending = reviews?.filter(r => !r.approved).length ?? 0;
+  const avg = approved.length
+    ? (approved.reduce((s, r) => s + r.rating, 0) / approved.length).toFixed(1)
     : "—";
 
   return (
@@ -41,7 +45,14 @@ export default async function AdminRecensioniPage() {
           <h1 className="font-serif text-3xl font-bold text-white">Recensioni</h1>
           <div className="text-right">
             <p className="text-2xl font-bold text-accent">{avg} ★</p>
-            <p className="text-xs text-neutral-500">{reviews?.length ?? 0} totali</p>
+            <p className="text-xs text-neutral-500">
+              {approved.length} pubblicate · {reviews?.length ?? 0} totali
+            </p>
+            {pending > 0 && (
+              <p className="text-xs text-yellow-400 font-semibold mt-1">
+                {pending} in attesa di approvazione
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -74,7 +85,10 @@ export default async function AdminRecensioniPage() {
                     {new Date(r.created_at).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })}
                   </p>
                 </div>
-                <DeleteReviewButton reviewId={r.id} />
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <ApproveReviewButton reviewId={r.id} approved={r.approved} />
+                  <DeleteReviewButton reviewId={r.id} />
+                </div>
               </div>
             </div>
           ))}

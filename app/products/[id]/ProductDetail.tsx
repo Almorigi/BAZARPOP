@@ -223,6 +223,22 @@ export default function ProductDetail({ product, related }: { product: Product; 
               ))}
             </div>
           )}
+          {product.video_url && (() => {
+            const match = product.video_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+            const videoId = match?.[1];
+            if (!videoId) return null;
+            return (
+              <div className="rounded-2xl overflow-hidden border border-border aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  title={`Video: ${product.title}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            );
+          })()}
         </div>
 
         {/* Info */}
@@ -244,13 +260,24 @@ export default function ProductDetail({ product, related }: { product: Product; 
             <div className="font-serif text-4xl font-bold text-accent">€{price}</div>
             <WatchingNow />
           </div>
-          {product.description && (
-            <p className="text-neutral-400 text-sm leading-relaxed whitespace-pre-wrap">{product.description}</p>
-          )}
+          {product.description && (() => {
+            const marketMatch = product.description.match(/·?\s*Valore di mercato stimato:\s*(€[\d\s–\-€]+)/i);
+            const cleanDesc = product.description.replace(/\s*·?\s*Valore di mercato stimato:\s*€[\d\s–\-€]+/i, "").trim();
+            return (
+              <>
+                {cleanDesc && <p className="text-neutral-400 text-sm leading-relaxed whitespace-pre-wrap">{cleanDesc}</p>}
+                {marketMatch && (
+                  <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold px-3 py-1.5 rounded-full">
+                    <span>⭐</span>
+                    <span>Valore di mercato stimato: {marketMatch[1].trim()}</span>
+                  </div>
+                )}
+              </>
+            );
+          })()}
           <p className="text-sm text-neutral-600">
             {product.stock > 1 ? `${product.stock} disponibili` : product.stock === 1 ? "⚡ Ultimo disponibile!" : "Esaurito"}
           </p>
-          <ShareButtons product={product} />
 
           {!product.sold && (product.stock == null || product.stock > 0) ? (
             <div className="flex flex-col gap-2 mt-2">
@@ -290,7 +317,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
       {/* Completa la serie */}
       <CompletaSerie product={product} />
       {/* Recensioni */}
-      <ProductReviews productId={product.id} />
+      <ProductReviews productId={product.id} sold={!!product.sold} />
       {/* Visti di recente */}
       <RecommendedProducts excludeId={product.id} />
       <RecentlyViewed excludeId={product.id} />

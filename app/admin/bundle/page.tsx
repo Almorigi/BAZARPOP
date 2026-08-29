@@ -49,7 +49,7 @@ export default async function BundlePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-white truncate">{b.title}</p>
-                <p className="text-xs text-neutral-500 mt-0.5">{b.product_ids?.length ?? 0} prodotti · €{(b.price / 100).toFixed(2)}</p>
+                <p className="text-xs text-neutral-500 mt-0.5">{b.product_ids?.length ? `${b.product_ids.length} prodotti · ` : ""}€{(b.price / 100).toFixed(2)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Link href={`/admin/bundle/${b.id}`}

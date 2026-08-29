@@ -30,6 +30,7 @@ export default function NewProductPage() {
     category: "fumetti" as Category,
     condition: "ottimo" as typeof CONDITIONS[number],
     stock: "1",
+    video_url: "",
   });
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -199,6 +200,13 @@ export default function NewProductPage() {
             )}
           </div>
           <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+        <div>
+          <label className="text-sm text-neutral-400 mb-1.5 block">Video YouTube (opzionale)</label>
+          <input type="url" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+            placeholder="es. https://www.youtube.com/watch?v=..." className={inputCls} style={{ colorScheme: "dark" }} />
+          <p className="text-xs text-neutral-600 mt-1">Incolla il link del video YouTube (anche &quot;non in elenco&quot;)</p>
+        </div>
+
           {previews.length > 0 && (
             <button type="button" onClick={handleRecognize} disabled={aiLoading}
               className="mt-3 flex items-center gap-2 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 font-semibold px-4 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50">

@@ -48,15 +48,27 @@ export default function PushButton() {
     }
   }
 
+  async function disable() {
+    setStatus("loading");
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+      setStatus("off");
+    } catch {
+      setStatus("on");
+    }
+  }
+
   if (status === "unsupported") return null;
 
   return (
-    <button onClick={enable} disabled={status === "on" || status === "loading"}
+    <button onClick={status === "on" ? disable : enable} disabled={status === "loading"}
       className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700 disabled:opacity-70">
       {status === "loading" ? <Loader2 size={14} className="animate-spin" />
         : status === "on" ? <BellRing size={14} className="text-emerald-400" />
         : <Bell size={14} />}
-      {status === "on" ? "Notifiche attive" : "Attiva notifiche"}
+      {status === "on" ? "Notifiche attive ✓" : "Attiva notifiche"}
     </button>
   );
 }

@@ -171,9 +171,24 @@ export async function POST(req: NextRequest) {
     // Dati ordine
     const customerEmail = session.customer_details?.email ?? "";
     const customerName = session.customer_details?.name ?? "Cliente";
-    const addr = session.customer_details?.address;
+    // L'indirizzo di SPEDIZIONE sta in shipping_details: customer_details contiene
+    // quello di fatturazione, che spesso arriva quasi vuoto (a volte solo il paese).
+    // Si usa quello di fatturazione solo come ripiego.
+    type Indirizzo = {
+      line1?: string | null; line2?: string | null; postal_code?: string | null;
+      city?: string | null; state?: string | null; country?: string | null;
+    };
+    const sessioneEstesa = session as typeof session & {
+      shipping_details?: { address?: Indirizzo | null } | null;
+      collected_information?: { shipping_details?: { address?: Indirizzo | null } | null } | null;
+    };
+    const addr =
+      sessioneEstesa.shipping_details?.address ??
+      sessioneEstesa.collected_information?.shipping_details?.address ??
+      session.customer_details?.address;
     const address = addr
-      ? [addr.line1, addr.line2, addr.postal_code, addr.city, addr.country].filter(Boolean).join(", ")
+      ? [addr.line1, addr.line2, addr.postal_code, addr.city, addr.state, addr.country]
+          .filter(Boolean).join(", ")
       : "Non disponibile";
     const subtotal = session.amount_subtotal ?? 0;
     const shipping = session.shipping_cost?.amount_total ?? 0;
@@ -191,6 +206,17 @@ export async function POST(req: NextRequest) {
       total,
       status: "paid",
     });
+
+    // Il telefono si salva a parte: se la colonna non fosse ancora stata creata
+    // questo fallisce senza conseguenze, mentre metterlo nell'insert qui sopra
+    // farebbe fallire il salvataggio dell'intero ordine.
+    const customerPhone = session.customer_details?.phone;
+    if (customerPhone) {
+      await supabaseAdmin
+        .from("orders")
+        .update({ customer_phone: customerPhone })
+        .eq("id", session.id);
+    }
 
     // Assegna punti fedeltà (1 punto per ogni euro speso + 20 bonus primo ordine)
     if (customerEmail) {

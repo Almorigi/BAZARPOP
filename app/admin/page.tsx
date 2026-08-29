@@ -98,6 +98,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
             className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <Bell size={14} /> Avvisami
           </Link>
+          <Link href="/admin/richieste"
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
+            <Search size={14} /> Ricerche pezzi
+          </Link>
           <Link href="/admin/ordini"
             className="relative flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-3 py-2 rounded-xl transition-colors text-xs border border-neutral-700">
             <ShoppingBag size={14} /> Ordini

@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, Star, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import NewsletterSection from "@/components/NewsletterSection";
+import ShopReviews from "@/components/ShopReviews";
 import { Product } from "@/types";
 
 async function getFeaturedProducts(): Promise<Product[]> {
@@ -250,7 +251,7 @@ export default async function HomePage() {
                     : <div className="flex items-center justify-center h-full text-5xl">📦</div>
                   }
                   <div className="absolute top-3 left-3 bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                    {b.product_ids?.length ?? 0} pezzi
+                    {b.product_ids?.length ? `${b.product_ids.length} pezzi` : "Collezione"}
                   </div>
                 </div>
                 <div className="p-5">
@@ -380,6 +381,9 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* ── DICONO DI NOI ── */}
+      <ShopReviews />
 
       {/* ── NEWSLETTER ── */}
       <NewsletterSection />

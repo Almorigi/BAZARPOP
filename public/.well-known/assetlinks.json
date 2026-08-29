@@ -4,7 +4,8 @@
     "namespace": "android_app",
     "package_name": "it.lasoffittadelcollezionista.app",
     "sha256_cert_fingerprints": [
-      "E8:69:B5:E4:04:CC:54:CC:E0:A4:22:38:00:55:2B:F1:E5:29:6E:FD:66:6C:88:6A:B6:D8:10:7C:98:7D:57:FC"
+      "E8:69:B5:E4:04:CC:54:CC:E0:A4:22:38:00:55:2B:F1:E5:29:6E:FD:66:6C:88:6A:B6:D8:10:7C:98:7D:57:FC",
+      "3B:2D:EB:20:D8:55:00:89:90:9D:B6:F4:67:5B:1F:A1:50:69:79:76:BE:55:02:5E:B6:F1:D4:5C:36:20:2B:5A"
     ]
   }
 }]

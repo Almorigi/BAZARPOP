@@ -40,6 +40,7 @@ function StarRating({ value, interactive = false, onChange }: {
 }
 
 function ReviewForm({ productId, onSubmitted }: { productId: string; onSubmitted: () => void }) {
+  const [sent, setSent] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
@@ -62,7 +63,20 @@ function ReviewForm({ productId, onSubmitted }: { productId: string; onSubmitted
     setLoading(false);
     if (!res.ok) { setError(json.error ?? "Errore"); return; }
     setOpen(false);
+    setSent(true);
     onSubmitted();
+  }
+
+  // La recensione non è pubblicata subito: spieghiamo perché non compare ancora
+  if (sent) {
+    return (
+      <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 mt-4">
+        <p className="text-emerald-400 text-sm font-semibold">Grazie per la tua recensione!</p>
+        <p className="text-neutral-400 text-sm mt-1">
+          La pubblicheremo sulla scheda del prodotto dopo una rapida verifica.
+        </p>
+      </div>
+    );
   }
 
   if (!open) {
@@ -117,7 +131,7 @@ function ReviewForm({ productId, onSubmitted }: { productId: string; onSubmitted
   );
 }
 
-export default function ProductReviews({ productId }: { productId: string }) {
+export default function ProductReviews({ productId, sold = false }: { productId: string; sold?: boolean }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -148,14 +162,19 @@ export default function ProductReviews({ productId }: { productId: string }) {
         </div>
       </div>
 
-      <ReviewForm productId={productId} onSubmitted={load} />
+      {/* Si recensisce ciò che si è ricevuto: il form compare solo a pezzo venduto */}
+      {sold && <ReviewForm productId={productId} onSubmitted={load} />}
 
       {loading ? (
         <div className="mt-6 space-y-3">
           {[1, 2].map(i => <div key={i} className="h-20 bg-surface-2 rounded-2xl animate-pulse" />)}
         </div>
       ) : reviews.length === 0 ? (
-        <p className="text-neutral-600 text-sm mt-6">Nessuna recensione ancora. Sii il primo!</p>
+        <p className="text-neutral-600 text-sm mt-6">
+          {sold
+            ? "Nessuna recensione ancora. Se l'hai acquistato tu, sei il primo!"
+            : "Le recensioni compaiono qui dopo l'acquisto, scritte da chi ha ricevuto il pezzo."}
+        </p>
       ) : (
         <div className="mt-6 space-y-4">
           {reviews.map(r => (

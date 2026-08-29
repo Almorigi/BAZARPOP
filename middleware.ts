@@ -14,6 +14,14 @@ export function middleware(req: NextRequest) {
     }
   }
 
+  // Proteggi le API admin (non il login): 401 JSON invece di redirect
+  if (pathname.startsWith("/api/admin") && !pathname.startsWith("/api/admin/login")) {
+    const token = req.cookies.get("admin_token")?.value;
+    if (token !== ADMIN_PWD) {
+      return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
+    }
+  }
+
   // Coming soon — cambia false in true per chiudere il sito
   if (false) {
     const adminToken = req.cookies.get("admin_token")?.value;
