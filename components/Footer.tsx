@@ -70,6 +70,7 @@ export default function Footer() {
                 { href: "/reso",      label: "Richiedi un reso" },
                 { href: "/punti",     label: "Punti fedeltà" },
                 { href: "/chi-siamo", label: "Chi siamo" },
+                { href: "/recensioni", label: "Recensioni" },
                 { href: "/contatti",  label: "Contatti & FAQ" },
               ].map((l) => (
                 <li key={l.href}>
@@ -115,6 +116,15 @@ export default function Footer() {
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-neutral-700">
             © {new Date().getFullYear()} La Soffitta del Collezionista. Tutti i diritti riservati.
+            {" · "}
+            <a
+              href="https://apristore.it"
+              target="_blank"
+              rel="noopener"
+              className="text-neutral-700 hover:text-neutral-500 transition-colors"
+            >
+              Sito creato da Apristore.it
+            </a>
           </p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="text-xs text-neutral-700 hover:text-neutral-500 transition-colors">
