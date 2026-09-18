@@ -153,6 +153,24 @@ async function getTestateFumetti(): Promise<Testata[]> {
     else gruppi.set(nome, { count: 1, immagine: p.images?.[0] ?? null });
   }
 
+  // La vista "per testata" filtra i prodotti con "il titolo inizia per <nome>"
+  // (es. "TEX Maxi..." inizia per "Tex"): le testate isolate che sono in
+  // realtà un prefisso di un'altra vengono unite a quella principale, per
+  // avere lo stesso conteggio della lista che si apre cliccandoci sopra.
+  const nomi = Array.from(gruppi.keys()).sort((a, b) => b.length - a.length);
+  for (const nome of nomi) {
+    if (!gruppi.has(nome)) continue;
+    const principale = nomi.find(altro =>
+      altro !== nome && gruppi.has(altro) && nome.toLowerCase().startsWith(altro.toLowerCase() + " ")
+    );
+    if (principale) {
+      const questo = gruppi.get(nome)!;
+      const target = gruppi.get(principale)!;
+      target.count += questo.count;
+      gruppi.delete(nome);
+    }
+  }
+
   return Array.from(gruppi.entries())
     .map(([nome, v]) => ({ nome, count: v.count, immagine: v.immagine }))
     .sort((a, b) => b.count - a.count);
