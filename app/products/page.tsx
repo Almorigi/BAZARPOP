@@ -10,7 +10,7 @@ import Link from "next/link";
 import { clsx } from "clsx";
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { estraiTestata } from "@/lib/testate";
+import { classificaFumetti } from "@/lib/testate";
 
 const CATEGORIES = [
   { value: "",            label: "Tutti" },
@@ -105,7 +105,43 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
+function applicaFiltriComuni(products: Product[], params: SearchParams): Product[] {
+  let list = products;
+  if (params.condition) list = list.filter(p => p.condition === params.condition);
+  if (params.minPrice)  list = list.filter(p => p.price >= Math.round(parseFloat(params.minPrice!) * 100));
+  if (params.maxPrice)  list = list.filter(p => p.price <= Math.round(parseFloat(params.maxPrice!) * 100));
+  switch (params.sort) {
+    case "price_asc":  list = [...list].sort((a, b) => a.price - b.price); break;
+    case "price_desc": list = [...list].sort((a, b) => b.price - a.price); break;
+    case "title_asc":  list = [...list].sort((a, b) => a.title.localeCompare(b.title)); break;
+    default:           list = [...list].sort((a, b) => b.created_at.localeCompare(a.created_at)); break;
+  }
+  return list;
+}
+
+// Fumetti filtrati per testata (es. "Tex", "Zagor - Collezione Storica a
+// Colori"): la classificazione va fatta lato JS sull'intero catalogo
+// fumetti, perché alcuni titoli di sottocollana non hanno uno schema fisso
+// riconoscibile con un semplice "il titolo inizia per...". Il volume è
+// piccolo (poche centinaia di fumetti), quindi il costo è trascurabile.
+async function getFumettiPerTestata(params: SearchParams) {
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category", "fumetti")
+    .eq("sold", false); // nella vista per testata si vedono solo i numeri ancora disponibili
+
+  const tutti = (data ?? []) as Product[];
+  const classificazione = classificaFumetti(tutti);
+  const filtrati = tutti.filter(p => classificazione.get(p.id) === params.serie);
+  const conFiltri = applicaFiltriComuni(filtrati, params);
+
+  return { products: conFiltri.slice(0, PAGE_SIZE), total: conFiltri.length };
+}
+
 async function getProducts(params: SearchParams) {
+  if (params.category === "fumetti" && params.serie) return getFumettiPerTestata(params);
+
   let query = supabase
     .from("products")
     .select("*", { count: "exact" })
@@ -123,10 +159,6 @@ async function getProducts(params: SearchParams) {
   if (params.q)         query = query.ilike("title", `%${params.q}%`);
   if (params.minPrice)  query = query.gte("price", Math.round(parseFloat(params.minPrice) * 100));
   if (params.maxPrice)  query = query.lte("price", Math.round(parseFloat(params.maxPrice) * 100));
-  if (params.serie)     query = query.ilike("title", `${params.serie}%`);
-  // Nella vista "per testata" (es. Tex, Zagor) si vedono solo i numeri
-  // ancora disponibili; i venduti restano visibili solo nel catalogo generale.
-  if (params.category === "fumetti" && params.serie) query = query.eq("sold", false);
 
   const { data, count } = await query;
   return { products: data ?? [] as Product[], total: count ?? 0 };
@@ -141,34 +173,19 @@ interface Testata {
 async function getTestateFumetti(): Promise<Testata[]> {
   const { data } = await supabase
     .from("products")
-    .select("title, images")
+    .select("id, title, images")
     .eq("category", "fumetti")
     .eq("sold", false);
 
+  const prodotti = data ?? [];
+  const classificazione = classificaFumetti(prodotti);
+
   const gruppi = new Map<string, { count: number; immagine: string | null }>();
-  for (const p of data ?? []) {
-    const nome = estraiTestata(p.title);
+  for (const p of prodotti) {
+    const nome = classificazione.get(p.id)!;
     const attuale = gruppi.get(nome);
     if (attuale) attuale.count += 1;
     else gruppi.set(nome, { count: 1, immagine: p.images?.[0] ?? null });
-  }
-
-  // La vista "per testata" filtra i prodotti con "il titolo inizia per <nome>"
-  // (es. "TEX Maxi..." inizia per "Tex"): le testate isolate che sono in
-  // realtà un prefisso di un'altra vengono unite a quella principale, per
-  // avere lo stesso conteggio della lista che si apre cliccandoci sopra.
-  const nomi = Array.from(gruppi.keys()).sort((a, b) => b.length - a.length);
-  for (const nome of nomi) {
-    if (!gruppi.has(nome)) continue;
-    const principale = nomi.find(altro =>
-      altro !== nome && gruppi.has(altro) && nome.toLowerCase().startsWith(altro.toLowerCase() + " ")
-    );
-    if (principale) {
-      const questo = gruppi.get(nome)!;
-      const target = gruppi.get(principale)!;
-      target.count += questo.count;
-      gruppi.delete(nome);
-    }
   }
 
   return Array.from(gruppi.entries())
