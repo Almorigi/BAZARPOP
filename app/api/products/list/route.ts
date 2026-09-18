@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   const q        = sp.get("q") ?? "";
   const minPrice = sp.get("minPrice") ?? "";
   const maxPrice = sp.get("maxPrice") ?? "";
+  const serie    = sp.get("serie") ?? "";
 
   let query = supabase
     .from("products")
@@ -33,6 +34,9 @@ export async function GET(req: NextRequest) {
   if (q)         query = query.ilike("title", `%${q}%`);
   if (minPrice)  query = query.gte("price", Math.round(parseFloat(minPrice) * 100));
   if (maxPrice)  query = query.lte("price", Math.round(parseFloat(maxPrice) * 100));
+  if (serie)     query = query.ilike("title", `${serie}%`);
+  // Vista "per testata" (Tex, Zagor...): solo i numeri ancora disponibili.
+  if (category === "fumetti" && serie) query = query.eq("sold", false);
 
   const { data, count } = await query;
   // CORS aperto: dati pubblici di catalogo, usati anche dalla Soffitta Magica

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { clsx } from "clsx";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { estraiTestata } from "@/lib/testate";
 
 const CATEGORIES = [
   { value: "",            label: "Tutti" },
@@ -35,6 +36,7 @@ interface SearchParams {
   sort?: string;
   minPrice?: string;
   maxPrice?: string;
+  serie?: string;
 }
 
 const PAGE_SIZE = 24;
@@ -121,14 +123,51 @@ async function getProducts(params: SearchParams) {
   if (params.q)         query = query.ilike("title", `%${params.q}%`);
   if (params.minPrice)  query = query.gte("price", Math.round(parseFloat(params.minPrice) * 100));
   if (params.maxPrice)  query = query.lte("price", Math.round(parseFloat(params.maxPrice) * 100));
+  if (params.serie)     query = query.ilike("title", `${params.serie}%`);
+  // Nella vista "per testata" (es. Tex, Zagor) si vedono solo i numeri
+  // ancora disponibili; i venduti restano visibili solo nel catalogo generale.
+  if (params.category === "fumetti" && params.serie) query = query.eq("sold", false);
 
   const { data, count } = await query;
   return { products: data ?? [] as Product[], total: count ?? 0 };
 }
 
+interface Testata {
+  nome: string;
+  count: number;
+  immagine: string | null;
+}
+
+async function getTestateFumetti(): Promise<Testata[]> {
+  const { data } = await supabase
+    .from("products")
+    .select("title, images")
+    .eq("category", "fumetti")
+    .eq("sold", false);
+
+  const gruppi = new Map<string, { count: number; immagine: string | null }>();
+  for (const p of data ?? []) {
+    const nome = estraiTestata(p.title);
+    const attuale = gruppi.get(nome);
+    if (attuale) attuale.count += 1;
+    else gruppi.set(nome, { count: 1, immagine: p.images?.[0] ?? null });
+  }
+
+  return Array.from(gruppi.entries())
+    .map(([nome, v]) => ({ nome, count: v.count, immagine: v.immagine }))
+    .sort((a, b) => b.count - a.count);
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
-  const { products, total } = await getProducts(params);
+
+  // Sezione Fumetti senza testata scelta e senza ricerca attiva: mostra le
+  // testate (Tex, Zagor...) con il numero di copie disponibili, invece
+  // della lista piatta di tutti i fumetti.
+  const mostraTestate = params.category === "fumetti" && !params.serie && !params.q;
+  const testate = mostraTestate ? await getTestateFumetti() : null;
+
+  const { products, total } = testate ? { products: [], total: 0 } : await getProducts(params);
 
   // Filtri da passare all'infinite scroll client component
   const filters: Record<string, string> = {};
@@ -138,6 +177,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   if (params.sort)      filters.sort      = params.sort;
   if (params.minPrice)  filters.minPrice  = params.minPrice;
   if (params.maxPrice)  filters.maxPrice  = params.maxPrice;
+  if (params.serie)     filters.serie     = params.serie;
 
   function buildUrl(overrides: Partial<SearchParams>) {
     const p = { ...params, ...overrides };
@@ -145,7 +185,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     return `/products${qs ? `?${qs}` : ""}`;
   }
 
-  const pageTitle = params.q
+  const pageTitle = params.serie
+    ? params.serie
+    : params.q
     ? `"${params.q}"`
     : CATEGORIES.find(c => c.value === params.category)?.label ?? "Tutti i prodotti";
 
@@ -155,11 +197,44 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       {/* Header */}
       <div className="mb-8">
         <p className="text-xs tracking-[0.25em] uppercase text-accent mb-2">Catalogo</p>
+        {params.serie && (
+          <Link href={buildUrl({ serie: "" })} className="text-sm text-neutral-500 hover:text-white transition-colors mb-2 inline-block">
+            ← Tutte le testate
+          </Link>
+        )}
         <div className="flex items-end justify-between gap-4">
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white">{pageTitle}</h1>
-          <span className="text-sm text-neutral-600 flex-shrink-0">{total} pezzi</span>
+          {mostraTestate ? (
+            <span className="text-sm text-neutral-600 flex-shrink-0">{testate!.length} testate</span>
+          ) : (
+            <span className="text-sm text-neutral-600 flex-shrink-0">{total} pezzi</span>
+          )}
         </div>
       </div>
+
+      {/* Griglia testate (solo sezione Fumetti, prima di scegliere una testata) */}
+      {testate && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {testate.map(t => (
+            <Link
+              key={t.nome}
+              href={buildUrl({ serie: t.nome })}
+              className="group rounded-2xl border border-border bg-surface-2 overflow-hidden hover:border-accent/40 transition-colors"
+            >
+              <div className="aspect-[3/4] bg-surface-3 overflow-hidden">
+                {t.immagine && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={t.immagine} alt={t.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                )}
+              </div>
+              <div className="p-3">
+                <p className="text-white font-medium text-sm leading-tight">{t.nome}</p>
+                <p className="text-neutral-500 text-xs mt-0.5">{t.count} {t.count === 1 ? "numero" : "numeri"}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Testo descrittivo categoria per SEO */}
       {params.category && CATEGORY_TEXT[params.category] && (
@@ -168,38 +243,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </p>
       )}
 
-      {/* Search con autocomplete */}
-      <div className="mb-6">
-        <SearchAutocomplete defaultValue={params.q ?? ""} />
-      </div>
-
-      {/* Sort */}
-      <div className="flex items-center gap-3 mb-4">
-        <ArrowUpDown size={13} className="text-neutral-500" />
-        <div className="flex gap-1.5 flex-wrap">
-          {SORT_OPTIONS.map(opt => (
-            <Link
-              key={opt.value}
-              href={buildUrl({ sort: opt.value })}
-              className={clsx(
-                "text-xs px-3 py-1.5 rounded-full border transition-colors",
-                (params.sort ?? "") === opt.value
-                  ? "border-accent/40 bg-accent/10 text-white"
-                  : "border-border text-neutral-500 hover:text-neutral-300"
-              )}
-            >
-              {opt.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Category tabs */}
+      {/* Category tabs: sempre visibili, anche nella schermata testate */}
       <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {CATEGORIES.map((c) => (
           <Link
             key={c.value}
-            href={buildUrl({ category: c.value })}
+            href={buildUrl({ category: c.value, serie: "" })}
             className={clsx(
               "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
               params.category === c.value || (!params.category && c.value === "")
@@ -212,44 +261,74 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         ))}
       </div>
 
-      {/* Price filter */}
-      <div className="mb-4">
-        <Suspense fallback={null}>
-          <PriceFilter />
-        </Suspense>
-      </div>
+      {!mostraTestate && (
+        <>
+          {/* Search con autocomplete */}
+          <div className="mb-6 mt-3">
+            <SearchAutocomplete defaultValue={params.q ?? ""} />
+          </div>
 
-      {/* Condition filter */}
-      <div className="flex items-center gap-3 mb-2">
-        <span className="text-xs text-neutral-600">Condizione:</span>
-        <Suspense fallback={null}><ConditionGuide compact /></Suspense>
-      </div>
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-        {CONDITIONS.map((c) => (
-          <Link
-            key={c.value}
-            href={buildUrl({ condition: c.value })}
-            className={clsx(
-              "flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-              params.condition === c.value || (!params.condition && c.value === "")
-                ? "border-accent/40 text-white bg-accent/10"
-                : "border-border text-neutral-500 hover:text-neutral-300"
-            )}
-          >
-            {c.label}
-          </Link>
-        ))}
-      </div>
+          {/* Sort */}
+          <div className="flex items-center gap-3 mb-4">
+            <ArrowUpDown size={13} className="text-neutral-500" />
+            <div className="flex gap-1.5 flex-wrap">
+              {SORT_OPTIONS.map(opt => (
+                <Link
+                  key={opt.value}
+                  href={buildUrl({ sort: opt.value })}
+                  className={clsx(
+                    "text-xs px-3 py-1.5 rounded-full border transition-colors",
+                    (params.sort ?? "") === opt.value
+                      ? "border-accent/40 bg-accent/10 text-white"
+                      : "border-border text-neutral-500 hover:text-neutral-300"
+                  )}
+                >
+                  {opt.label}
+                </Link>
+              ))}
+            </div>
+          </div>
 
-      {/* Grid/List con infinite scroll e toggle vista */}
-      <ViewToggle
-        initialProducts={products}
-        initialTotal={total}
-        filters={filters}
-      />
+          {/* Price filter */}
+          <div className="mb-4">
+            <Suspense fallback={null}>
+              <PriceFilter />
+            </Suspense>
+          </div>
 
-      {/* Ricerca del pezzo mancante */}
-      <MissingPieceForm />
+          {/* Condition filter */}
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-xs text-neutral-600">Condizione:</span>
+            <Suspense fallback={null}><ConditionGuide compact /></Suspense>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+            {CONDITIONS.map((c) => (
+              <Link
+                key={c.value}
+                href={buildUrl({ condition: c.value })}
+                className={clsx(
+                  "flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                  params.condition === c.value || (!params.condition && c.value === "")
+                    ? "border-accent/40 text-white bg-accent/10"
+                    : "border-border text-neutral-500 hover:text-neutral-300"
+                )}
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Grid/List con infinite scroll e toggle vista */}
+          <ViewToggle
+            initialProducts={products}
+            initialTotal={total}
+            filters={filters}
+          />
+
+          {/* Ricerca del pezzo mancante */}
+          <MissingPieceForm />
+        </>
+      )}
     </div>
   );
 }
