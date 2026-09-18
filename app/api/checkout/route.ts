@@ -21,27 +21,6 @@ async function getShippingSettings() {
   };
 }
 
-async function validateAndApplyCoupon(code: string, total: number) {
-  const { data: coupon } = await supabaseAdmin
-    .from("coupons")
-    .select("*")
-    .eq("code", code.trim().toUpperCase())
-    .eq("active", true)
-    .single();
-  if (!coupon) return null;
-  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) return null;
-  if (coupon.max_uses !== null && coupon.used_count >= coupon.max_uses) return null;
-
-  const discountCents = coupon.discount_type === "percent"
-    ? Math.round(total * coupon.discount_value / 100)
-    : Math.min(coupon.discount_value, total);
-
-  // Incrementa used_count
-  await supabaseAdmin.from("coupons").update({ used_count: coupon.used_count + 1 }).eq("id", coupon.id);
-
-  return { code: coupon.code, discountCents };
-}
-
 export async function POST(req: NextRequest) {
   const { items }: { items: CartItem[] } = await req.json();
 
@@ -117,6 +96,7 @@ export async function POST(req: NextRequest) {
     // tutti i metodi attivati nella dashboard (carte, PayPal, Klarna, Satispay...)
     mode: "payment",
     locale: "it",
+    allow_promotion_codes: true,
     shipping_address_collection: { allowed_countries: ["IT"] },
     // Il telefono serve ai corrieri e per gli avvisi di giacenza delle Poste
     phone_number_collection: { enabled: true },

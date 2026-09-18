@@ -144,13 +144,29 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === "checkout.session.completed") {
-    const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
-      expand: ["line_items", "line_items.data.price.product"],
+    const session = await stripe.checkout.sessions.retrieve(event.data.object.id);
+
+    // Recupera TUTTE le righe dell'ordine, paginando: Stripe ne restituisce
+    // al massimo 100 per pagina, e un ordine con molte righe diverse
+    // (es. tanti numeri di fumetto) ne può avere più di una pagina.
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      limit: 100,
+      expand: ["data.price.product"],
     });
+    const allLineItems = lineItems.data;
+    let nextPage = lineItems;
+    while (nextPage.has_more) {
+      nextPage = await stripe.checkout.sessions.listLineItems(session.id, {
+        limit: 100,
+        starting_after: nextPage.data[nextPage.data.length - 1].id,
+        expand: ["data.price.product"],
+      });
+      allLineItems.push(...nextPage.data);
+    }
 
     // Aggiorna stock prodotti
     const purchasedItems: { name: string; qty: number; price: number }[] = [];
-    for (const item of session.line_items?.data ?? []) {
+    for (const item of allLineItems) {
       const product = item.price?.product as { metadata?: { product_id?: string }; name?: string } | null;
       const productId = product?.metadata?.product_id;
       if (productId) {
